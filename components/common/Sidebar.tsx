@@ -5,10 +5,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
-import { BiCar } from "react-icons/bi";
-import { LuNotebookPen } from "react-icons/lu";
-import { MdOutlineAccessTime, MdOutlineEventAvailable } from "react-icons/md";
-import { RiHome6Line } from "react-icons/ri";
+
+import {
+  BiWorld
+} from 'react-icons/bi';
+import {
+  HiOutlineUserGroup
+} from 'react-icons/hi2';
+import { IoIosSwitch } from "react-icons/io";
+import {
+  LuUsers
+} from 'react-icons/lu';
+import {
+  MdOutlineDashboard,
+  MdOutlineQuestionAnswer,
+  MdOutlineSubscriptions,
+  MdOutlineTopic
+} from 'react-icons/md';
+import {
+  RiAdminLine,
+  RiGamepadLine,
+  RiQuestionnaireLine
+} from 'react-icons/ri';
 interface NavItem {
   icon: any;
   label: string;
@@ -22,38 +40,69 @@ interface SidebarProps {
 
 const navItems: NavItem[] = [
   {
-    icon: <RiHome6Line />,
+    icon: <MdOutlineDashboard />,
     label: "Dashboard",
-    href: "/dashboard",
+    href: "/",
   },
   {
-    icon: <BiCar />,
-    label: "Services",
-    href: "/dashboard/services",
+    icon: <MdOutlineSubscriptions />,
+    label: "Subscription Types",
+    href: "/dashboard/subscription-types",
   },
   {
-    icon: <MdOutlineEventAvailable />,
-    label: "Manage bookings",
-    href: "/dashboard/bookings",
+    icon: <BiWorld />,
+    label: "Language",
+    href: "/dashboard/language",
   },
   {
-    icon: <MdOutlineAccessTime />,
-    label: "Schedule Calendar",
-    href: "/dashboard/schedule-calendar",
+    icon: <MdOutlineTopic />,
+    label: "Topics",
+    href: "/dashboard/topics",
   },
   {
-    icon: <LuNotebookPen />,
-    label: "Blog",
-    href: "/dashboard/blogs",
+    icon: <MdOutlineQuestionAnswer />,
+    label: "Question Types",
+    href: "/dashboard/question-types",
   },
+  {
+    icon: <IoIosSwitch />,
+    label: "Difficulties",
+    href: "/dashboard/difficulties",
+  },
+  {
+    icon: <RiGamepadLine />,
+    label: "Previous Games",
+    href: "/dashboard/previous-games",
+  },
+  {
+    icon: <RiQuestionnaireLine />,
+    label: "Questions",
+    href: "/dashboard/questions",
+  },
+  {
+    icon: <LuUsers />,
+    label: "Players",
+    href: "/dashboard/players",
+  },
+  {
+    icon: <RiAdminLine />,
+    label: "Admins",
+    href: "/dashboard/admins",
+  },
+  {
+    icon: <HiOutlineUserGroup />,
+    label: "Subscribers",
+    href: "/dashboard/subscribers",
+  },
+
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const router = useRouter()
   const isActive = (href: string): boolean => {
-    if (href === "/dashboard") {
-      return pathname === "/dashboard";
+    if (href === "/") {
+      return pathname === "/";
     }
     return pathname.startsWith(href);
   };
