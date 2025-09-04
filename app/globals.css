@@ -64,7 +64,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 :root {
-  --primaryColor: #1141cb;
+  --primaryColor:#1141CB;
   --secondaryColor: #444950;
   --blackColor: #000;
   --whiteColor: #fff;

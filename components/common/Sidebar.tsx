@@ -146,15 +146,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {/* Account Section */}
         <div className="my-4 ">
           <Link
-            href={"/dashboard"}
-            className="text-white flex justify-center pb-5 text-xl lg:text-3xl font-semibold tracking-wide"
+            href={"/"}
+            className="text-headerColor flex justify-center pb-5 text-xl lg:text-3xl font-semibold tracking-wide"
           >
-            <Image
-              src="/logo/Logo.png"
-              alt="main logo "
-              width={138}
-              height={29}
-            />
+            Inzilly <span className="text-primaryColor pl-1" > Admin</span> 
           </Link>
           <div className=" space-y-2">
 

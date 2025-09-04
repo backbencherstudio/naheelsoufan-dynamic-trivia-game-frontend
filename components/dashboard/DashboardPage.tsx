@@ -1,12 +1,15 @@
 
+
 import { cookies } from 'next/headers'
 import Link from 'next/link'
+import DashboardBanner from './DashboardBanner'
 import RecentOrderTable from './RecentOrderTable'
 import StatCards from './StatCards'
 
 async function DashboardPage() {
   const cookieStore = await cookies()
   const token = cookieStore?.get("cartoken")?.value;
+
   if (!token) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -16,10 +19,10 @@ async function DashboardPage() {
   }
 
   try {
-
-
+ 
     return (
       <div className='flex flex-col justify-between h-full'>
+        <DashboardBanner/>
         <StatCards />
         <div>
           <RecentOrderTable />
