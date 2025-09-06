@@ -1,4 +1,5 @@
 "use client"
+import { LanguageForm } from '@/components/allForm/LanguageForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
@@ -14,6 +15,8 @@ function page() {
    const searchParams = useSearchParams();
    const router = useRouter()
    const pathname = usePathname()
+     const [isOpen, setIsOpen] = useState(false);
+      
   const recentData = [
     { no: 1, language: 'عربي', actions: 'Edit' },
     { no: 2, language: 'English', actions: 'Edit' },
@@ -73,7 +76,7 @@ function page() {
         <div className='p-5'>
           <div className=' flex justify-between items-center mt-3 pb-6'>
             <h2 className='text-xl font-semibold text-headerColor pb-4'> Language</h2>
-           <button className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer'>Add New Language </button>
+           <button onClick={()=>setIsOpen(true)} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer'>Add New Language </button>
 
           </div>
         <div className='flex gap-4'>
@@ -104,6 +107,8 @@ function page() {
         itemsPerPageOptions={[5, 10, 20]}
       />
       </div>
+
+      {isOpen && <LanguageForm isOpen={isOpen} setIsOpen={setIsOpen} />}
     </div>
   )
 }
