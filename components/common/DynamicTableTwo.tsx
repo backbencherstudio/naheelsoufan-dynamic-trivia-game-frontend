@@ -128,7 +128,7 @@ export default function DynamicTableTwo({
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 mt-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 mt-6 pr-6">
         <div className="flex items-center gap-2 text-sm text-[#4a4c56]">
           <span>Rows per page:</span>
           <select
