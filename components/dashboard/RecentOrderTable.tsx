@@ -1,15 +1,24 @@
 "use client";
-import { useToken } from "@/hooks/useToken";
-import { UserService } from "@/service/user/user.service";
 import dayjs from "dayjs";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useState } from "react";
 import DynamicTableTwo from "../common/DynamicTableTwo";
 
 function RecentOrderTable({ recentOrder }: any) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+
+  // Demo data
+  const recentData = [
+    { userName: 'John Doe', serviceName: 'Cleaning', serviceType: 'Home', location: 'New York, USA', serviceDate: new Date().toISOString() },
+    { userName: 'Jane Smith', serviceName: 'Plumbing', serviceType: 'Repair', location: 'Los Angeles, USA', serviceDate: new Date().toISOString() },
+    { userName: 'Ali Hassan', serviceName: 'Electric', serviceType: 'Repair', location: 'Dubai, UAE', serviceDate: new Date().toISOString() },
+    { userName: 'María García', serviceName: 'Gardening', serviceType: 'Outdoor', location: 'Madrid, Spain', serviceDate: new Date().toISOString() },
+    { userName: 'Wei Chen', serviceName: 'Moving', serviceType: 'Logistics', location: 'Shanghai, China', serviceDate: new Date().toISOString() },
+    { userName: 'Hans Müller', serviceName: 'Cleaning', serviceType: 'Office', location: 'Berlin, Germany', serviceDate: new Date().toISOString() },
+    { userName: 'Sara Ahmed', serviceName: 'Babysitting', serviceType: 'Home', location: 'Cairo, Egypt', serviceDate: new Date().toISOString() },
+    { userName: 'Liam O’Connor', serviceName: 'Painting', serviceType: 'Indoor', location: 'Dublin, Ireland', serviceDate: new Date().toISOString() },
+  ];
 
 
   
@@ -104,13 +113,15 @@ const columns = [
             </Link>
           </div>
         </div>
-        {/* <DynamicTableTwo
+        <DynamicTableTwo
           columns={columns}
           data={recentData}
           currentPage={currentPage}
-          itemsPerPage={5}
+          itemsPerPage={itemsPerPage}
           onPageChange={(page) => setCurrentPage(page)}
-        /> */}
+          onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(1); }}
+          itemsPerPageOptions={[5, 10, 20]}
+        />
       </div>
     </section>
   );

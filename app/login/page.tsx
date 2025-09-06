@@ -34,11 +34,11 @@ export default function LoginPage() {
       if (response.data?.success === true) {
         const tokenNumber = response.data.authorization.token;
         CookieHelper.set({
-          key: "cartoken",
+          key: "gametoken",
           value: tokenNumber,
         });
         toast.success("Successfully login!");
-        router.push("/dashboard");
+        router.push("/");
         reset()
         setIsDisable(false);
       }

@@ -8,7 +8,7 @@ import StatCards from './StatCards'
 
 async function DashboardPage() {
   const cookieStore = await cookies()
-  const token = cookieStore?.get("cartoken")?.value;
+  const token = cookieStore?.get("gametoken")?.value;
 
   if (!token) {
     return (

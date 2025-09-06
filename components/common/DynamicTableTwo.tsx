@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import React from "react";
-import { MdArrowBackIosNew, MdArrowForwardIos } from "react-icons/md";
+import { MdArrowBackIosNew, MdArrowForwardIos, MdFirstPage, MdLastPage } from "react-icons/md";
 
 interface ColumnConfig {
   label: React.ReactNode;
@@ -20,6 +20,8 @@ interface DynamicTableProps {
   onView?: (row: any) => void;
   onDelete?: (id: any) => void;
   noDataMessage?: string;
+  onItemsPerPageChange?: (size: number) => void;
+  itemsPerPageOptions?: number[];
 }
 
 export default function DynamicTableTwo({
@@ -31,28 +33,21 @@ export default function DynamicTableTwo({
   onView,
   onDelete,
   noDataMessage = "No data found.",
+  onItemsPerPageChange,
+  itemsPerPageOptions,
 }: DynamicTableProps) {
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(data.length / itemsPerPage));
   const paginatedData = data.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const startIndex = data.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(currentPage * itemsPerPage, data.length);
+  const rowsPerPageOptions = (itemsPerPageOptions && itemsPerPageOptions.length > 0)
+    ? itemsPerPageOptions
+    : [5, 10, 20, 50];
 
-  const getPagination = () => {
-    let pages: (number | string)[] = [];
-    if (totalPages <= 4) {
-      pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-    } else {
-      if (currentPage <= 3) {
-        pages = [1, 2, 3, 4, "...", totalPages];
-      } else if (currentPage >= totalPages - 2) {
-        pages = [1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-      } else {
-        pages = [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
-      }
-    }
-    return pages;
-  };
+  
 
   return (
     <div>
@@ -81,7 +76,7 @@ export default function DynamicTableTwo({
             <tbody>
               {paginatedData.length > 0 ? (
                 paginatedData.map((row, i) => (
-                  <tr key={i} className="border-t border-gray-100">
+                  <tr key={i} className={`border-t border-gray-100 ${i % 2 === 1 ? "bg-neutral-50" : "bg-white"}`}>
                     {columns.map((col, idx) => (
                       <td
                         key={idx}
@@ -133,38 +128,56 @@ export default function DynamicTableTwo({
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-start mt-6 gap-2">
-          <button
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-2 cursor-pointer py-1 flex justify-center  items-center border border-primaryColor text-primaryColor rounded disabled:opacity-40 disabled:text-grayColor1 disabled:border-grayColor1"
+      <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 mt-6">
+        <div className="flex items-center gap-2 text-sm text-[#4a4c56]">
+          <span>Rows per page:</span>
+          <select
+            className="border border-gray-300 rounded px-2 py-1 text-sm"
+            value={itemsPerPage}
+            onChange={(e) => onItemsPerPageChange && onItemsPerPageChange(Number(e.target.value))}
+            disabled={!onItemsPerPageChange}
           >
-           <MdArrowBackIosNew />
-          </button>
-          {getPagination().map((page, i) => (
-            <button
-              key={i}
-              onClick={() => typeof page === "number" && onPageChange(page)}
-              disabled={page === "..."}
-              className={`px-2 rounded border text-sm ${
-                page === currentPage
-                  ? "text-primaryColor border-primaryColor  font-medium"
-                  : "text-grayColor1"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="cursor-pointer px-2 py-1 flex justify-center  items-center border border-primaryColor text-primaryColor rounded disabled:opacity-40 disabled:text-grayColor1 disabled:border-grayColor1"
-          >
-           <MdArrowForwardIos />
-          </button>
+            {rowsPerPageOptions.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
         </div>
-      )}
+        <div className="flex items-center gap-4 text-sm text-[#4a4c56]">
+          <span>
+            {startIndex}-{endIndex} of {data.length}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => onPageChange(1)}
+              disabled={currentPage === 1}
+              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
+            >
+              <MdFirstPage />
+            </button>
+            <button
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
+            >
+              <MdArrowBackIosNew />
+            </button>
+            <button
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages || data.length === 0}
+              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
+            >
+              <MdArrowForwardIos />
+            </button>
+            <button
+              onClick={() => onPageChange(totalPages)}
+              disabled={currentPage === totalPages || data.length === 0}
+              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
+            >
+              <MdLastPage />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

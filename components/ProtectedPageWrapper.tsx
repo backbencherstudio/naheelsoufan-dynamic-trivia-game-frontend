@@ -13,7 +13,7 @@ export default function ProtectedPageWrapper({ children }: { children: React.Rea
 
     const cookieString = document.cookie
       .split("; ")
-      .find((cookie) => cookie.startsWith("cartoken="));
+      .find((cookie) => cookie.startsWith("gametoken="));
     return cookieString?.split("=")[1] || null;
   };
 

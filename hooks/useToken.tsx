@@ -25,7 +25,7 @@ export const TokenProvider = ({ children }: { children: React.ReactNode }) => {
 
     const cookieString = document.cookie
       .split("; ")
-      .find((cookie) => cookie.startsWith("cartoken="));
+      .find((cookie) => cookie.startsWith("gametoken="));
     
     return cookieString?.split("=")[1] || null;
   };
