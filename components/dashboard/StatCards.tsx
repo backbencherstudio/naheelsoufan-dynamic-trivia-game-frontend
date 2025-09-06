@@ -5,37 +5,31 @@ import Link from "next/link";
 export default function StatCards({ data }: any) {
   const statCards = [
     {
-      title: "Total subscription",
+      title: "Total Host",
       value: 5,
       percentage: "+6%",
       icon: "/icon/users.svg",
       timeFrame: "Last Month",
     },
     {
-      title: "On going Work",
+      title: "Total Users",
       value: 10,
       percentage: "+6%",
       icon: "/icon/users.svg",
       timeFrame: "Last Month",
     },
     {
-      title: "Revenue",
+      title: "Total Questions",
       value: 20,
       percentage: "+6%",
       icon: "/icon/users.svg",
       timeFrame: "Last Month",
     },
-    {
-      title: "Service Request",
-      value: 30,
-      percentage: "+6%",
-      icon: "/icon/users.svg",
-      timeFrame: "Last Month",
-    },
+   
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {statCards.map((card, idx) => (
         <Link href="#"
           key={idx}

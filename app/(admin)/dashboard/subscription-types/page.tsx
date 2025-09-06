@@ -209,23 +209,20 @@ function SubscriptionTypesPage() {
   return (
     <div>
       {/* Header Section */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Subscription Types</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">Subscription types</h1>
+        <button 
+          onClick={handleAddNew}
+          className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer"
+        >
+          Create Subscription Type
+        </button>
       </div>
 
       {/* Table Section */}
       <div className="border rounded-lg bg-white pb-6">
         <div className="p-5">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Subscription types</h2>
-            <button 
-              onClick={handleAddNew}
-              className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer"
-            >
-              Create Subscription Type
-            </button>
-          </div>
-          
+          {/* Filter and Search Section */}
           <div className="flex gap-4 mb-6">
             <div className="w-48">
               <Select>
@@ -233,7 +230,9 @@ function SubscriptionTypesPage() {
                   <SelectValue placeholder='All' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='language'>Language</SelectItem>
+                  <SelectItem value='all'>All</SelectItem>
+                  <SelectItem value='english'>English</SelectItem>
+                  <SelectItem value='arabic'>Arabic</SelectItem>
                 </SelectContent>
               </Select>
             </div>
