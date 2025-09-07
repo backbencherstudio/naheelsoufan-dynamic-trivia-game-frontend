@@ -24,11 +24,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         {/* Sidebar */}
         <div
           className={`
-            fixed top-0 left-1/2 -translate-x-1/2 lg:translate-x-0
+            fixed top-0 left-1/2 -translate-x-1/2 xl:translate-x-0
             h-screen w-[300px] z-30 bg-white border-r border-borderColor
             transition-transform duration-300 ease-in-out
             ${sidebarOpen ? "translate-x-[0%]" : "-translate-x-[150%]"}
-            lg:static lg:translate-x-0 z-50
+            xl:static xl:translate-x-0 z-50
           `}
           style={{
             left: "0px", // Only relevant for mobile now

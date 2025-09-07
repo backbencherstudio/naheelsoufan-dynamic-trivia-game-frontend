@@ -116,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="absolute top-0 left-0 w-full h-full z-40 md:hidden"
+          className="absolute top-0 left-0 w-full h-full z-40 xl:hidden"
           onClick={onClose}
         />
       )}
@@ -137,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           p-5 w-full overflow-y-auto
         `}
       >
-        <div className="flex justify-end lg:hidden cursor-pointer">
+        <div className="flex justify-end xl:hidden cursor-pointer">
           <button onClick={onClose}>
             <X />
           </button>

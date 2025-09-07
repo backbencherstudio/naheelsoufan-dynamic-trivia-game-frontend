@@ -1,0 +1,162 @@
+import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
+import { FaUser } from "react-icons/fa6";
+import { MdEmail } from "react-icons/md";
+import { RiRotateLockLine } from "react-icons/ri";
+
+// Form data interface
+interface AdminResetPasswordFormData {
+  newPassword: string;
+  confirmPassword: string;
+}
+
+interface AdminResetPasswordFormProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  adminData?: {
+    name: string;
+    email: string;
+  } | null;
+}
+
+export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData }: AdminResetPasswordFormProps) {
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    watch
+  } = useForm<AdminResetPasswordFormData>();
+
+  const newPassword = watch("newPassword");
+
+  const onSubmit = async (data: AdminResetPasswordFormData) => {
+    try {
+      console.log("New Password:", data.newPassword);
+      console.log("Confirm Password:", data.confirmPassword);
+      console.log("Admin:", adminData);
+      reset();
+      setIsOpen(false);
+      
+      // Show success message
+      console.log("Password reset successfully!");
+    } catch (error) {
+      console.error("Error resetting password:", error);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-[505px] p-0">
+        <DialogHeader className="md:px-6 px-3 pt-6 pb-4 border-b-[1px] border-headerColor/20">
+          <DialogTitle className="text-lg md:text-xl flex gap-2 items-center font-semibold text-gray-900">
+            <RiRotateLockLine size={24} className="text-primaryColor" />  Reset Admin Password
+          </DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit(onSubmit)} >
+          <div className="space-y-4 md:px-6 px-3 pb-6">
+            {/* Admin Info Display */}
+            <h3 className="text-sm font-normal text-headerColor mb-2">Set a new password for:</h3>
+            {adminData && (
+                
+              <div className="bg-gray-100 p-3 rounded-lg">
+                <div className="space-y-1">
+                  <p className="text-sm flex gap-1 items-center text-gray-600">
+                    <span className="font-medium"><FaUser size={12} /></span> {adminData.name}
+                  </p>
+                  <p className="text-sm flex gap-1 items-center text-gray-600">
+                    <span className="font-medium"><MdEmail /></span> {adminData.email}
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            {/* New Password Input */}
+            <div>
+              <Label htmlFor="newPassword" className="text-sm font-medium text-gray-700 mb-2 block">
+                New Password
+              </Label>
+              <Input 
+                id="newPassword" 
+                type="password"
+                placeholder="Enter new password"
+                {...register("newPassword", { 
+                  required: "New password is required",
+                  minLength: {
+                    value: 8,
+                    message: "Password must be at least 8 characters"
+                  },
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+                    message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+                  }
+                })}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.newPassword ? "border-red-500" : ""}`}
+              />
+              {errors.newPassword && (
+                <p className="text-sm text-red-500 mt-1">{errors.newPassword.message}</p>
+              )}
+            </div>
+            
+            {/* Confirm Password Input */}
+            <div>
+              <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 mb-2 block">
+                Confirm Password
+              </Label>
+              <Input 
+                id="confirmPassword" 
+                type="password"
+                placeholder="Confirm new password"
+                {...register("confirmPassword", { 
+                  required: "Please confirm your password",
+                  validate: (value) => 
+                    value === newPassword || "Passwords do not match"
+                })}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.confirmPassword ? "border-red-500" : ""}`}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500 mt-1">{errors.confirmPassword.message}</p>
+              )}
+            </div>
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex justify-end py-6 border-t border-headerColor/20">
+            <div className="md:px-6 px-3 space-x-3">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  reset();
+                  setIsOpen(false);
+                }}
+                className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isSubmitting ? "Resetting..." : "Reset Password"}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default AdminResetPasswordForm;

@@ -1,14 +1,10 @@
 "use client";
-import { blogImgUrl } from "@/config/app.config";
 import { useToken } from "@/hooks/useToken";
-import { UserService } from "@/service/user/user.service";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { FaArrowRightLong } from "react-icons/fa6";
+import React, { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
-import Loader from "../reusable/Loader";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 
@@ -59,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className=" container px-5   relative flex justify-between mb-1 z-50">
         {/* Mobile menu button */}
         <div>
-          <div className=" lg:hidden flex items-center">
+          <div className=" xl:hidden flex items-center">
             <button
               onClick={onMenuClick}
               className=" pr-2 py-2  text-[#4A4C56]"
@@ -71,16 +67,11 @@ const Header: React.FC<HeaderProps> = ({
               )}
             </button>
             <Link
-              href={"/"}
-              className="text-white text-xl lg:text-3xl font-semibold tracking-wide"
-            >
-              <Image
-                src="/logo/Logo.png"
-                alt="main logo "
-                width={100}
-                height={29}
-              />
-            </Link>
+            href={"/"}
+            className="text-headerColor flex justify-center  text-xl lg:text-3xl font-semibold tracking-wide"
+          >
+            Inzilly <span className="text-primaryColor pl-1" > Admin</span> 
+          </Link>
           </div>
         </div>
 
