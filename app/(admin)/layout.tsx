@@ -36,7 +36,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         >
           <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
         </div>
-
         {/* Overlay for mobile */}
         {sidebarOpen && (
           <div
@@ -44,14 +43,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             onClick={closeSidebar}
           />
         )}
-
         {/* Main Content Area */}
         <div className="flex-1 w-full h-full  flex flex-col">
           {/* Header */}
           <div className="w-full sticky top-0 left-0 z-10">
             <Header onMenuClick={openSidebar} sidebarOpen={sidebarOpen} />
           </div>
-
           {/* Scrollable content area */}
           <main className="flex-1 overflow-y-auto p-0x p-4 lg:pl-6 lg:pt-6">
             {children}
