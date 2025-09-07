@@ -20,11 +20,12 @@ type FormValues = {
   image?: File | null;
 };
 
-function AddQuestionModal({isOpen, onClose}: {isOpen: boolean, onClose: () => void}) {
+function AddQuestionModal({isOpen, onClose, editData}: {isOpen: boolean, onClose: () => void, editData?: any}) {
       const { register, handleSubmit, watch, setValue, control, formState: { errors } } = useForm<FormValues>({
         defaultValues: {
           answerTime: 60,
           points: 1,
+          ...editData
         }
       });
   const questionType = watch('questionType'); // Watch the selected question type
