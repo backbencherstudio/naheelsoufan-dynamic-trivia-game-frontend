@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Header from "@/components/common/Header";
 import Sidebar from "@/components/common/Sidebar";
 import ProtectedPageWrapper from "@/components/ProtectedPageWrapper";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ToastContainer } from "react-toastify";
 
 interface AdminLayoutProps {
@@ -17,18 +19,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <ProtectedPageWrapper>
-    <div className="w-full h-screen overflow-hidden relative">
+    <LanguageProvider>
+      <ThemeProvider>
+        <ProtectedPageWrapper>
+          <div className="w-full h-screen overflow-hidden relative bg-white dark:bg-gray-900 transition-colors duration-200">
       {/* Centered layout container */}
       <div className="relative  flex h-full">
         {/* Sidebar */}
         <div
           className={`
             fixed top-0 left-1/2 -translate-x-1/2 xl:translate-x-0
-            h-screen w-[300px] z-30 bg-white border-r border-borderColor
+            h-screen w-[300px] z-30 bg-white dark:bg-gray-800 border-r border-borderColor dark:border-gray-700
             transition-transform duration-300 ease-in-out
             ${sidebarOpen ? "translate-x-[0%]" : "-translate-x-[150%]"}
             xl:static xl:translate-x-0 z-50
+            rtl:border-l rtl:border-r-0
           `}
           style={{
             left: "0px", // Only relevant for mobile now
@@ -50,14 +55,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <Header onMenuClick={openSidebar} sidebarOpen={sidebarOpen} />
           </div>
           {/* Scrollable content area */}
-          <main className="flex-1 overflow-y-auto p-0x p-4 lg:pl-6 lg:pt-6">
+          <main className="flex-1 overflow-y-auto p-0x p-4 lg:pl-6 lg:pt-6 rtl:lg:pr-6 rtl:lg:pl-4">
             {children}
             <ToastContainer />
           </main>
         </div>
       </div>
     </div>
-    </ProtectedPageWrapper>
+        </ProtectedPageWrapper>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 };
 
