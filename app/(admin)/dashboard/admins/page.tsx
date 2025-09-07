@@ -1,5 +1,6 @@
 
 "use client";
+import { AddNewAdminForm } from '@/components/allForm/AddNewAdminForm';
 import { AdminResetPasswordForm } from '@/components/allForm/AdminResetPassword';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { useState } from "react";
@@ -10,6 +11,7 @@ function AdminManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
+  const [isAddAdminOpen, setIsAddAdminOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<{
     name: string;
     email: string;
@@ -123,6 +125,7 @@ function AdminManagementPage() {
 
   const handleAddAdmin = () => {
     console.log("Adding new admin...");
+    setIsAddAdminOpen(true);
   };
 
   return (
@@ -167,6 +170,14 @@ function AdminManagementPage() {
           isOpen={isResetPasswordOpen} 
           setIsOpen={setIsResetPasswordOpen}
           adminData={selectedAdmin}
+        />
+      )}
+
+      {/* Add New Admin Modal */}
+      {isAddAdminOpen && (
+        <AddNewAdminForm 
+          isOpen={isAddAdminOpen} 
+          setIsOpen={setIsAddAdminOpen}
         />
       )}
     </div>
