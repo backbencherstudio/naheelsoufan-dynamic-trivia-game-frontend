@@ -93,7 +93,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
-          <DialogTitle className="text-xl font-semibold text-gray-900">
+          <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
             {editData ? "Edit Topic" : "Add Topic"}
           </DialogTitle>
         </DialogHeader>
@@ -102,7 +102,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
           <div className="space-y-4 px-6 pb-6">
             {/* Language Input */}
             <div>
-              <Label htmlFor="topicName" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="topicName" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Topic Name
               </Label>
               <Input 
@@ -115,7 +115,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
                     message: "Topic name must be at least 2 characters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.topicName ? "border-red-500" : ""}`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.topicName ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
               />
               {errors.topicName && (
                 <p className="text-sm text-red-500 mt-1">{errors.topicName.message}</p>
@@ -124,7 +124,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
             
             {/* Language Selection */}
             <div>
-              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Select Language
               </Label>
               <Controller
@@ -133,7 +133,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
                 rules={{ required: "Language selection is required" }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className={`w-full !h-10 md:!h-14 ${errors.language ? "border-red-500" : ""}`}>
+                    <SelectTrigger className={`w-full !h-10 md:!h-14 ${errors.language ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}>
                       <SelectValue placeholder="Select Language" />
                     </SelectTrigger>
                     <SelectContent>
@@ -150,7 +150,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
             
             {/* File Upload Section */}
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Upload Topic Icon
               </Label>
               <div className="relative">
@@ -220,7 +220,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
                 setSelectedFileName("");
                 setIsOpen(false);
               }}
-              className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"
             >
               Cancel
             </Button>

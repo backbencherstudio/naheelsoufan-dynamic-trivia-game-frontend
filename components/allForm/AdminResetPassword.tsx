@@ -58,7 +58,7 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData }: AdminRe
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="md:px-6 px-3 pt-6 pb-4 border-b-[1px] border-headerColor/20">
-          <DialogTitle className="text-lg md:text-xl flex gap-2 items-center font-semibold text-gray-900">
+          <DialogTitle className="text-lg md:text-xl flex gap-2 items-center font-semibold text-gray-900 dark:text-whiteColor">
             <RiRotateLockLine size={24} className="text-primaryColor" />  Reset Admin Password
           </DialogTitle>
         </DialogHeader>
@@ -66,15 +66,15 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData }: AdminRe
         <form onSubmit={handleSubmit(onSubmit)} >
           <div className="space-y-4 md:px-6 px-3 pb-6">
             {/* Admin Info Display */}
-            <h3 className="text-sm font-normal text-headerColor mb-2">Set a new password for:</h3>
+            <h3 className="text-sm font-normal text-headerColor mb-2 dark:text-whiteColor">Set a new password for:</h3>
             {adminData && (
                 
               <div className="bg-gray-100 p-3 rounded-lg">
                 <div className="space-y-1">
-                  <p className="text-sm flex gap-1 items-center text-gray-600">
+                  <p className="text-sm flex gap-1 items-center text-gray-600 dark:text-whiteColor">
                     <span className="font-medium"><FaUser size={12} /></span> {adminData.name}
                   </p>
-                  <p className="text-sm flex gap-1 items-center text-gray-600">
+                  <p className="text-sm flex gap-1 items-center text-gray-600 dark:text-whiteColor">
                     <span className="font-medium"><MdEmail /></span> {adminData.email}
                   </p>
                 </div>
@@ -83,7 +83,7 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData }: AdminRe
             
             {/* New Password Input */}
             <div>
-              <Label htmlFor="newPassword" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="newPassword" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 New Password
               </Label>
               <Input 
@@ -110,7 +110,7 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData }: AdminRe
             
             {/* Confirm Password Input */}
             <div>
-              <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Confirm Password
               </Label>
               <Input 
@@ -140,14 +140,14 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData }: AdminRe
                   reset();
                   setIsOpen(false);
                 }}
-                className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 dark:bg-whiteColor dark:text-blackColor"
               >
                 {isSubmitting ? "Resetting..." : "Reset Password"}
               </Button>

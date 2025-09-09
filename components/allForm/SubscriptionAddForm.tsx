@@ -90,7 +90,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
-          <DialogTitle className="text-xl font-semibold text-gray-900">
+          <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
             {editData ? "Edit Subscription Type" : "Add Subscription Type"}
           </DialogTitle>
         </DialogHeader>
@@ -99,7 +99,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
           <div className="space-y-4 px-6 pb-6">
             {/* Subscription Type Input */}
             <div>
-              <Label htmlFor="subscriptionType" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="subscriptionType" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Subscription Type
               </Label>
               <Input 
@@ -112,7 +112,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                     message: "Subscription type must be at least 2 characters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscriptionType ? "border-red-500" : ""}`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscriptionType ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
               />
               {errors.subscriptionType && (
                 <p className="text-sm text-red-500 mt-1">{errors.subscriptionType.message}</p>
@@ -121,7 +121,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
             
             {/* Language Selection */}
             <div>
-              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Language
               </Label>
               <Controller
@@ -148,7 +148,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
             {/* Two Column Grid for Number of Games and Number of Questions */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="numberOfGames" className="text-sm font-medium text-gray-700 mb-2 block">
+                <Label htmlFor="numberOfGames" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                   Number of games
                 </Label>
                 <Input 
@@ -162,7 +162,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                       message: "Number of games must be at least 1"
                     }
                   })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfGames ? "border-red-500" : ""}`}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfGames ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
                 />
                 {errors.numberOfGames && (
                   <p className="text-sm text-red-500 mt-1">{errors.numberOfGames.message}</p>
@@ -170,7 +170,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
               </div>
               
               <div>
-                <Label htmlFor="numberOfQuestions" className="text-sm font-medium text-gray-700 mb-2 block">
+                <Label htmlFor="numberOfQuestions" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                   Number of Questions
                 </Label>
                 <Input 
@@ -184,7 +184,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                       message: "Number of questions must be at least 1"
                     }
                   })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfQuestions ? "border-red-500" : ""}`}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfQuestions ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
                 />
                 {errors.numberOfQuestions && (
                   <p className="text-sm text-red-500 mt-1">{errors.numberOfQuestions.message}</p>
@@ -195,7 +195,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
             {/* Two Column Grid for Number of Players and Price */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="numberOfPlayers" className="text-sm font-medium text-gray-700 mb-2 block">
+                <Label htmlFor="numberOfPlayers" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                   Number of Players
                 </Label>
                 <Input 
@@ -209,7 +209,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                       message: "Number of players must be at least 1"
                     }
                   })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfPlayers ? "border-red-500" : ""}`}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfPlayers ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
                 />
                 {errors.numberOfPlayers && (
                   <p className="text-sm text-red-500 mt-1">{errors.numberOfPlayers.message}</p>
@@ -217,7 +217,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
               </div>
               
               <div>
-                <Label htmlFor="price" className="text-sm font-medium text-gray-700 mb-2 block">
+                <Label htmlFor="price" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                   Price
                 </Label>
                 <Input 
@@ -232,7 +232,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                       message: "Price must be greater than 0"
                     }
                   })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.price ? "border-red-500" : ""}`}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.price ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor `}
                 />
                 {errors.price && (
                   <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>

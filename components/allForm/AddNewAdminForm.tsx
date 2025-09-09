@@ -53,7 +53,7 @@ export function AddNewAdminForm({ isOpen, setIsOpen }: AddNewAdminFormProps) {
         <DialogHeader className="md:px-6 px-3 pt-3 md:pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="md:text-xl text-lg font-semibold text-gray-900 flex gap-2 items-center">
             <div className=" rounded-full flex items-center justify-center">
-              <MdAdminPanelSettings  className="w-6 h-6 md:w-7 md:h-7 text-primaryColor/90" />
+              <MdAdminPanelSettings  className="w-6 h-6 md:w-7 md:h-7 text-primaryColor/90 dark:text-whiteColor" />
             </div>
             Add New Admin
           </DialogTitle>
@@ -62,18 +62,18 @@ export function AddNewAdminForm({ isOpen, setIsOpen }: AddNewAdminFormProps) {
         <form onSubmit={handleSubmit(onSubmit)} >
           <div className="space-y-4 md:px-6 px-3 pb-6">
             {/* Description */}
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-600 mb-4 dark:text-whiteColor">
               Create a new admin account with the following details:
             </p>
             
             {/* Email Input */}
             <div>
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Email
               </Label>
               <div className="relative">
                 <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
-                  <MdEmail className="md:h-5 md:w-5 h-4 w-4 text-gray-400" />
+                  <MdEmail className="md:h-5 md:w-5 h-4 w-4 text-gray-400 dark:text-whiteColor" />
                 </div>
                 <Input 
                   id="email" 

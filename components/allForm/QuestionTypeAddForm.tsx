@@ -79,7 +79,7 @@ export function QuestionAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
-          <DialogTitle className="text-xl font-semibold text-gray-900">
+          <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
             {editData ? "Edit Question Type" : "Add Question Type"}
           </DialogTitle>
         </DialogHeader>
@@ -88,7 +88,7 @@ export function QuestionAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps
           <div className="space-y-4 px-6 pb-6">
             {/* Language Input */}
             <div>
-              <Label htmlFor="questionTypeName" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="questionTypeName" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Question Type Name
               </Label>
               <Input 
@@ -101,7 +101,7 @@ export function QuestionAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps
                     message: "Question type name must be at least 2 characters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.questionTypeName ? "border-red-500" : ""}`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.questionTypeName ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
               />
               {errors.questionTypeName && (
                 <p className="text-sm text-red-500 mt-1">{errors.questionTypeName.message}</p>
@@ -110,7 +110,7 @@ export function QuestionAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps
             
             {/* Language Selection */}
             <div>
-              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Select Language
               </Label>
               <Controller

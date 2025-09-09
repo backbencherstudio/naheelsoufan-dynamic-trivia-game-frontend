@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,7 +70,7 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData}: DifficultyAddFo
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
-          <DialogTitle className="text-xl font-semibold text-gray-900">
+          <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
             {editData ? "Edit Difficulty" : "Create Difficulty"}
           </DialogTitle>
         </DialogHeader>
@@ -79,7 +79,7 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData}: DifficultyAddFo
           <div className="space-y-6 px-6 pb-6 pt-4">
             {/* Difficulty Name Input */}
             <div>
-              <Label htmlFor="difficultyName" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="difficultyName" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Difficulty Name
               </Label>
               <Input 
@@ -92,7 +92,7 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData}: DifficultyAddFo
                     message: "Difficulty name must be at least 2 characters"
                   }
                 })}
-                className={`w-full h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.difficultyName ? "border-red-500" : ""}`}
+                className={`w-full h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.difficultyName ? "border-red-500" : ""}  dark:text-whiteColor`}
               />
               {errors.difficultyName && (
                 <p className="text-sm text-red-500 mt-1">{errors.difficultyName.message}</p>
@@ -101,7 +101,7 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData}: DifficultyAddFo
             
             {/* Language Selection */}
             <div>
-              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Language
               </Label>
               <Controller

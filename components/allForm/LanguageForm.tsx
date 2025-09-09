@@ -45,14 +45,14 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
-          <DialogTitle className="text-xl font-semibold text-gray-900">Add Language</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Add Language</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onSubmit)} >
           <div className="space-y-4 px-6 pb-6">
             {/* Language Input */}
             <div>
-              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Language
               </Label>
               <Input 
@@ -65,7 +65,7 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
                     message: "Language name must be at least 2 characters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.language ? "border-red-500" : ""}`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.language ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
               />
               {errors.language && (
                 <p className="text-sm text-red-500 mt-1">{errors.language.message}</p>
@@ -74,7 +74,7 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
             
             {/* Language Code Input */}
             <div>
-              <Label htmlFor="languageCode" className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label htmlFor="languageCode" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Language Code
               </Label>
               <Input 
@@ -87,7 +87,7 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
                     message: "Language code must be 2-3 lowercase letters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.languageCode ? "border-red-500" : ""}`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.languageCode ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
               />
               {errors.languageCode && (
                 <p className="text-sm text-red-500 mt-1">{errors.languageCode.message}</p>
@@ -96,7 +96,7 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
             
             {/* File Upload Section */}
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Choose file to upload
               </Label>
               <div className="relative">
@@ -155,7 +155,7 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
                 reset();
                 setIsOpen(false);
               }}
-              className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"
             >
               Cancel
             </Button>
