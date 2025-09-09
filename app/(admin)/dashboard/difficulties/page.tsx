@@ -4,15 +4,16 @@ import { DifficultyAddForm } from '@/components/allForm/DificultAddForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
+import useDataFetch from '@/hooks/useDataFetch';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FaPen } from 'react-icons/fa6';
 import { HiSearch } from 'react-icons/hi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 
 function DifficultiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(2);
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<{
@@ -22,54 +23,24 @@ function DifficultiesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
-  // Demo data matching the image
-  const difficultiesData = [
-    { 
-      no: 1, 
-      questionType: "Medium", 
-      language: "English", 
-      actions: "Edit" 
-    },
-    { 
-      no: 2, 
-      questionType: "Extreme", 
-      language: "English", 
-      actions: "Edit" 
-    },
-    { 
-      no: 3, 
-      questionType: "Easy", 
-      language: "English", 
-      actions: "Edit" 
-    },
-    { 
-      no: 4, 
-      questionType: "متوسط", 
-      language: "عربي", 
-      actions: "Edit" 
-    },
-    { 
-      no: 5, 
-      questionType: "Hard", 
-      language: "English", 
-      actions: "Edit" 
-    },
-    { 
-      no: 6, 
-      questionType: "صعب", 
-      language: "عربي", 
-      actions: "Edit" 
-    },
-    { 
-      no: 7, 
-      questionType: "Very Easy", 
-      language: "English", 
-      actions: "Edit" 
-    },
-  ];
-
-  const columns = [
+const [difficultiesData , setDifficultiesData] = useState<any[]>([])
+const [totalData , setTotalData] = useState<any>(0)
+  
+const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&search=${search}`
+ const {data , loading}= useDataFetch(endpoint)
+useEffect(() => {
+  if (data?.data?.length > 0) {
+    setDifficultiesData(data?.data)
+  }
+  if (data) {
+    setTotalData(data?.pagination)
+  }
+}, [data])
+  
+  console.log("check",data);
+  
+ 
+ const columns = [
     {
       label: "No",
       accessor: "no",
@@ -81,19 +52,21 @@ function DifficultiesPage() {
     },
     {
       label: "Question Type",
-      accessor: "questionType",
+      accessor: "name",
       width: "200px",
-      formatter: (value: string) => (
-        <span className="text-sm font-medium">{value}</span>
-      ),
+      formatter: (value: any) => {
+        const display = typeof value === 'object' && value !== null ? (value.name ?? '') : (value ?? '');
+        return <span className="text-sm font-medium">{String(display)}</span>;
+      },
     },
     {
       label: "Language",
       accessor: "language",
       width: "120px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
-      ),
+      formatter: (value: any) => {
+        const display = typeof value === 'object' && value !== null ? (value.name ?? '') : (value ?? '');
+        return <span className="text-sm">{String(display)}</span>;
+      },
     },
     {
       label: "Actions",
@@ -139,10 +112,8 @@ function DifficultiesPage() {
 
   // Handle edit functionality
   const handleEdit = (record: any) => {
-    setEditData({
-      difficultyName: record.questionType,
-      language: record.language.toLowerCase() === 'عربي' ? 'arabic' : 'english'
-    });
+    setEditData(record)
+   
     setIsOpen(true);
   };
 
@@ -197,12 +168,13 @@ function DifficultiesPage() {
         
         <DynamicTableTwo
           columns={columns}
-          data={difficultiesData}
+          data={difficultiesData || []}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-          itemsPerPageOptions={[5, 10, 20, 50]}
+          totalData={totalData}
+          loading={loading}
         />
       </div>
 

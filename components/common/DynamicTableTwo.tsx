@@ -22,6 +22,8 @@ interface DynamicTableProps {
   noDataMessage?: string;
   onItemsPerPageChange?: (size: number) => void;
   itemsPerPageOptions?: number[];
+  totalData?: any;
+  loading?: boolean;
 }
 
 export default function DynamicTableTwo({
@@ -32,22 +34,16 @@ export default function DynamicTableTwo({
   onPageChange,
   onView,
   onDelete,
+  totalData,
   noDataMessage = "No data found.",
   onItemsPerPageChange,
-  itemsPerPageOptions,
+  loading,
 }: DynamicTableProps) {
-  const totalPages = Math.max(1, Math.ceil(data.length / itemsPerPage));
-  const paginatedData = data.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-  const startIndex = data.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-  const endIndex = Math.min(currentPage * itemsPerPage, data.length);
-  const rowsPerPageOptions = (itemsPerPageOptions && itemsPerPageOptions.length > 0)
-    ? itemsPerPageOptions
-    : [5, 10, 20, 50];
 
-  
+
+  let rowsPerPageOptions = [5, 10, 20, 50];
+
+  rowsPerPageOptions.push(itemsPerPage)
 
   return (
     <div>
@@ -74,8 +70,8 @@ export default function DynamicTableTwo({
               </tr>
             </thead>
             <tbody>
-              {paginatedData.length > 0 ? (
-                paginatedData.map((row, i) => (
+              { data.length > 0 ? (
+                data.map((row, i) => (
                   <tr key={i} className={`border-t border-gray-100 ${i % 2 === 1 ? "bg-neutral-50" : "bg-white"} dark:bg-blackColor dark:border-gray-900`}>
                     {columns.map((col, idx) => (
                       <td
@@ -144,34 +140,34 @@ export default function DynamicTableTwo({
         </div>
         <div className="flex items-center gap-4 text-sm text-[#4a4c56] dark:text-whiteColor">
           <span>
-            {startIndex}-{endIndex} of {data.length}
+            {currentPage * itemsPerPage - itemsPerPage + 1}-{itemsPerPage * currentPage} of {totalData?.total}
           </span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => onPageChange(1)}
-              disabled={currentPage === 1}
-              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
+              disabled={!totalData?.hasPreviousPage}
+              className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
               <MdFirstPage className="dark:text-whiteColor"/>
             </button>
             <button
               onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
+              disabled={!totalData?.hasPreviousPage}
+              className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
               <MdArrowBackIosNew className="dark:text-whiteColor" />
             </button>
             <button
               onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage === totalPages || data.length === 0}
-              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
+              disabled={!totalData?.hasNextPage}
+              className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
               <MdArrowForwardIos className="dark:text-whiteColor" />
             </button>
             <button
-              onClick={() => onPageChange(totalPages)}
-              disabled={currentPage === totalPages || data.length === 0}
-              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
+              onClick={() => onPageChange(totalData?.totalPages)}
+              disabled={!totalData?.hasNextPage}
+              className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40"
             >
               <MdLastPage className="dark:text-whiteColor"/>
             </button>
