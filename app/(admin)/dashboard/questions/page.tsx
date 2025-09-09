@@ -329,7 +329,7 @@ function QuestionsPage() {
     <div>
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Questions</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Questions</h1>
         <div className="flex gap-3">
           <button 
             onClick={handleExportQuestions}
@@ -353,7 +353,7 @@ function QuestionsPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6">
+      <div className="border rounded-lg  pb-6">
         <div className="p-5">
           {/* Filter and Search Section */}
           <div className="flex gap-4 mb-6">

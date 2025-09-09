@@ -130,7 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           }
           flex flex-col
           min-h-[calc(100vh-100px)] 
-          bg-white 
+          bg-white dark:bg-black 
          
           shadow-[0px_-0.3px_5.5px_0px_rgba(0,0,0,0.02)]
           lg:rounded-[12px] 
@@ -147,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <div className="my-4 ">
           <Link
             href={"/"}
-            className="text-headerColor flex justify-center pb-5 text-xl lg:text-3xl font-semibold tracking-wide"
+            className="text-headerColor flex justify-center dark:text-whiteColor/80 pb-5 text-xl lg:text-3xl font-semibold tracking-wide"
           >
             Inzilly <span className="text-primaryColor pl-1" > Admin</span> 
           </Link>
@@ -161,9 +161,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   href={item.href}
                   onClick={onClose}
                   className={`
-        flex items-center justify-between group gap-3 px-3 py-2.5 lg:py-3 rounded-lg  hover:bg-primaryColor/10
+        flex items-center justify-between group gap-3 px-3 py-2.5 lg:py-3 rounded-lg dark:hover:bg-whiteColor/20  hover:bg-primaryColor/10
         transition-colors duration-200
-        ${active ? "bg-primaryColor/10" : ""}
+        ${active ? "bg-primaryColor/10 dark:bg-whiteColor" : ""}
       `}
                 >
                   <div className="flex gap-2 items-center">
@@ -173,7 +173,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             text-xl font-medium
             ${active
                           ? "text-primaryColor"
-                          : "text-descriptionColor group-hover:text-primaryColor"
+                          : "text-descriptionColor dark:text-whiteColor/80 dark:group-hover:text-whiteColor group-hover:text-primaryColor"
                         }
           `}
                     >
@@ -183,8 +183,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       className={`
             text-base font-medium 
             ${active
-                          ? "text-primaryColor"
-                          : "text-descriptionColor group-hover:text-primaryColor"
+                          ? "text-primaryColor "
+                          : "text-descriptionColor dark:text-whiteColor/80 dark:group-hover:text-whiteColor group-hover:text-primaryColor"
                         }
           `}
                     >
@@ -211,7 +211,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 height={20}
               />
             </div>
-            <span className="text-base font-normal text-[#111111]">
+            <span className="text-base font-normal text-[#111111] dark:text-whiteColor/80">
               Log out account
             </span>
           </button>

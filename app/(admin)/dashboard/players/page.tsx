@@ -174,11 +174,11 @@ function UsersPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Users</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Users</h1>
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6">
+      <div className="border rounded-lg pb-6">
         <div className="p-5">
           {/* Filter and Search Section */}
           <div className="flex gap-4 mb-6">
@@ -209,12 +209,12 @@ function UsersPage() {
               </Select>
               <button 
                 onClick={toggleSortOrder}
-                className="p-2 hover:bg-gray-100 rounded-md"
+                className="p-2 hover:bg-gray-100 rounded-md dark:hover:bg-whiteColor/20"
               >
                 {sortOrder === 'asc' ? (
-                  <FaArrowUp className="w-4 h-4 text-gray-600" />
+                  <FaArrowUp className="w-4 h-4 text-gray-600 dark:text-whiteColor" />
                 ) : (
-                  <FaArrowDown className="w-4 h-4 text-gray-600" />
+                  <FaArrowDown className="w-4 h-4 text-gray-600 dark:text-whiteColor" />
                 )}
               </button>
             </div>

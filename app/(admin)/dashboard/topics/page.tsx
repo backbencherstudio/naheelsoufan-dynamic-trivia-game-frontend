@@ -194,26 +194,26 @@ function TopicsPage() {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
          
-          <h1 className="text-2xl font-semibold text-gray-900">Topics</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Topics</h1>
         </div>
         
        
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6">
+      <div className="border rounded-lg pb-6">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div className='flex items-center gap-2.5'>
             <MdCategory className='text-primaryColor' size={24}/>
-            <h2 className="text-xl font-semibold text-gray-900">Topics</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Topics</h2>
             </div>
             <div className="flex gap-3">
-          <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border dark:text-whiteColor border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
             <FiDownload className="w-4 h-4" />
             Export Data
           </button>
-          <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border dark:text-whiteColor border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
             <FiUpload className="w-4 h-4" />
             Import Data
           </button>

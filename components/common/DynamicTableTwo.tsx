@@ -52,7 +52,7 @@ export default function DynamicTableTwo({
   return (
     <div>
       {/* Table Wrapper with Border & Radius */}
-      <div className="overflow-hidden rounded-t-md border border-gray-200">
+      <div className="overflow-hidden rounded-t-md border border-gray-200 dark:border-gray-700">
         <div className="overflow-x-auto">
           <table className="min-w-[1000px] w-full text-left">
             <thead className="bg-neutral-50">
@@ -61,13 +61,13 @@ export default function DynamicTableTwo({
                   <th
                     key={index}
                     style={{ width: col.width || "auto" }}
-                    className="px-4 py-3 whitespace-nowrap text-sm font-medium text-[#4a4c56] border-b border-gray-100"
+                    className="px-4 py-3 whitespace-nowrap text-sm font-medium text-[#4a4c56] border-b border-gray-100 dark:border-gray-700 dark:bg-blackColor dark:text-whiteColor"
                   >
                     {col.label}
                   </th>
                 ))}
                 {(onView || onDelete) && (
-                  <th className="px-4 py-3 text-sm font-medium text-[#4a4c56] border-b border-gray-100">
+                  <th className="px-4 py-3 text-sm font-medium text-[#4a4c56] border-b border-gray-100 dark:border-gray-700 dark:text-whiteColor">
                     Action
                   </th>
                 )}
@@ -76,12 +76,12 @@ export default function DynamicTableTwo({
             <tbody>
               {paginatedData.length > 0 ? (
                 paginatedData.map((row, i) => (
-                  <tr key={i} className={`border-t border-gray-100 ${i % 2 === 1 ? "bg-neutral-50" : "bg-white"}`}>
+                  <tr key={i} className={`border-t border-gray-100 ${i % 2 === 1 ? "bg-neutral-50" : "bg-white"} dark:bg-blackColor dark:border-gray-900`}>
                     {columns.map((col, idx) => (
                       <td
                         key={idx}
                         style={{ width: col.width || "auto" }}
-                        className="px-4 py-3 text-sm text-[#4a4c56]"
+                        className="px-4 py-3 text-sm text-[#4a4c56] dark:text-whiteColor"
                       >
                         {col.formatter
                           ? col.formatter(row[col.accessor], row,(currentPage - 1) * itemsPerPage + i)
@@ -92,7 +92,7 @@ export default function DynamicTableTwo({
                       <td className="px-4 py-3 flex gap-4 items-center">
                         {onView && (
                           <span
-                            className="text-xs underline text-[#4a4c56]  cursor-pointer"
+                            className="text-xs underline text-[#4a4c56]  cursor-pointer dark:text-whiteColor"
                             onClick={() => onView(row)}
                           >
                             View details
@@ -116,7 +116,7 @@ export default function DynamicTableTwo({
                 <tr>
                   <td
                     colSpan={columns.length + 1}
-                    className="px-4 py-10 text-center text-[#4a4c56] text-sm"
+                    className="px-4 py-10 text-center text-[#4a4c56] text-sm dark:text-whiteColor"
                   >
                     {noDataMessage}
                   </td>
@@ -132,7 +132,7 @@ export default function DynamicTableTwo({
         <div className="flex items-center gap-2 text-sm text-[#4a4c56]">
           <span>Rows per page:</span>
           <select
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
+            className="border border-gray-300 rounded px-2 py-1 text-sm dark:border-gray-700 dark:text-whiteColor"
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange && onItemsPerPageChange(Number(e.target.value))}
             disabled={!onItemsPerPageChange}
@@ -142,7 +142,7 @@ export default function DynamicTableTwo({
             ))}
           </select>
         </div>
-        <div className="flex items-center gap-4 text-sm text-[#4a4c56]">
+        <div className="flex items-center gap-4 text-sm text-[#4a4c56] dark:text-whiteColor">
           <span>
             {startIndex}-{endIndex} of {data.length}
           </span>
@@ -150,30 +150,30 @@ export default function DynamicTableTwo({
             <button
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
-              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
+              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
-              <MdFirstPage />
+              <MdFirstPage className="dark:text-whiteColor"/>
             </button>
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
+              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
-              <MdArrowBackIosNew />
+              <MdArrowBackIosNew className="dark:text-whiteColor" />
             </button>
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages || data.length === 0}
-              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
+              className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
-              <MdArrowForwardIos />
+              <MdArrowForwardIos className="dark:text-whiteColor" />
             </button>
             <button
               onClick={() => onPageChange(totalPages)}
               disabled={currentPage === totalPages || data.length === 0}
               className="p-1 rounded border border-gray-300 text-[#4a4c56] disabled:opacity-40"
             >
-              <MdLastPage />
+              <MdLastPage className="dark:text-whiteColor"/>
             </button>
           </div>
         </div>

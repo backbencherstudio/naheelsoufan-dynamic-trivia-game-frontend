@@ -177,15 +177,15 @@ function PreviousGamesPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Games History</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Games History</h1>
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6">
+      <div className="border rounded-lg  pb-6">
         <div className="p-5">
           {/* Filter and Search Section */}
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Difficulties</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-whiteColor">Difficulties</h2>
             <div className="flex gap-4">
               <div className="w-48">
                 <Select value={topicFilter} onValueChange={setTopicFilter}>

@@ -205,10 +205,10 @@ const columns = [
     <section>
       <div className="border p-5 rounded-md">
        <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Subscription types</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Subscription types</h1>
         <button 
           onClick={handleAddNew}
-          className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer"
+          className="bg-grayColor1/50 dark:bg-whiteColor text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer"
         >
           Create Subscription Type
         </button>

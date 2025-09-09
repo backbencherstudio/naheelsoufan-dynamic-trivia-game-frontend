@@ -179,11 +179,11 @@ function HostsPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Hosts</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Hosts</h1>
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6">
+      <div className="border rounded-lg pb-6">
         <div className="p-5">
           {/* Filter and Search Section */}
           <div className="flex gap-4 mb-6">
@@ -216,12 +216,12 @@ function HostsPage() {
               </Select>
               <button 
                 onClick={toggleSortOrder}
-                className="p-2 hover:bg-gray-100 rounded-md"
+                className="p-2 hover:bg-gray-100 rounded-md dark:hover:bg-whiteColor/20"
               >
                 {sortOrder === 'asc' ? (
-                  <FaArrowUp className="w-4 h-4 text-gray-600" />
+                  <FaArrowUp className="w-4 h-4 text-gray-600 dark:text-whiteColor" />
                 ) : (
-                  <FaArrowDown className="w-4 h-4 text-gray-600" />
+                  <FaArrowDown className="w-4 h-4 text-gray-600 dark:text-whiteColor" />
                 )}
               </button>
             </div>
@@ -230,7 +230,7 @@ function HostsPage() {
                 onChange={handleSearch}
                 type="text" 
                 placeholder="Search" 
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             </div>

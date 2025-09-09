@@ -94,13 +94,13 @@ function AdminManagementPage() {
           <div className="flex gap-2.5">
             <button 
               onClick={() => handleEdit(record)}
-              className='text-xl cursor-pointer text-blue-600 hover:text-blue-800'
+              className='text-xl cursor-pointer text-blue-600 hover:text-blue-800 dark:text-whiteColor dark:hover:text-blue-800'
             >
               <RiRotateLockLine size={24} />
             </button>
             <button 
               onClick={() => handleDelete(record)}
-              className='text-xl cursor-pointer text-red-600 hover:text-red-800'
+              className='text-xl cursor-pointer text-red-600 hover:text-red-800 '
             >
               <RiDeleteBin6Line />
             </button>
@@ -133,15 +133,15 @@ function AdminManagementPage() {
       {/* Header Section */}
       <div className="md:flex justify-between w-full items-center mb-6">
         <div className="flex items-center gap-3 mb-3 md:mb-0">
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center dark:bg-whiteColor dark:text-blackColor ">
             <HiShieldCheck className="md:w-5 md:h-5 text-white" />
           </div>
-          <h1 className="md:text-2xl text-xl font-semibold text-gray-900">Admin Management</h1>
+          <h1 className="md:text-2xl text-xl font-semibold text-gray-900 dark:text-whiteColor">Admin Management</h1>
         </div>
         <div className='flex justify-end'>
         <button 
           onClick={handleAddAdmin}
-          className="bg-blue-600  text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700 flex items-center gap-2"
+          className="bg-blue-600  text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700 flex items-center gap-2 dark:bg-whiteColor dark:text-blackColor"
         >
           <span className="text-lg">+</span>
           Add Admin
@@ -150,7 +150,7 @@ function AdminManagementPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white shadow-sm">
+      <div className="border rounded-lg shadow-sm">
         <div className="p-5">
           <DynamicTableTwo
             columns={columns}

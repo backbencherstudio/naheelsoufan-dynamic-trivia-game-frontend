@@ -6,8 +6,8 @@ import AddQuestionModal from './AddQuestionModal'
 function DashboardBanner() {
       const [isOpen, setIsOpen] = useState(false)
   return (
-    <div>
-      <div className='my-10 py-8 px-10 rounded-2xl bg-primaryColor/10'>
+    <div className='bg-whiteColor my-10 rounded-2xl '>
+      <div className=' rounded-2xl px-10 py-8 bg-primaryColor/10'>
           <div className='flex justify-between items-center'>
              <div>
                <h4 className='text-xl lg:text-2xl font-semibold text-primaryColor '>

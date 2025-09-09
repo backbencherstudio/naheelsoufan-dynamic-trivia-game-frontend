@@ -70,13 +70,13 @@ function page() {
   return (
     <div>
       <div>
-        <h2 className='text-2xl font-semibold text-headerColor pb-4'>Language</h2>
+        <h2 className='text-2xl font-semibold text-headerColor dark:text-whiteColor pb-4'>Language</h2>
       </div>
       <div className='border pb-4  rounded-md'>
         <div className='p-5'>
           <div className=' flex justify-between items-center mt-3 pb-6'>
-            <h2 className='text-xl font-semibold text-headerColor pb-4'> Language</h2>
-           <button onClick={()=>setIsOpen(true)} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer'>Add New Language </button>
+            <h2 className='text-xl font-semibold text-headerColor dark:text-whiteColor pb-4'> Language</h2>
+           <button onClick={()=>setIsOpen(true)} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor dark:text-blackColor'>Add New Language </button>
 
           </div>
         <div className='flex gap-4'>
@@ -91,7 +91,7 @@ function page() {
             </Select>
           </div>
           <div className='relative w-full'>
-          <input onChange={handleSearch} type="text" placeholder='Search' className='w-full border border-gray-300 rounded-md px-7 md:px-8 py-3' />
+          <input onChange={handleSearch} type="text" placeholder='Search' className='w-full border border-gray-300 rounded-md px-7 md:px-8 py-3 dark:border-gray-700 dark:text-whiteColor' />
              <HiSearch className='absolute left-1.5 top-1/2 -translate-y-1/2 text-grayColor1 text-xl' />
           </div>
        

@@ -156,17 +156,17 @@ function DifficultiesPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Difficulties</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Difficulties</h1>
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6">
+      <div className="border rounded-lg bg-white pb-6 dark:bg-blackColor    ">
         <div className="p-5">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Difficulties</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Difficulties</h2>
             <button 
               onClick={handleAddNew}
-              className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer"
+              className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor/20 dark:text-whiteColor"
             >
               Add New Difficulty
             </button>
@@ -188,7 +188,7 @@ function DifficultiesPage() {
                 onChange={handleSearch}
                 type="text" 
                 placeholder="Search" 
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             </div>

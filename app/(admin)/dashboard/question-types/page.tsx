@@ -122,14 +122,14 @@ function QuestionTypesPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Question types</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Question types</h1>
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6">
+      <div className="border rounded-lg  pb-6">
         <div className="p-5">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Question types</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Question types</h2>
             <button onClick={handleAddNew} className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer">
               Add New Type
             </button>

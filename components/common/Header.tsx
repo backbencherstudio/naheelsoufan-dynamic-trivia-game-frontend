@@ -5,9 +5,7 @@ import { useToken } from "@/hooks/useToken";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import { GiWireframeGlobe } from "react-icons/gi";
 import { MdDarkMode, MdLanguage, MdLightMode } from "react-icons/md";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface HeaderProps {
   onNotificationClick?: () => void;
@@ -54,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <nav className="text-blackColor dark:text-white border-b border-borderColor dark:border-gray-700 bg-white dark:bg-gray-900 py-3 transition-colors duration-200">
+    <nav className="text-blackColor dark:text-white border-b border-borderColor dark:border-gray-700 bg-white dark:bg-blackColor py-3 transition-colors duration-200">
       <div className=" container px-5   relative flex justify-between mb-1 z-50">
         {/* Mobile menu button */}
         <div>

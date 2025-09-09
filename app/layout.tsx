@@ -1,6 +1,7 @@
 import CustomToastContainer from "@/components/CustomToast/CustomToastContainer";
-import ProtectedPageWrapper from "@/components/ProtectedPageWrapper";
 import { AppConfig } from "@/config/app.config";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TokenProvider } from "@/hooks/useToken";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
@@ -23,10 +24,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${roboto.className}`}>
         <TokenProvider>
-       
+        <LanguageProvider>
+      <ThemeProvider>
         <CustomToastContainer/>       
          {children}
-         
+         </ThemeProvider>
+         </LanguageProvider>
         </TokenProvider>
         </body>
     </html>
