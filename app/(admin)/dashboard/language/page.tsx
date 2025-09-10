@@ -38,8 +38,6 @@ function page() {
 }, [data])
 
 
-
-
   const columns = [
     {
       label: "No",
