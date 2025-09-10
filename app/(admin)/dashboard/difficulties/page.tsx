@@ -26,7 +26,7 @@ function DifficultiesPage() {
 const [difficultiesData , setDifficultiesData] = useState<any[]>([])
 const [totalData , setTotalData] = useState<any>(0)
   
-const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&search=${search}`
+const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
  const {data , loading}= useDataFetch(endpoint)
 useEffect(() => {
   if (data?.data?.length > 0) {
@@ -173,7 +173,7 @@ useEffect(() => {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-          totalData={totalData}
+          paginationData={totalData}
           loading={loading}
         />
       </div>

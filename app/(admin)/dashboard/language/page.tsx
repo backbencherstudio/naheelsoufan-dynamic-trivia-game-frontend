@@ -3,8 +3,9 @@ import { LanguageForm } from '@/components/allForm/LanguageForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
+import useDataFetch from '@/hooks/useDataFetch';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
 import { MdEdit, MdFileDownload } from 'react-icons/md';
 import { RiDeleteBin6Line } from 'react-icons/ri';
@@ -12,15 +13,26 @@ function page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
    const [search, setSearch] = useState('');
+   const [languageData, setLanguageData] = useState([]);
+   const [totalData, setTotalData] = useState({});
    const searchParams = useSearchParams();
    const router = useRouter()
    const pathname = usePathname()
+   const [editData, setEditData] = useState(null);
      const [isOpen, setIsOpen] = useState(false);
-      
-  const recentData = [
-    { no: 1, language: 'عربي', actions: 'Edit' },
-    { no: 2, language: 'English', actions: 'Edit' },
-  ];
+     const endpoint = `/admin/languages?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
+      const {data , loading}= useDataFetch(endpoint)
+ useEffect(() => {
+  if (data?.data?.length > 0) {
+    setLanguageData(data?.data)
+  }
+  if (data) {
+    setTotalData(data?.pagination)
+  }
+}, [data])
+
+console.log(languageData);
+
 
   const columns = [
     {
@@ -32,14 +44,14 @@ function page() {
         return <span className="text-sm font-medium">{serial}</span>;
       },
     },
-    { label: 'Language', accessor: "language", width: '200px' },
+    { label: 'Language', accessor: "name", width: '200px' },
     {
       accessor: 'actions', label: 'Actions', width: '200px',
-      formatter: (value: any) => {
+      formatter: (_,value: any) => {
         return <div className="flex gap-2.5">
-             <button className='text-2xl  cursor-pointer'><MdEdit /></button>
-             <button className='text-2xl cursor-pointer text-primaryColor'><MdFileDownload /></button>
-             <button className='text-xl cursor-pointer'><RiDeleteBin6Line color='red'/></button>
+             <button onClick={()=>handleEdit(value)} className='text-2xl  cursor-pointer'><MdEdit /></button>
+             <button onClick={()=>handleDownload(value)} className='text-2xl cursor-pointer text-primaryColor'><MdFileDownload /></button>
+             <button onClick={()=>handleDelete(value)}  className='text-xl cursor-pointer'><RiDeleteBin6Line color='red'/></button>
         </div>;
       },
     },
@@ -64,9 +76,17 @@ function page() {
     setSearch(value);
     debouncedSearch(value);
   };
- 
- 
-
+  const handleDownload = (value: any) => {
+    console.log(value);
+  }
+  const handleEdit = (value: any) => {
+    console.log(value);
+    setEditData(value);
+    setIsOpen(true);
+  }
+  const handleDelete = (value: any) => {
+    console.log(value);
+  }
   return (
     <div>
       <div>
@@ -99,16 +119,17 @@ function page() {
         </div>
       <DynamicTableTwo
         columns={columns}
-        data={recentData}
-        currentPage={currentPage}
-        itemsPerPage={itemsPerPage}
-        onPageChange={setCurrentPage}
-        onItemsPerPageChange={setItemsPerPage}
-        itemsPerPageOptions={[5, 10, 20]}
+        data={languageData}
+       currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+          paginationData={totalData}
+          loading={loading}
       />
       </div>
 
-      {isOpen && <LanguageForm isOpen={isOpen} setIsOpen={setIsOpen} />}
+      {isOpen && <LanguageForm isOpen={isOpen} setIsOpen={setIsOpen} data={editData} />}
     </div>
   )
 }

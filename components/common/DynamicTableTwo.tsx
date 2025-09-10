@@ -3,6 +3,7 @@
 import Image from "next/image";
 import React from "react";
 import { MdArrowBackIosNew, MdArrowForwardIos, MdFirstPage, MdLastPage } from "react-icons/md";
+import Loader from "../reusable/Loader";
 
 interface ColumnConfig {
   label: React.ReactNode;
@@ -22,7 +23,7 @@ interface DynamicTableProps {
   noDataMessage?: string;
   onItemsPerPageChange?: (size: number) => void;
   itemsPerPageOptions?: number[];
-  totalData?: any;
+  paginationData?: any;
   loading?: boolean;
 }
 
@@ -34,7 +35,7 @@ export default function DynamicTableTwo({
   onPageChange,
   onView,
   onDelete,
-  totalData,
+  paginationData,
   noDataMessage = "No data found.",
   onItemsPerPageChange,
   loading,
@@ -70,7 +71,11 @@ export default function DynamicTableTwo({
               </tr>
             </thead>
             <tbody>
-              { data.length > 0 ? (
+              { loading ? <tr>
+                <td colSpan={columns.length + 1} className="px-4 py-10 text-center text-[#4a4c56] text-sm dark:text-whiteColor">
+                  <Loader/>
+                </td>
+              </tr> : data.length > 0 ? (
                 data.map((row, i) => (
                   <tr key={i} className={`border-t border-gray-100 ${i % 2 === 1 ? "bg-neutral-50" : "bg-white"} dark:bg-blackColor dark:border-gray-900`}>
                     {columns.map((col, idx) => (
@@ -134,39 +139,39 @@ export default function DynamicTableTwo({
             disabled={!onItemsPerPageChange}
           >
             {rowsPerPageOptions.map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
+              <option key={opt} value={opt}  className="dark:text-whiteColor dark:bg-blackColor" >{opt}</option>
             ))}
           </select>
         </div>
         <div className="flex items-center gap-4 text-sm text-[#4a4c56] dark:text-whiteColor">
           <span>
-            {currentPage * itemsPerPage - itemsPerPage + 1}-{itemsPerPage * currentPage} of {totalData?.total}
+            {currentPage * itemsPerPage - itemsPerPage + 1}-{itemsPerPage * currentPage} of {paginationData?.total}
           </span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => onPageChange(1)}
-              disabled={!totalData?.hasPreviousPage}
+              disabled={!paginationData?.hasPreviousPage}
               className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
               <MdFirstPage className="dark:text-whiteColor"/>
             </button>
             <button
               onClick={() => onPageChange(currentPage - 1)}
-              disabled={!totalData?.hasPreviousPage}
+              disabled={!paginationData?.hasPreviousPage}
               className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
               <MdArrowBackIosNew className="dark:text-whiteColor" />
             </button>
             <button
               onClick={() => onPageChange(currentPage + 1)}
-              disabled={!totalData?.hasNextPage}
+              disabled={!paginationData?.hasNextPage}
               className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
               <MdArrowForwardIos className="dark:text-whiteColor" />
             </button>
             <button
-              onClick={() => onPageChange(totalData?.totalPages)}
-              disabled={!totalData?.hasNextPage}
+              onClick={() => onPageChange(paginationData?.totalPages)}
+              disabled={!paginationData?.hasNextPage}
               className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40"
             >
               <MdLastPage className="dark:text-whiteColor"/>

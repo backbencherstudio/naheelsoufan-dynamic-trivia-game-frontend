@@ -1,22 +1,25 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToken } from "@/hooks/useToken";
+import { UserService } from "@/service/user/user.service";
 import { useForm } from "react-hook-form";
 
 // Form data interface
 interface LanguageFormData {
-  language: string;
-  languageCode: string;
-  file: FileList;
+  id: string;
+  name: string;
+  code: string;
+  file: FileList | null;
 }
 
-export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void}) {
+export function LanguageForm({isOpen, setIsOpen, data}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void, data: any}) {
 
   const {
     register,
@@ -24,13 +27,22 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
     formState: { errors, isSubmitting },
     reset,
     watch
-  } = useForm<LanguageFormData>();
+  } = useForm<LanguageFormData>({
+    defaultValues: {
+    name: data?.name || "",
+    code: data?.code || "",
 
+    },
+  });
+console.log(data?.id);
+const id = data?.id;
+ const {token} = useToken();
   const onSubmit = async (data: LanguageFormData) => {
+    const endpoint = data ? `/admin/languages/${id}` : `/admin/languages`;
     try {
-      console.log("Language:", data.language);
-      console.log("Language Code:", data.languageCode);
-      console.log("File:", data.file[0]);
+     const response = await UserService.updateData(endpoint, data, token);
+     console.log("============",response);
+     
       reset();
       setIsOpen(false);
       
@@ -56,19 +68,19 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
                 Language
               </Label>
               <Input 
-                id="language" 
+                id="name" 
                 placeholder="Language"
-                {...register("language", { 
+                {...register("name", { 
                   required: "Language name is required",
                   minLength: {
                     value: 2,
                     message: "Language name must be at least 2 characters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.language ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.name ? "border-red-500" : ""}  dark:text-whiteColor`}
               />
-              {errors.language && (
-                <p className="text-sm text-red-500 mt-1">{errors.language.message}</p>
+              {errors.name && (
+                <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
               )}
             </div>
             
@@ -78,31 +90,30 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
                 Language Code
               </Label>
               <Input 
-                id="languageCode" 
+                id="code" 
                 placeholder="Language Code"
-                {...register("languageCode", { 
+                {...register("code", { 
                   required: "Language code is required",
                   pattern: {
                     value: /^[a-z]{2,3}$/,
                     message: "Language code must be 2-3 lowercase letters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.languageCode ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.code ? "border-red-500" : ""} dark:text-whiteColor `}
               />
-              {errors.languageCode && (
-                <p className="text-sm text-red-500 mt-1">{errors.languageCode.message}</p>
+              {errors.code && (
+                <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>
               )}
             </div>
             
             {/* File Upload Section */}
-            <div>
+            {/* <div>
               <Label className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Choose file to upload
               </Label>
               <div className="relative">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
                   <div className="flex flex-col items-center space-y-2">
-                    {/* Upload Icon */}
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                       <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -115,8 +126,6 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
                     </div>
                   </div>
                 </div>
-                
-                {/* Hidden file input that only covers the upload area */}
                 <Input 
                   type="file" 
                   id="file" 
@@ -129,7 +138,7 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
                         if (file.type !== "application/json") {
                           return "Please upload a JSON file";
                         }
-                        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                        if (file.size > 5 * 1024 * 1024) { 
                           return "File size must be less than 5MB";
                         }
                       }
@@ -142,7 +151,7 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
               {errors.file && (
                 <p className="text-sm text-red-500 mt-1">{errors.file.message}</p>
               )}
-            </div>
+            </div> */}
           </div>
           
           {/* Action Buttons */}
@@ -155,16 +164,16 @@ export function LanguageForm({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (
                 reset();
                 setIsOpen(false);
               }}
-              className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"
+              className="px-4 py-2 border border-gray-300 dark:hover:text-white bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"
             >
               Cancel
             </Button>
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {isSubmitting ? "Adding..." : "Add Language"}
+              {isSubmitting ? "Adding..." : data ? "Update Language" : "Add Language"}
             </Button>
           </div>
           </div>
