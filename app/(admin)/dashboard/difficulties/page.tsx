@@ -5,11 +5,15 @@ import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
 import useDataFetch from '@/hooks/useDataFetch';
+import { useToken } from '@/hooks/useToken';
+import { UserService } from '@/service/user/user.service';
+import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { FaPen } from 'react-icons/fa6';
 import { HiSearch } from 'react-icons/hi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import { toast } from 'react-toastify';
 
 function DifficultiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,6 +30,8 @@ function DifficultiesPage() {
   const pathname = usePathname();
 const [difficultiesData , setDifficultiesData] = useState<any[]>([])
 const [totalData , setTotalData] = useState<any>(0)
+const [deletingId, setDeletingId] = useState<string | null>(null)
+const {token} = useToken()
   
 const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
  const {data , loading}= useDataFetch(endpoint)
@@ -74,6 +80,7 @@ useEffect(() => {
       accessor: "actions",
       width: "120px",
       formatter: (_: any, record: any) => {
+        const isDeleting = deletingId === record.id;
         return (
           <div className="flex gap-2.5">
             <button 
@@ -82,8 +89,12 @@ useEffect(() => {
             >
               <FaPen />
             </button>
-            <button className='text-xl cursor-pointer text-red-600 hover:text-red-800'>
-              <RiDeleteBin6Line />
+            <button 
+              onClick={() => handleDelete(record.id)}
+              disabled={isDeleting}
+              className='text-xl cursor-pointer text-red-600 hover:text-red-800 disabled:opacity-50'
+            >
+              {isDeleting ? <Loader2 className='animate-spin' /> : <RiDeleteBin6Line />}
             </button>
           </div>
         );
@@ -122,6 +133,25 @@ useEffect(() => {
   const handleAddNew = () => {
     setEditData(null);
     setIsOpen(true);
+  };
+
+  // Handle delete functionality
+  const handleDelete = async (id: string) => {
+    try {
+      setDeletingId(id);
+      const response = await UserService.deleteData(`/admin/difficulties/${id}`, token);
+      
+      if (response?.data?.success) {
+        toast.success(response?.data?.message);
+        // Remove the deleted item from the local state
+        setDifficultiesData(prevData => prevData.filter(item => item.id !== id));
+      }
+    } catch (error) {
+      console.error("Error deleting difficulty:", error);
+      toast.error("Failed to delete difficulty");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (

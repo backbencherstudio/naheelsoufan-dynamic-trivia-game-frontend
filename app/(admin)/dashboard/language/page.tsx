@@ -4,11 +4,15 @@ import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
 import useDataFetch from '@/hooks/useDataFetch';
+import { useToken } from '@/hooks/useToken';
+import { UserService } from '@/service/user/user.service';
+import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
 import { MdEdit, MdFileDownload } from 'react-icons/md';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import { toast } from 'react-toastify';
 function page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -20,6 +24,8 @@ function page() {
    const pathname = usePathname()
    const [editData, setEditData] = useState(null);
      const [isOpen, setIsOpen] = useState(false);
+     const [deletingId, setDeletingId] = useState<string | null>(null);
+     const {token} = useToken();
      const endpoint = `/admin/languages?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
       const {data , loading}= useDataFetch(endpoint)
  useEffect(() => {
@@ -31,7 +37,7 @@ function page() {
   }
 }, [data])
 
-console.log(languageData);
+
 
 
   const columns = [
@@ -48,10 +54,17 @@ console.log(languageData);
     {
       accessor: 'actions', label: 'Actions', width: '200px',
       formatter: (_,value: any) => {
+        const isDeleting = deletingId === value.id;
         return <div className="flex gap-2.5">
              <button onClick={()=>handleEdit(value)} className='text-2xl  cursor-pointer'><MdEdit /></button>
              <button onClick={()=>handleDownload(value)} className='text-2xl cursor-pointer text-primaryColor'><MdFileDownload /></button>
-             <button onClick={()=>handleDelete(value)}  className='text-xl cursor-pointer'><RiDeleteBin6Line color='red'/></button>
+             <button 
+               onClick={()=>handleDelete(value)}  
+               disabled={isDeleting}
+               className='text-xl cursor-pointer disabled:opacity-50'
+             >
+               {isDeleting ? <Loader2 className='animate-spin' /> : <RiDeleteBin6Line color={'red'}/>}
+             </button>
         </div>;
       },
     },
@@ -80,12 +93,24 @@ console.log(languageData);
     console.log(value);
   }
   const handleEdit = (value: any) => {
-    console.log(value);
     setEditData(value);
     setIsOpen(true);
   }
-  const handleDelete = (value: any) => {
-    console.log(value);
+  const handleDelete = async(value: any) => {
+    setDeletingId(value.id);
+    try {
+      const response = await UserService.deleteData(`/admin/languages/${value?.id}`, token);
+      if (response?.data?.success) {
+        toast.success(response?.data?.message)
+        const updatedData = languageData.filter(item => item?.id !== value?.id);
+        setLanguageData(updatedData)
+      }
+    } catch (error) {
+      console.log(error?.message);
+      toast.error(error?.message)
+    } finally {
+      setDeletingId(null);
+    }
   }
   const handleAddNew = () => {
     setEditData(null);

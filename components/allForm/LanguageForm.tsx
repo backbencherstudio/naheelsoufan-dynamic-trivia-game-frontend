@@ -66,7 +66,7 @@ const id = data?.id;
           toast.success(response?.data?.message)
           setIsOpen(false)
           setIsSubmitting(false)
-          languageData.push(response?.data?.data)
+          languageData.unshift(response?.data?.data)
           reset()
         }
         console.log("============",response);
