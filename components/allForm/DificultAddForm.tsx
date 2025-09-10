@@ -7,8 +7,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToken } from "@/hooks/useToken";
+import { UserService } from "@/service/user/user.service";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 // Form data interface
@@ -21,12 +24,15 @@ interface DifficultyAddFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   editData?: {
-    difficultyName: string;
+    id?: string;
+    name: string;
     language: string;       
   } | null;
+  difficultiesData?: any[];
+  setDifficultiesData?: (difficultiesData: any[]) => void;
 }
 
-export function DifficultyAddForm({isOpen, setIsOpen, editData}: DifficultyAddFormProps) {
+export function DifficultyAddForm({isOpen, setIsOpen, editData, difficultiesData, setDifficultiesData}: DifficultyAddFormProps) {
   const {
     register,
     handleSubmit,
@@ -37,32 +43,50 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData}: DifficultyAddFo
     setValue
   } = useForm<DifficultyFormData>({
     defaultValues: {
-      difficultyName: editData?.difficultyName || "",
+      difficultyName: editData?.name || "",
       language: editData?.language || "",
     }
   });
 
+  const {token} = useToken();
+
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
-      setValue("difficultyName", editData.difficultyName);
+      setValue("difficultyName", editData.name);
       setValue("language", editData.language);
     }
   }, [editData, setValue]);
 
   const onSubmit = async (data: DifficultyFormData) => {
     try {
-      console.log("Difficulty Name:", data.difficultyName);
-      console.log("Language:", data.language);
+      const endpoint = editData?.id ? `/admin/difficulties/${editData.id}` : `/admin/difficulties`;
+      const response = await UserService.updateData(endpoint, data, token);
       
-      // Reset form and close dialog on success
-      reset();
-      setIsOpen(false);
-      
-      // Show success message
-      console.log(editData ? "Difficulty updated successfully!" : "Difficulty added successfully!");
+      if (response?.data?.success) {
+        toast.success(response?.data?.message);
+        setIsOpen(false);
+        reset();
+        
+        // Update the difficulties data
+        if (setDifficultiesData && difficultiesData) {
+          if (editData?.id) {
+            // Update existing item
+            const updatedData = difficultiesData.map(item => 
+              item.id === editData.id 
+                ? { ...item, name: data.difficultyName, language: data.language }
+                : item
+            );
+            setDifficultiesData(updatedData);
+          } else {
+            // Add new item
+            setDifficultiesData([...difficultiesData, response?.data?.data]);
+          }
+        }
+      }
     } catch (error) {
       console.error("Error saving difficulty:", error);
+      toast.error("Failed to save difficulty");
     }
   };
 

@@ -87,6 +87,10 @@ console.log(languageData);
   const handleDelete = (value: any) => {
     console.log(value);
   }
+  const handleAddNew = () => {
+    setEditData(null);
+    setIsOpen(true);
+  }
   return (
     <div>
       <div>
@@ -96,7 +100,7 @@ console.log(languageData);
         <div className='p-5'>
           <div className=' flex justify-between items-center mt-3 pb-6'>
             <h2 className='text-xl font-semibold text-headerColor dark:text-whiteColor pb-4'> Language</h2>
-           <button onClick={()=>setIsOpen(true)} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor dark:text-blackColor'>Add New Language </button>
+           <button onClick={handleAddNew} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor dark:text-blackColor'>Add New Language </button>
 
           </div>
         <div className='flex gap-4'>
@@ -129,7 +133,7 @@ console.log(languageData);
       />
       </div>
 
-      {isOpen && <LanguageForm isOpen={isOpen} setIsOpen={setIsOpen} data={editData} />}
+      {isOpen && <LanguageForm isOpen={isOpen} setIsOpen={setIsOpen} data={editData} languageData={languageData} setLanguageData={setLanguageData} />}
     </div>
   )
 }

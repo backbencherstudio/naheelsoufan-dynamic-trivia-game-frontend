@@ -9,7 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToken } from "@/hooks/useToken";
 import { UserService } from "@/service/user/user.service";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 // Form data interface
 interface LanguageFormData {
@@ -19,12 +21,12 @@ interface LanguageFormData {
   file: FileList | null;
 }
 
-export function LanguageForm({isOpen, setIsOpen, data}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void, data: any}) {
+export function LanguageForm({isOpen, setIsOpen, data, languageData, setLanguageData}: {isOpen: boolean, setIsOpen: (isOpen: boolean) => void, data?: any, languageData?: any, setLanguageData?: (languageData: any) => void}) {
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     watch
   } = useForm<LanguageFormData>({
@@ -34,14 +36,41 @@ export function LanguageForm({isOpen, setIsOpen, data}: {isOpen: boolean, setIsO
 
     },
   });
-console.log(data?.id);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 const id = data?.id;
  const {token} = useToken();
   const onSubmit = async (data: LanguageFormData) => {
-    const endpoint = data ? `/admin/languages/${id}` : `/admin/languages`;
+    setIsSubmitting(true)
+    
     try {
-     const response = await UserService.updateData(endpoint, data, token);
-     console.log("============",response);
+      if (data?.id) {
+        const endpoint = `/admin/languages/${id}`;
+        const response = await UserService.updateData(endpoint, data, token);
+          if (response?.data?.success) {
+            toast.success(response?.data?.message)
+            setIsOpen(false)
+            setIsSubmitting(false)
+            const updatedData = languageData.map(item => 
+              item.id === response?.data?.data.id 
+                ? { ...item, name: data.name, code: data.code }
+                : item
+            );
+            setLanguageData(updatedData)
+            reset()
+          }
+      }else{
+        const endpoint =`/admin/languages`;
+        const response = await UserService.createData(endpoint, data, token);
+        if (response?.data?.success) {
+          toast.success(response?.data?.message)
+          setIsOpen(false)
+          setIsSubmitting(false)
+          languageData.push(response?.data?.data)
+          reset()
+        }
+        console.log("============",response);
+      }
      
       reset();
       setIsOpen(false);

@@ -17,7 +17,8 @@ function DifficultiesPage() {
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<{
-    difficultyName: string;
+    id?: string;
+    name: string;
     language: string;
   } | null>(null);
   const searchParams = useSearchParams();
@@ -183,6 +184,8 @@ useEffect(() => {
         isOpen={isOpen} 
         setIsOpen={setIsOpen} 
         editData={editData}
+        difficultiesData={difficultiesData}
+        setDifficultiesData={setDifficultiesData}
       />
     </div>
   );
