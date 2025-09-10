@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useDataFetch from "@/hooks/useDataFetch";
 import { useToken } from "@/hooks/useToken";
 import { UserService } from "@/service/user/user.service";
 import { useEffect } from "react";
@@ -16,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 
 // Form data interface
 interface DifficultyFormData {
-  difficultyName: string;
+  name: string;
   language: string;
 }
 
@@ -26,13 +27,13 @@ interface DifficultyAddFormProps {
   editData?: {
     id?: string;
     name: string;
-    language: string;       
+    language: any;
   } | null;
   difficultiesData?: any[];
   setDifficultiesData?: (difficultiesData: any[]) => void;
 }
 
-export function DifficultyAddForm({isOpen, setIsOpen, editData, difficultiesData, setDifficultiesData}: DifficultyAddFormProps) {
+export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesData, setDifficultiesData }: DifficultyAddFormProps) {
   const {
     register,
     handleSubmit,
@@ -43,47 +44,66 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData, difficultiesData
     setValue
   } = useForm<DifficultyFormData>({
     defaultValues: {
-      difficultyName: editData?.name || "",
-      language: editData?.language || "",
+      name: editData?.name || "",
+      language: editData?.language?.id || editData?.language || "",
     }
   });
 
-  const {token} = useToken();
-
+  console.log(editData);
+  
+  const { token } = useToken();
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
-      setValue("difficultyName", editData.name);
-      setValue("language", editData.language);
+      setValue("name", editData.name);
+      const languageValue = editData?.language?.id || editData?.language || "";
+      // Small delay to ensure language data is loaded
+      setTimeout(() => {
+        setValue("language", languageValue);
+        console.log("Setting language value:", languageValue);
+      }, 100);
+    } else {
+      // Reset form when no editData (new item)
+      setValue("name", "");
+      setValue("language", "");
     }
   }, [editData, setValue]);
+  const { data: languageData } = useDataFetch(`/admin/languages`);
 
   const onSubmit = async (data: DifficultyFormData) => {
+
+    const formData ={
+      language_id: data.language,
+      name: data.name
+    }
     try {
-      const endpoint = editData?.id ? `/admin/difficulties/${editData.id}` : `/admin/difficulties`;
-      const response = await UserService.updateData(endpoint, data, token);
-      
-      if (response?.data?.success) {
-        toast.success(response?.data?.message);
-        setIsOpen(false);
-        reset();
-        
-        // Update the difficulties data
-        if (setDifficultiesData && difficultiesData) {
-          if (editData?.id) {
-            // Update existing item
-            const updatedData = difficultiesData.map(item => 
-              item.id === editData.id 
-                ? { ...item, name: data.difficultyName, language: data.language }
-                : item
-            );
-            setDifficultiesData(updatedData);
-          } else {
-            // Add new item
-            setDifficultiesData([...difficultiesData, response?.data?.data]);
-          }
+      if (editData?.id) {
+        // Update existing item
+        const endpoint = `/admin/difficulties/${editData.id}`;
+        const response = await UserService.updateData(endpoint, formData, token);
+        if (response?.data?.success) {
+          toast.success(response?.data?.message);
+          const updatedData = difficultiesData.map(item =>
+            item.id === editData.id
+              ? { ...item, name: data.name, language: data.language, language_id: data.language }
+              : item
+          );
+          setDifficultiesData(updatedData);
+          reset();
+          setIsOpen(false);
+        }
+      } else {
+        // Add new item
+        const endpoint = `/admin/difficulties`;
+        const response = await UserService.createData(endpoint, formData, token);
+        if (response?.data?.success) {
+          toast.success(response?.data?.message);
+          difficultiesData.unshift(response?.data?.data)
+          reset();
+          setIsOpen(false);
         }
       }
+
     } catch (error) {
       console.error("Error saving difficulty:", error);
       toast.error("Failed to save difficulty");
@@ -98,31 +118,29 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData, difficultiesData
             {editData ? "Edit Difficulty" : "Create Difficulty"}
           </DialogTitle>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit(onSubmit)} >
+        <form key={editData?.id || 'new'} onSubmit={handleSubmit(onSubmit)} >
           <div className="space-y-6 px-6 pb-6 pt-4">
             {/* Difficulty Name Input */}
             <div>
-              <Label htmlFor="difficultyName" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
+              <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Difficulty Name
               </Label>
-              <Input 
-                id="difficultyName" 
+              <Input
+                id="name"
                 placeholder="Difficulty Name"
-                {...register("difficultyName", { 
+                {...register("name", {
                   required: "Difficulty name is required",
                   minLength: {
                     value: 2,
                     message: "Difficulty name must be at least 2 characters"
                   }
                 })}
-                className={`w-full h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.difficultyName ? "border-red-500" : ""}  dark:text-whiteColor`}
+                className={`w-full h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? "border-red-500" : ""}  dark:text-whiteColor`}
               />
-              {errors.difficultyName && (
-                <p className="text-sm text-red-500 mt-1">{errors.difficultyName.message}</p>
+              {errors.name && (
+                <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
               )}
             </div>
-            
             {/* Language Selection */}
             <div>
               <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
@@ -138,8 +156,11 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData, difficultiesData
                       <SelectValue placeholder="Language" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="english">English</SelectItem>
-                      <SelectItem value="arabic">عربي</SelectItem>
+                      {
+                        languageData?.data?.map((item: any) => (
+                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                 )}
@@ -149,13 +170,12 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData, difficultiesData
               )}
             </div>
           </div>
-          
           {/* Action Buttons */}
           <div className="flex justify-end px-6 py-6 border-t border-headerColor/20">
             <div className="space-x-3">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => {
                   reset();
                   setIsOpen(false);
@@ -164,8 +184,8 @@ export function DifficultyAddForm({isOpen, setIsOpen, editData, difficultiesData
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isSubmitting}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
