@@ -44,7 +44,7 @@ useEffect(() => {
   }
 }, [data])
   
-  console.log("check",data);
+
   
  
  const columns = [

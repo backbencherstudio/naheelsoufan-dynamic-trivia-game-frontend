@@ -24,14 +24,10 @@ interface DifficultyFormData {
 interface DifficultyAddFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  editData?: {
-    id?: string;
-    name: string;
-    language: any;
-  } | null;
+  editData?:any| {};
   difficultiesData?: any[];
   setDifficultiesData?: (difficultiesData: any[]) => void;
-}
+  }
 
 export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesData, setDifficultiesData }: DifficultyAddFormProps) {
   const {
