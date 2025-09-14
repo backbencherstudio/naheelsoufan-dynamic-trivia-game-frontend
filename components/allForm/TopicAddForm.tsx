@@ -1,19 +1,22 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToken } from "@/hooks/useToken";
+import { UserService } from "@/service/user/user.service";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 // Form data interface
 interface TopicFormData {
-  topicName: string;
+  name: string;
   language: string;
   file: FileList;
 }
@@ -21,15 +24,15 @@ interface TopicFormData {
 interface TopicAddFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  editData?: {
-    topicName: string;
-    language: string;
-    icon?: string;
-  } | null;
+  editData?: any | null;
+  topicsData?: any[];
+  setTopicsData?: (topicsData: any[]) => void;
+  languageData?: any;
 }
 
-export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
+export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopicsData, languageData}: TopicAddFormProps) {
   const [selectedFileName, setSelectedFileName] = useState<string>("");
+  const { token } = useToken();
 
   const {
     register,
@@ -41,16 +44,19 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
     setValue
   } = useForm<TopicFormData>({
     defaultValues: {
-      topicName: editData?.topicName || "",
-      language: editData?.language || "",
+      name: editData?.name || "",
+      language: editData?.language?.id || editData?.language || "",
     }
   });
 
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
-      setValue("topicName", editData.topicName);
-      setValue("language", editData.language);
+      setValue("name", editData.name);
+      const languageValue = editData?.language?.id || editData?.language || "";
+      setTimeout(() => {
+        setValue("language", languageValue);
+      }, 100);
       if (editData.icon) {
         setSelectedFileName(editData.icon);
       }
@@ -69,23 +75,48 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
   };
 
   const onSubmit = async (data: TopicFormData) => {
+    const formData = new FormData();
+    console.log(data.language);
+
+    formData.append("name", data.name);
+    formData.append("language_id", data.language);
+    if (data.file && data.file[0]) {
+      formData.append("file", data.file[0]);
+    }
+
     try {
-      console.log("Topic Name:", data.topicName);
-      console.log("Language:", data.language);
-      console.log("File:", data.file[0]);
-      
-      // Here you would typically send the data to your API
-      // await apiCall(data);
-      
-      // Reset form and close dialog on success
-      reset();
-      setSelectedFileName("");
-      setIsOpen(false);
-      
-      // Show success message
-      console.log(editData ? "Topic updated successfully!" : "Topic added successfully!");
+      if (editData?.id) {
+        // Update existing item
+        const endpoint = `/admin/categories/${editData.id}`;
+        const response = await UserService.updateData(endpoint, formData, token);
+        if (response?.data?.success) {
+          toast.success(response?.data?.message);
+          const updatedData = topicsData?.map(item =>
+            item.id === editData.id
+              ? { ...item, name: data.name, language: { name: languageData?.data?.find((lang: any) => lang?.id === data.language)?.name, id: data.language } }
+              : item
+          );
+          setTopicsData(updatedData);
+          reset();
+          setSelectedFileName("");
+          setIsOpen(false);
+        }
+      } else {
+        // Add new item
+        const endpoint = `/admin/categories`;
+        const response = await UserService.addFormData(endpoint, formData, token);
+        
+        if (response?.data?.success) {
+          toast.success(response?.data?.message);
+          topicsData?.unshift(response?.data?.data);
+          reset();
+          setSelectedFileName("");
+          setIsOpen(false);
+        }
+      }
     } catch (error) {
       console.error("Error saving topic:", error);
+      toast.error("Failed to save topic");
     }
   };
 
@@ -100,25 +131,25 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
         
         <form onSubmit={handleSubmit(onSubmit)} >
           <div className="space-y-4 px-6 pb-6">
-            {/* Language Input */}
+            {/* Topic Name Input */}
             <div>
-              <Label htmlFor="topicName" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
+              <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Topic Name
               </Label>
               <Input 
-                id="topicName" 
+                id="name" 
                 placeholder="Topic Name"
-                {...register("topicName", { 
+                {...register("name", { 
                   required: "Topic name is required",
                   minLength: {
                     value: 2,
                     message: "Topic name must be at least 2 characters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.topicName ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.name ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
               />
-              {errors.topicName && (
-                <p className="text-sm text-red-500 mt-1">{errors.topicName.message}</p>
+              {errors.name && (
+                <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
               )}
             </div>
             
@@ -137,8 +168,11 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
                       <SelectValue placeholder="Select Language" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="english">English</SelectItem>
-                      <SelectItem value="arabic">عربي</SelectItem>
+                      {
+                        languageData?.data?.map((item: any) => (
+                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                 )}
@@ -185,7 +219,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData}: TopicAddFormProps) {
                   id="file" 
                   accept="image/jpeg,image/png" 
                   {...register("file", { 
-                    required: "Topic Icon file is required",
+                    required: !editData?.id ? "Topic Icon file is required" : false,
                     validate: (files) => {
                       if (files && files[0]) {
                         const file = files[0];

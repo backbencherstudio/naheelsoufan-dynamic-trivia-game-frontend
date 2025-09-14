@@ -1,108 +1,94 @@
 "use client";
 import { TopicAddForm } from '@/components/allForm/TopicAddForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
+import useDataFetch from '@/hooks/useDataFetch';
+import { useToken } from '@/hooks/useToken';
+import { UserService } from '@/service/user/user.service';
+import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPen, FaPlus } from 'react-icons/fa6';
 import { FiDownload, FiUpload } from 'react-icons/fi';
+import { HiSearch } from 'react-icons/hi';
 import { MdCategory } from 'react-icons/md';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import { toast } from 'react-toastify';
 
 function TopicsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [topicsData, setTopicsData] = useState([]);
+  const [paginationData, setPaginationData] = useState({});
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [editData, setEditData] = useState<{
-    topicName: string;
-    language: string;
-    icon?: string;
-  } | null>(null);
-  // Demo data matching the image
-  const topicsData = [
-    { 
-      no: 1, 
-      topicName: "Cosmetics", 
-      language: "English", 
-      icon: "👤", 
-      actions: "Edit" 
-    },
-    { 
-      no: 2, 
-      topicName: "دوري ابطال اوروبا", 
-      language: "عربي", 
-      icon: "⚽", 
-      actions: "Edit" 
-    },
-    { 
-      no: 3, 
-      topicName: "Maps", 
-      language: "English", 
-      icon: "☁️", 
-      actions: "Edit" 
-    },
-    { 
-      no: 4, 
-      topicName: "معلومات عامة", 
-      language: "عربي", 
-      icon: "🧠", 
-      actions: "Edit" 
-    },
-    { 
-      no: 5, 
-      topicName: "Grocery", 
-      language: "English", 
-      icon: "🛒", 
-      actions: "Edit" 
-    },
-    { 
-      no: 6, 
-      topicName: "إحزرها", 
-      language: "عربي", 
-      icon: "❓", 
-      actions: "Edit" 
-    },
-    { 
-      no: 7, 
-      topicName: "Charades", 
-      language: "English", 
-      icon: "🎭", 
-      actions: "Edit" 
-    },
-    { 
-      no: 8, 
-      topicName: "خرائط", 
-      language: "عربي", 
-      icon: "☁️", 
-      actions: "Edit" 
-    },
-    { 
-      no: 9, 
-      topicName: "Geography", 
-      language: "English", 
-      icon: "🌍", 
-      actions: "Edit" 
-    },
-    { 
-      no: 10, 
-      topicName: "Science", 
-      language: "English", 
-      icon: "🔬", 
-      actions: "Edit" 
-    },
-  ];
+  const [editData, setEditData] = useState<any | null>(null);
+  const { token } = useToken();
+
+  // API endpoint with language filtering
+  const endpoint = `/admin/categories?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`;
+  const { data, loading } = useDataFetch(endpoint);
+
+  // Fetch language data for the dropdown
+  const { data: languageData } = useDataFetch(`/admin/languages`);
+
+  // Update topics data when API response changes
+  useEffect(() => {
+    if (data?.data?.length > 0) {
+      setTopicsData(data?.data);
+    }
+    if (data) {
+      setPaginationData(data?.pagination);
+    }
+  }, [data]);
+
+  console.log(topicsData);
+  
+
+  // Handle language selection
+  const handleLanguageChange = (value: string) => {
+    setSelectedLanguage(value === 'all' ? '' : value);
+    const params = new URLSearchParams(searchParams);
+    if (value === 'all') {
+      params.delete('language_id');
+    } else {
+      params.set('language_id', value);
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Initialize selected language from URL params
+  useEffect(() => {
+    const languageParam = searchParams.get('language_id');
+    setSelectedLanguage(languageParam || '');
+  }, [searchParams]);
   const handleEdit = (record: any) => {
-    console.log("Editing record:", record);
-    setEditData({
-      topicName: record.topicName,
-      language: record.language === "English" ? "english" : "arabic",
-      icon: record.icon
-    });
+    setEditData(record);
     setIsOpen(true);
+  };
+
+  const handleDelete = async (id: any) => {
+    setDeletingId(id);
+    try {
+      const response = await UserService.deleteData(`/admin/categories/${id}`, token);
+
+      if (response?.data?.success) {
+        toast.success(response?.data?.message);
+        setTopicsData(prevData => prevData.filter(item => item.id !== id));
+      }
+    } catch (error) {
+      console.error("Error deleting topic:", error);
+      toast.error("Failed to delete topic");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleAddNew = () => {
@@ -122,7 +108,7 @@ function TopicsPage() {
     },
     {
       label: "Topic Name",
-      accessor: "topicName",
+      accessor: "name",
       width: "200px",
       formatter: (value: string) => (
         <span className="text-sm font-medium">{value}</span>
@@ -132,17 +118,17 @@ function TopicsPage() {
       label: "Language",
       accessor: "language",
       width: "120px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value: { name: string }) => (
+        <span className="text-sm">{value?.name}</span>
       ),
     },
     {
       label: "Icon",
-      accessor: "icon",
+      accessor: "image_url",
       width: "100px",
       formatter: (value: string) => (
-        <div className="flex items-center   justify-center">
-          <span className="text-2xl">{value}</span>
+        <div className="flex items-center justify-center w-[60px]">
+          {value ? <Image src={value} alt="icon" width={60} height={60} /> :<span className="text-2xl"> 📁</span>}
         </div>
       ),
     },
@@ -151,6 +137,7 @@ function TopicsPage() {
       accessor: "actions",
       width: "120px",
       formatter: (_: any, record: any) => {
+        const isDeleting = deletingId === record.id;
         return (
           <div className="flex gap-2.5">
             <button 
@@ -159,8 +146,12 @@ function TopicsPage() {
             >
               <FaPen />
             </button>
-            <button className='text-xl cursor-pointer text-red-600 hover:text-red-800'>
-              <RiDeleteBin6Line />
+            <button 
+              onClick={() => handleDelete(record.id)}
+              disabled={isDeleting}
+              className='text-xl cursor-pointer text-red-600 hover:text-red-800 disabled:opacity-50'
+            >
+              {isDeleting ? <Loader2 className='animate-spin' /> : <RiDeleteBin6Line />}
             </button>
           </div>
         );
@@ -172,11 +163,11 @@ function TopicsPage() {
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
-      params.delete('topic');
+      params.delete('category');
     } else {
-      params.set('topic', searchValue);
+      params.set('category', searchValue);
     }
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
   // Debounced search function using the reusable hook
@@ -223,6 +214,34 @@ function TopicsPage() {
            </button>
         </div>
           </div>
+          
+          {/* Filter and Search Section */}
+          <div className="flex gap-4 mb-6">
+            <div className="w-48">
+              <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
+                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
+                  <SelectValue placeholder='Language' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All</SelectItem>
+                  {
+                        languageData?.data?.map((item: any) => (
+                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                        ))
+                      }
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="relative flex-1">
+              <input
+                onChange={handleSearch}
+                type="text"
+                placeholder="Search topics..."
+                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            </div>
+          </div>
         </div>
         
         <DynamicTableTwo
@@ -232,10 +251,11 @@ function TopicsPage() {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-          itemsPerPageOptions={[5, 10, 20, 50]}
+          paginationData={paginationData}
+          loading={loading}
         />
       </div>
-      {isOpen && <TopicAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} />}
+      {isOpen && <TopicAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} topicsData={topicsData} setTopicsData={setTopicsData} languageData={languageData} />}
     </div>
   );
 }

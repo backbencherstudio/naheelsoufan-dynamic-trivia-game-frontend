@@ -21,15 +21,19 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "sxgame.ddns.net",
+        hostname: "nirob.signalsmind.com",
+      },
+      {
+        protocol: "http",
+        hostname: "nirob.signalsmind.com",
       },
       {
         protocol: "https",
-        hostname: "sxgame.net",
+        hostname: "signalsmind.com",
       },
       {
         protocol: "https",
-        hostname: "ddns.net",
+        hostname: "nirob.com",
       },
       {
         protocol: "http",
