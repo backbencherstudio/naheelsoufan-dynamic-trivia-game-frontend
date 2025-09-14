@@ -3,8 +3,10 @@
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
+import useDataFetch from '@/hooks/useDataFetch';
+import { useToken } from '@/hooks/useToken';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HiSearch } from 'react-icons/hi';
 
 function PreviousGamesPage() {
@@ -16,90 +18,22 @@ function PreviousGamesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
+  const [gamesHistoryData, setGamesHistoryData] = useState([]);
+  const [paginationData, setPaginationData] = useState({});
+     const {token} = useToken();
+     const endpoint = `/admin/games?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
+      const {data , loading}= useDataFetch(endpoint)
+ useEffect(() => {
+  if (data?.data?.length > 0) {
+    setGamesHistoryData(data?.data)
+  }
+  if (data) {
+    setPaginationData(data?.pagination)
+  }
+}, [data])
   // Demo data matching the image
-  const gamesHistoryData = [
-    { 
-      no: 1, 
-      category: "testing", 
-      difficulty: "Easy", 
-      hostName: "wkh929@gmail.com", 
-      hostEmail: "wkh929@gmail.com", 
-      players: "P1, P2" 
-    },
-    { 
-      no: 2, 
-      category: "Geography", 
-      difficulty: "Easy", 
-      hostName: "game", 
-      hostEmail: "test@spamok.com", 
-      players: "Player1, Player2" 
-    },
-    { 
-      no: 3, 
-      category: "Cosmetics", 
-      difficulty: "Easy", 
-      hostName: "wkh929@gmail.com", 
-      hostEmail: "wkh929@gmail.com", 
-      players: "P1, P2" 
-    },
-    { 
-      no: 4, 
-      category: "General Knowledge", 
-      difficulty: "Easy", 
-      hostName: "game", 
-      hostEmail: "test@spamok.com", 
-      players: "Pd, Pj" 
-    },
-    { 
-      no: 5, 
-      category: "Maps", 
-      difficulty: "Easy", 
-      hostName: "game", 
-      hostEmail: "test@spamok.com", 
-      players: "Pw, Pd" 
-    },
-    { 
-      no: 6, 
-      category: "testing", 
-      difficulty: "Easy", 
-      hostName: "walid test", 
-      hostEmail: "vialabtest1@gmail.com", 
-      players: "P1, P2" 
-    },
-    { 
-      no: 7, 
-      category: "Geography", 
-      difficulty: "Easy", 
-      hostName: "game", 
-      hostEmail: "test@spamok.com", 
-      players: "Player1, Player2" 
-    },
-    { 
-      no: 8, 
-      category: "Science", 
-      difficulty: "Medium", 
-      hostName: "john.doe@example.com", 
-      hostEmail: "john.doe@example.com", 
-      players: "Alice, Bob, Charlie" 
-    },
-    { 
-      no: 9, 
-      category: "History", 
-      difficulty: "Hard", 
-      hostName: "history.master@test.com", 
-      hostEmail: "history.master@test.com", 
-      players: "David, Eve" 
-    },
-    { 
-      no: 10, 
-      category: "Sports", 
-      difficulty: "Easy", 
-      hostName: "sports.fan@example.com", 
-      hostEmail: "sports.fan@example.com", 
-      players: "Frank, Grace, Henry" 
-    },
-  ];
+ console.log(gamesHistoryData);
+ 
 
   const columns = [
     {
@@ -111,17 +45,17 @@ function PreviousGamesPage() {
         return <span className="text-sm font-medium">{serial}</span>;
       },
     },
+    // {
+    //   label: "Category",
+    //   accessor: "category",
+    //   width: "150px",
+    //   formatter: (value: string) => (
+    //     <span className="text-sm font-medium">{value}</span>
+    //   ),
+    // },
     {
-      label: "Category",
-      accessor: "category",
-      width: "150px",
-      formatter: (value: string) => (
-        <span className="text-sm font-medium">{value}</span>
-      ),
-    },
-    {
-      label: "Difficulty",
-      accessor: "difficulty",
+      label: "Game Mode",
+      accessor: "mode",
       width: "100px",
       formatter: (value: string) => (
         <span className="text-sm">{value}</span>
@@ -129,18 +63,18 @@ function PreviousGamesPage() {
     },
     {
       label: "Host Name",
-      accessor: "hostName",
+      accessor: "host",
       width: "200px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value:{name: string}) => (
+        <span className="text-sm">{value?.name}</span>
       ),
     },
     {
       label: "Host Email",
-      accessor: "hostEmail",
+      accessor: "host",
       width: "200px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value: {email:string}) => (
+        <span className="text-sm">{value?.email}</span>
       ),
     },
     {
