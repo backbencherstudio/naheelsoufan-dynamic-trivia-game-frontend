@@ -32,9 +32,10 @@ interface SubscriptionAddFormProps {
   editData?: SubscriptionType;
   subscriptionTypesData?: SubscriptionType[];
   setSubscriptionTypesData?: (subscriptionTypesData: SubscriptionType[]) => void;
+  languageData?: any;
 }
 
-export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionTypesData, setSubscriptionTypesData }: SubscriptionAddFormProps) {
+export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionTypesData, setSubscriptionTypesData , languageData }: SubscriptionAddFormProps) {
   const {
     register,
     handleSubmit,
@@ -54,7 +55,6 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
     }
   });
   const { token } = useToken()
-  console.log(editData?.language?.name);
 
   // Update form values when editData changes
   useEffect(() => {
@@ -67,7 +67,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
       setValue("price", editData.price);
     }
   }, [editData, setValue]);
-  const { data: languageData } = useDataFetch(`/admin/languages`);
+
   const onSubmit = async (data: SubscriptionFormData) => {
     const formData = new FormData()
     console.log(data.language);
