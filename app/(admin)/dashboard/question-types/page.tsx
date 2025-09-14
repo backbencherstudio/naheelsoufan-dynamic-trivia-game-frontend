@@ -5,11 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from '@/helper/debounce.helper';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
+import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { FaPen } from 'react-icons/fa6';
 import { HiSearch } from 'react-icons/hi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import { toast } from 'react-toastify';
 
 function QuestionTypesPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -109,8 +111,17 @@ function QuestionTypesPage() {
     setIsOpen(true);
   };
 
-  const handleDelete = (record: any) => {
-    console.log("Deleting record:", record);
+  const handleDelete = async(record: any) => {
+    try {
+      const response = await UserService.deleteData(`/admin/question-types/${record.id}`, token);
+      console.log(response);
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setQuestionData(questionData.filter((item) => item.id !== record.id));
+      }
+    } catch (error) {
+      
+    }
   };
  
   const handleAddNew = () => {

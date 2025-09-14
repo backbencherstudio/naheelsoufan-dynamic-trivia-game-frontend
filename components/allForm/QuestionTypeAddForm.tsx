@@ -66,6 +66,8 @@ export function QuestionAddForm({ isOpen, setIsOpen, editData, questionData, set
 
 
   const onSubmit = async (data: TopicFormData) => {
+    console.log(data.language);
+     
     const formData = {
       language_id: data.language,
       name: data.questionTypeName
@@ -75,11 +77,13 @@ export function QuestionAddForm({ isOpen, setIsOpen, editData, questionData, set
         // Update existing item
         const endpoint = `/admin/question-types/${editData.id}`;
         const response = await UserService.updateData(endpoint, formData, token);
+        console.log(response);
+        
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const updatedData = questionData.map(item =>
             item.id === editData.id
-              ? { ...item, name: data.questionTypeName, language:{name: data.language} }
+              ? { ...item, name: data.questionTypeName, language:{name: languageData?.data?.filter((item)=>item?.id === data.language)[0]?.name} }
               : item
           );
           setQuestionData(updatedData);
