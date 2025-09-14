@@ -2,8 +2,10 @@
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
+import useDataFetch from '@/hooks/useDataFetch';
+import { useToken } from '@/hooks/useToken';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import { HiSearch } from 'react-icons/hi';
 
@@ -17,82 +19,21 @@ function UsersPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+   const {token} = useToken();
+     const endpoint = `/admin/players?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
+      const {data , loading}= useDataFetch(endpoint)
+   const [usersData, setUsersData] = useState([]);
+   const [totalUsersData, setTotalUsersData] = useState({});
+ useEffect(() => {
+  if (data?.data?.length > 0) {
+    setUsersData(data?.data)
+  }
+  if (data) {
+    setTotalUsersData(data?.pagination)
+  }
+}, [data])
+console.log("player",usersData);
 
-  // Demo data matching the image
-  const usersData = [
-    { 
-      no: 1, 
-      name: "6", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-    { 
-      no: 2, 
-      name: "7", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-    { 
-      no: 3, 
-      name: "Noir", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-    { 
-      no: 4, 
-      name: "Noor", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-    { 
-      no: 5, 
-      name: "P1", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-    { 
-      no: 6, 
-      name: "P2", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-    { 
-      no: 7, 
-      name: "P3", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-    { 
-      no: 8, 
-      name: "P8", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-    { 
-      no: 9, 
-      name: "P9", 
-      score: 0, 
-      correct: 0, 
-      wrong: 0, 
-      skipped: 0 
-    },
-  ];
 
   const columns = [
     {
@@ -106,10 +47,10 @@ function UsersPage() {
     },
     {
       label: "Name",
-      accessor: "name",
+      accessor: "user",
       width: "150px",
-      formatter: (value: string) => (
-        <span className="text-sm font-medium">{value}</span>
+      formatter: (value: {name: string}) => (
+        <span className="text-sm font-medium">{value?.name}</span>
       ),
     },
     {
@@ -122,7 +63,7 @@ function UsersPage() {
     },
     {
       label: "Correct",
-      accessor: "correct",
+      accessor: "correct_answers",
       width: "100px",
       formatter: (value: number) => (
         <span className="text-sm">{value}</span>
@@ -130,7 +71,7 @@ function UsersPage() {
     },
     {
       label: "Wrong",
-      accessor: "wrong",
+      accessor: "wrong_answers",
       width: "100px",
       formatter: (value: number) => (
         <span className="text-sm">{value}</span>
@@ -138,7 +79,7 @@ function UsersPage() {
     },
     {
       label: "Skipped",
-      accessor: "skipped",
+      accessor: "skipped_answers",
       width: "100px",
       formatter: (value: number) => (
         <span className="text-sm">{value}</span>
@@ -150,9 +91,9 @@ function UsersPage() {
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
-      params.delete('search');
+      params.delete('q');
     } else {
-      params.set('search', searchValue);
+      params.set('q', searchValue);
     }
     router.replace(`${pathname}?${params.toString()}`);
   }, [searchParams, router, pathname]);
@@ -237,7 +178,8 @@ function UsersPage() {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-          itemsPerPageOptions={[5, 10, 20, 50]}
+          paginationData={totalUsersData}
+          loading={loading}
         />
       </div>
     </div>
