@@ -1,25 +1,31 @@
+"use client"
+import useDataFetch from "@/hooks/useDataFetch";
+import { Loader } from "lucide-react";
 import Link from "next/link";
 import { RxBarChart } from "react-icons/rx";
 
 export default function StatCards({ data }: any) {
+  const { data: totalHost ,loading} = useDataFetch(`/admin/dashboard/stats`);
+  console.log(totalHost?.data?.overview);
+  
   const statCards = [
     {
       title: "Total Host",
-      value: 5,
+      value: totalHost?.data?.overview?.totalHosts || 0,
       percentage: "+6%",
       icon: <RxBarChart className="text-greenColor" />,
       timeFrame: "Last Month",
     },
     {
       title: "Total Users",
-      value: 10,
+      value: totalHost?.data?.overview?.totalUsers || 0,
       percentage: "+6%",
       icon: <RxBarChart  className="text-teal-400"/>,
       timeFrame: "Last Month",
     },
     {
       title: "Total Questions",
-      value: 20,
+      value: totalHost?.data?.overview?.totalQuestions || 0,
       percentage: "+6%",
       icon: <RxBarChart className="text-orange-400" />,
       timeFrame: "Last Month",
@@ -29,10 +35,10 @@ export default function StatCards({ data }: any) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      {statCards.map((card, idx) => (
+      
+      {loading ? <Loader/> : statCards?.map((card, idx) => (
         <Link href="#"
           key={idx}
-
           className="p-4 rounded-lg border border-borderColor flex hover:shadow-[2px_2px_7px_2px_rgba(0,_0,_0,_0.08)] transition-all card flex-col gap-5"
         >
           {/* Top Row */}
