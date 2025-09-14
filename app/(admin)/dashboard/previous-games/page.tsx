@@ -20,9 +20,9 @@ function PreviousGamesPage() {
   const pathname = usePathname();
   const [gamesHistoryData, setGamesHistoryData] = useState([]);
   const [paginationData, setPaginationData] = useState({});
-     const {token} = useToken();
-     const endpoint = `/admin/games?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
-      const {data , loading}= useDataFetch(endpoint)
+  const {token} = useToken();
+  const endpoint = `/admin/games?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
+  const {data , loading}= useDataFetch(endpoint)
  useEffect(() => {
   if (data?.data?.length > 0) {
     setGamesHistoryData(data?.data)
@@ -166,7 +166,7 @@ function PreviousGamesPage() {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-          itemsPerPageOptions={[5, 10, 20, 50]}
+         
         />
       </div>
     </div>

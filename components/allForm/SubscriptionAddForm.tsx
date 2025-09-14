@@ -1,40 +1,40 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import useDataFetch from "@/hooks/useDataFetch";
+import { useToken } from "@/hooks/useToken";
+import { UserService } from "@/service/user/user.service";
+import { SubscriptionType } from "@/types";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 // Form data interface
 interface SubscriptionFormData {
   subscriptionType: string;
   language: string;
-  numberOfGames: string;
-  numberOfQuestions: string;
-  numberOfPlayers: string;
-  price: string;
+  numberOfGames: number;
+  numberOfQuestions: number;
+  numberOfPlayers: number;
+  price: number;
 }
 
 interface SubscriptionAddFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  editData?: {
-    subscriptionType: string;
-    language: string;
-    numberOfGames: string;
-    numberOfQuestions: string;
-    numberOfPlayers: string;
-    price: string;
-  } | null;
+  editData?: SubscriptionType;
+  subscriptionTypesData?: SubscriptionType[];
+  setSubscriptionTypesData?: (subscriptionTypesData: SubscriptionType[]) => void;
 }
 
-export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionAddFormProps) {
+export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionTypesData, setSubscriptionTypesData }: SubscriptionAddFormProps) {
   const {
     register,
     handleSubmit,
@@ -45,42 +45,71 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
     setValue
   } = useForm<SubscriptionFormData>({
     defaultValues: {
-      subscriptionType: editData?.subscriptionType || "",
-      language: editData?.language || "",
-      numberOfGames: editData?.numberOfGames || "",
-      numberOfQuestions: editData?.numberOfQuestions || "",
-      numberOfPlayers: editData?.numberOfPlayers || "",
-      price: editData?.price || "",
+      subscriptionType: editData?.type || "",
+      language: editData?.language?.id || "",
+      numberOfGames: editData?.games || 0,
+      numberOfQuestions: editData?.questions || 0,
+      numberOfPlayers: editData?.players || 0,
+      price: editData?.price || 0,
     }
   });
+  const { token } = useToken()
+  console.log(editData?.language?.name);
 
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
-      setValue("subscriptionType", editData.subscriptionType);
-      setValue("language", editData.language);
-      setValue("numberOfGames", editData.numberOfGames);
-      setValue("numberOfQuestions", editData.numberOfQuestions);
-      setValue("numberOfPlayers", editData.numberOfPlayers);
+      setValue("subscriptionType", editData.type);
+      setValue("language", editData.language.id);
+      setValue("numberOfGames", editData.games);
+      setValue("numberOfQuestions", editData.questions);
+      setValue("numberOfPlayers", editData.players);
       setValue("price", editData.price);
     }
   }, [editData, setValue]);
-
+  const { data: languageData } = useDataFetch(`/admin/languages`);
   const onSubmit = async (data: SubscriptionFormData) => {
+    const formData = new FormData()
+    console.log(data.language);
+
+    formData.append("type", data.subscriptionType)
+    formData.append("language_id", data.language)
+    formData.append("games", data.numberOfGames.toString())
+    formData.append("questions", data.numberOfQuestions.toString())
+    formData.append("players", data.numberOfPlayers.toString())
+    formData.append("price", data.price.toString())
     try {
-      console.log("Subscription Type:", data.subscriptionType);
-      console.log("Language:", data.language);
-      console.log("Number of Games:", data.numberOfGames);
-      console.log("Number of Questions:", data.numberOfQuestions);
-      console.log("Number of Players:", data.numberOfPlayers);
-      console.log("Price:", data.price);
-      
+
+      if (editData?.id) {
+        // Update existing item
+        const endpoint = `/admin/subscription-types/${editData.id}`;
+        const response = await UserService.updateData(endpoint, formData, token);
+        if (response?.data?.success) {
+          toast.success(response?.data?.message);
+          const updatedData: any[] = subscriptionTypesData?.map(item =>
+            item.id === editData.id
+              ? { ...item, type: data.subscriptionType, language: { name: languageData?.data?.find((item: any) => item.id === data.language)?.name, id: data.language }, games: data.numberOfGames, questions: data.numberOfQuestions, players: data.numberOfPlayers, price: data.price }
+              : item
+          );
+          setSubscriptionTypesData(updatedData);
+          reset();
+          setIsOpen(false);
+        }
+      } else {
+        // Add new item
+        const endpoint = `/admin/subscription-types`;
+        const response = await UserService.createData(endpoint, formData, token);
+        if (response?.data?.success) {
+          toast.success(response?.data?.message);
+          console.log(response?.data?.data);
+          subscriptionTypesData?.unshift(response?.data?.data);
+          reset();
+          setIsOpen(false);
+        }
+      }
       // Reset form and close dialog on success
       reset();
       setIsOpen(false);
-      
-      // Show success message
-      console.log(editData ? "Subscription type updated successfully!" : "Subscription type added successfully!");
     } catch (error) {
       console.error("Error saving subscription type:", error);
     }
@@ -94,7 +123,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
             {editData ? "Edit Subscription Type" : "Add Subscription Type"}
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4 px-6 pb-6">
             {/* Subscription Type Input */}
@@ -102,10 +131,10 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
               <Label htmlFor="subscriptionType" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Subscription Type
               </Label>
-              <Input 
-                id="subscriptionType" 
+              <Input
+                id="subscriptionType"
                 placeholder="Subscription Type"
-                {...register("subscriptionType", { 
+                {...register("subscriptionType", {
                   required: "Subscription type is required",
                   minLength: {
                     value: 2,
@@ -118,7 +147,7 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                 <p className="text-sm text-red-500 mt-1">{errors.subscriptionType.message}</p>
               )}
             </div>
-            
+
             {/* Language Selection */}
             <div>
               <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
@@ -134,8 +163,11 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                       <SelectValue placeholder="Language" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="english">English</SelectItem>
-                      <SelectItem value="arabic">عربي</SelectItem>
+                      {
+                        languageData?.data?.map((item: any) => (
+                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                 )}
@@ -144,18 +176,18 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                 <p className="text-sm text-red-500 mt-1">{errors.language.message}</p>
               )}
             </div>
-            
+
             {/* Two Column Grid for Number of Games and Number of Questions */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="numberOfGames" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                   Number of games
                 </Label>
-                <Input 
-                  id="numberOfGames" 
+                <Input
+                  id="numberOfGames"
                   placeholder="Number of games"
                   type="number"
-                  {...register("numberOfGames", { 
+                  {...register("numberOfGames", {
                     required: "Number of games is required",
                     min: {
                       value: 1,
@@ -168,16 +200,16 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                   <p className="text-sm text-red-500 mt-1">{errors.numberOfGames.message}</p>
                 )}
               </div>
-              
+
               <div>
                 <Label htmlFor="numberOfQuestions" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                   Number of Questions
                 </Label>
-                <Input 
-                  id="numberOfQuestions" 
+                <Input
+                  id="numberOfQuestions"
                   placeholder="Number of Questions"
                   type="number"
-                  {...register("numberOfQuestions", { 
+                  {...register("numberOfQuestions", {
                     required: "Number of questions is required",
                     min: {
                       value: 1,
@@ -191,18 +223,18 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                 )}
               </div>
             </div>
-            
+
             {/* Two Column Grid for Number of Players and Price */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="numberOfPlayers" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                   Number of Players
                 </Label>
-                <Input 
-                  id="numberOfPlayers" 
+                <Input
+                  id="numberOfPlayers"
                   placeholder="Number of Players"
                   type="number"
-                  {...register("numberOfPlayers", { 
+                  {...register("numberOfPlayers", {
                     required: "Number of players is required",
                     min: {
                       value: 1,
@@ -215,17 +247,17 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
                   <p className="text-sm text-red-500 mt-1">{errors.numberOfPlayers.message}</p>
                 )}
               </div>
-              
+
               <div>
                 <Label htmlFor="price" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                   Price
                 </Label>
-                <Input 
-                  id="price" 
+                <Input
+                  id="price"
                   placeholder="Price"
                   type="number"
                   step="0.01"
-                  {...register("price", { 
+                  {...register("price", {
                     required: "Price is required",
                     min: {
                       value: 0,
@@ -240,13 +272,13 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
               </div>
             </div>
           </div>
-          
+
           {/* Action Buttons */}
           <div className="flex justify-end py-6 border-t border-headerColor/20">
             <div className="px-6 space-x-3">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => {
                   reset();
                   setIsOpen(false);
@@ -255,8 +287,8 @@ export function SubscriptionAddForm({isOpen, setIsOpen, editData}: SubscriptionA
               >
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >

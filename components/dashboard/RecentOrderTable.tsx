@@ -1,13 +1,16 @@
 "use client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from "@/helper/debounce.helper";
+import useDataFetch from '@/hooks/useDataFetch';
+import { useToken } from '@/hooks/useToken';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPen } from 'react-icons/fa6';
 import { HiSearch } from 'react-icons/hi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { SubscriptionAddForm } from '../allForm/SubscriptionAddForm';
 import DynamicTableTwo from "../common/DynamicTableTwo";
+import { SubscriptionType } from '@/types';
 function RecentOrderTable({ recentOrder }: any) {
  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -16,14 +19,23 @@ function RecentOrderTable({ recentOrder }: any) {
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [editData, setEditData] = useState<{
-    subscriptionType: string;
-    language: string;
-    numberOfGames: string;
-    numberOfQuestions: string;
-    numberOfPlayers: string;
-    price: string;
-  } | null>(null);
+  const [editData, setEditData] = useState<SubscriptionType | null>(null);
+   
+ const [subscriptionTypesData, setSubscriptionTypesData] = useState([]);
+  const [paginationData, setPaginationData] = useState({});
+  const {token} = useToken();
+  const endpoint = `/admin/subscription-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
+  const {data , loading}= useDataFetch(endpoint)
+ useEffect(() => {
+  if (data?.data?.length > 0) {
+    setSubscriptionTypesData(data?.data)
+  }
+  if (data) {
+    setPaginationData(data?.pagination)
+  }
+}, [data])
+
+console.log(subscriptionTypesData);
 
   // Demo data matching subscription types from the image
   const recentData = [
@@ -88,7 +100,7 @@ const columns = [
     },
     {
       label: "Type Name",
-      accessor: "typeName",
+      accessor: "type",
       width: "150px",
       formatter: (value: string) => (
         <span className="text-sm font-medium">{value}</span>
@@ -98,7 +110,7 @@ const columns = [
       label: "Price",
       accessor: "price",
       width: "80px",
-      formatter: (value: string) => (
+      formatter: (value: number) => (
         <span className="text-sm">{value}</span>
       ),
     },
@@ -106,7 +118,7 @@ const columns = [
       label: "Players",
       accessor: "players",
       width: "80px",
-      formatter: (value: string) => (
+      formatter: (value: number) => (
         <span className="text-sm">{value}</span>
       ),
     },
@@ -114,23 +126,23 @@ const columns = [
       label: "Games",
       accessor: "games",
       width: "80px",
-      formatter: (value: string) => (
+      formatter: (value: number) => (
         <span className="text-sm">{value}</span>
       ),
     },
     {
       label: "Languages",
-      accessor: "languages",
+      accessor: "language",
       width: "100px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value: {name: string}) => (
+        <span className="text-sm">{value?.name}</span>
       ),
     },
     {
       label: "Questions",
       accessor: "questions",
       width: "90px",
-      formatter: (value: string) => (
+      formatter: (value: number) => (
         <span className="text-sm">{value}</span>
       ),
     },
@@ -181,14 +193,7 @@ const columns = [
 
   const handleEdit = (record: any) => {
     console.log("Editing record:", record);
-    setEditData({
-      subscriptionType: record.typeName,
-      language: record.language === "English" ? "english" : "arabic",
-      numberOfGames: record.games,
-      numberOfQuestions: record.questions,
-      numberOfPlayers: record.players,
-      price: record.price.replace('$', ''), // Remove $ symbol for form
-    });
+    setEditData(record);
     setIsOpen(true);
   };
 
@@ -241,15 +246,16 @@ const columns = [
         </div>
         <DynamicTableTwo
           columns={columns}
-          data={recentData}
-          currentPage={currentPage}
+          data={subscriptionTypesData}
+         currentPage={currentPage}
           itemsPerPage={itemsPerPage}
-          onPageChange={(page) => setCurrentPage(page)}
-          onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(1); }}
-          itemsPerPageOptions={[5, 10, 20]}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+          paginationData={paginationData}
+          loading={loading}
         />
       </div>
-       {isOpen && <SubscriptionAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} />}
+       {isOpen && <SubscriptionAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} subscriptionTypesData={subscriptionTypesData} setSubscriptionTypesData={setSubscriptionTypesData} />}
     </section>
   );
 }
