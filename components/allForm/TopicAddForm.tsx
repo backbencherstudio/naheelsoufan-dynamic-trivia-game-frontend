@@ -76,8 +76,6 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
 
   const onSubmit = async (data: TopicFormData) => {
     const formData = new FormData();
-    console.log(data.language);
-
     formData.append("name", data.name);
     formData.append("language_id", data.language);
     if (data.file && data.file[0]) {

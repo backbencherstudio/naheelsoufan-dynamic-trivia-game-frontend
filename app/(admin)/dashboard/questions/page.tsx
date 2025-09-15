@@ -3,8 +3,10 @@ import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import AddQuestionModal from '@/components/dashboard/AddQuestionModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
+import useDataFetch from '@/hooks/useDataFetch';
+import { useToken } from '@/hooks/useToken';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import { FaPen } from 'react-icons/fa6';
 import { HiSearch } from 'react-icons/hi';
@@ -18,6 +20,7 @@ function QuestionsPage() {
   const [sortBy, setSortBy] = useState('question');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const [editData, setEditData] = useState<{
     question: string;
     topic: string;
@@ -27,140 +30,21 @@ function QuestionsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [questionData, setQuestionData] = useState<any[]>([]);
+  const [paginationData, setPaginationData] = useState({});
+  const { token } = useToken();
+  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
+  const { data, loading } = useDataFetch(endpoint)
+  useEffect(() => {
+    if (data?.data?.length > 0) {
+      setQuestionData(data?.data)
+    }
+    if (data) {
+      setPaginationData(data?.pagination)
+    }
+  }, [data])
 
-  // Demo data matching the image
-  const questionsData = [
-    { 
-      no: 1, 
-      question: "Biofilter technology is used to process", 
-      topic: "Technology", 
-      difficulty: "Hard", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "Water", 
-      questionTimer: "30", 
-      difficultyPoints: "600", 
-      freeBundle: "No", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 2, 
-      question: "Ctrl+A does what?", 
-      topic: "Technology", 
-      difficulty: "Medium", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "Cuba", 
-      questionTimer: "60", 
-      difficultyPoints: "400", 
-      freeBundle: "No", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 3, 
-      question: "What's the capital of Japan?", 
-      topic: "Capitals", 
-      difficulty: "Easy", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "Select All", 
-      questionTimer: "30", 
-      difficultyPoints: "200", 
-      freeBundle: "Yes", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 4, 
-      question: "في أي مدينة اوروبية تقع السلالم الإسبانية؟", 
-      topic: "معلومات عامة", 
-      difficulty: "متوسط", 
-      language: "Arabic", 
-      questionType: "Text", 
-      answer: "Apricot", 
-      questionTimer: "60", 
-      difficultyPoints: "400", 
-      freeBundle: "No", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 5, 
-      question: "'I'm lovin' it' is the slogan of", 
-      topic: "Brands", 
-      difficulty: "Easy", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "Gitega", 
-      questionTimer: "30", 
-      difficultyPoints: "200", 
-      freeBundle: "Yes", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 6, 
-      question: "What is the capital of Burundi?", 
-      topic: "Capitals", 
-      difficulty: "Medium", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "Tokyo", 
-      questionTimer: "60", 
-      difficultyPoints: "400", 
-      freeBundle: "No", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 7, 
-      question: "Which European city is home to the Spanish Steps?", 
-      topic: "History", 
-      difficulty: "Hard", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "روما", 
-      questionTimer: "30", 
-      difficultyPoints: "600", 
-      freeBundle: "No", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 8, 
-      question: "What is the slogan of McDonald's?", 
-      topic: "Brands", 
-      difficulty: "Easy", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "McDonald's", 
-      questionTimer: "30", 
-      difficultyPoints: "200", 
-      freeBundle: "Yes", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 9, 
-      question: "Which fruit is known as the 'golden apple'?", 
-      topic: "General Knowledge", 
-      difficulty: "Medium", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "Apricot", 
-      questionTimer: "60", 
-      difficultyPoints: "400", 
-      freeBundle: "No", 
-      firebase: "Yes" 
-    },
-    { 
-      no: 10, 
-      question: "What is the largest planet in our solar system?", 
-      topic: "Science", 
-      difficulty: "Easy", 
-      language: "English", 
-      questionType: "Options", 
-      answer: "Jupiter", 
-      questionTimer: "30", 
-      difficultyPoints: "200", 
-      freeBundle: "Yes", 
-      firebase: "Yes" 
-    },
-  ];
+
 
   const columns = [
     {
@@ -174,7 +58,7 @@ function QuestionsPage() {
     },
     {
       label: "Question",
-      accessor: "question",
+      accessor: "text",
       width: "250px",
       formatter: (value: string) => (
         <span className="text-sm font-medium">{value}</span>
@@ -182,47 +66,50 @@ function QuestionsPage() {
     },
     {
       label: "Topic",
-      accessor: "topic",
+      accessor: "category",
       width: "120px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value: { name: string }) => (
+        <span className="text-sm">{value?.name}</span>
       ),
     },
     {
       label: "Difficulty",
       accessor: "difficulty",
       width: "100px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value: { name: string }) => (
+        <span className="text-sm">{value?.name}</span>
       ),
     },
     {
       label: "Language",
       accessor: "language",
       width: "100px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value: { name: string }) => (
+        <span className="text-sm">{value?.name}</span>
       ),
     },
     {
       label: "Question Type",
-      accessor: "questionType",
+      accessor: "question_type",
       width: "120px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value: { name: string }) => (
+        <span className="text-sm">{value?.name}</span>
       ),
     },
     {
       label: "Answer",
-      accessor: "answer",
+      accessor: "answers",
       width: "120px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
-      ),
+      formatter: (value: any) => {
+        const ans = value?.find((item: any) => item.is_correct == true)
+        return (
+          <span className="text-sm">{ans?.text}</span>
+        )
+      },
     },
     {
       label: "Question Timer",
-      accessor: "questionTimer",
+      accessor: "time",
       width: "120px",
       formatter: (value: string) => (
         <span className="text-sm">{value}</span>
@@ -230,7 +117,7 @@ function QuestionsPage() {
     },
     {
       label: "Difficulty Points",
-      accessor: "difficultyPoints",
+      accessor: "points",
       width: "130px",
       formatter: (value: string) => (
         <span className="text-sm">{value}</span>
@@ -238,10 +125,10 @@ function QuestionsPage() {
     },
     {
       label: "Free Bundle",
-      accessor: "freeBundle",
+      accessor: "free_bundle",
       width: "100px",
       formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+        <span className="text-sm">{value ? "Yes" : "No"}</span>
       ),
     },
     {
@@ -249,7 +136,7 @@ function QuestionsPage() {
       accessor: "firebase",
       width: "100px",
       formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+        <span className="text-sm">{value ? "Yes" : "No"}</span>
       ),
     },
     {
@@ -259,13 +146,13 @@ function QuestionsPage() {
       formatter: (_: any, record: any) => {
         return (
           <div className="flex gap-2.5">
-            <button 
+            <button
               onClick={() => handleEdit(record)}
               className='text-xl cursor-pointer text-grayColor1 hover:text-blue-600'
             >
               <FaPen />
             </button>
-            <button 
+            <button
               onClick={() => handleDelete(record)}
               className='text-xl cursor-pointer text-red-600 hover:text-red-800'
             >
@@ -276,6 +163,25 @@ function QuestionsPage() {
       },
     },
   ];
+  const { data: languageData } = useDataFetch(`/admin/languages`);
+
+  // Handle language selection
+  const handleLanguageChange = (value: string) => {
+    setSelectedLanguage(value === 'all' ? '' : value);
+    const params = new URLSearchParams(searchParams);
+    if (value === 'all') {
+      params.delete('language_id');
+    } else {
+      params.set('language_id', value);
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Initialize selected language from URL params
+  useEffect(() => {
+    const languageParam = searchParams.get('language_id');
+    setSelectedLanguage(languageParam || '');
+  }, [searchParams]);
 
   // Search function
   const searchFunction = useCallback((searchValue: string) => {
@@ -331,22 +237,19 @@ function QuestionsPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Questions</h1>
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={handleExportQuestions}
-            className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700"
-          >
+            className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700">
             Export Questions
           </button>
-          <button 
+          <button
             onClick={handleImportQuestions}
-            className="bg-blue-800 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-900"
-          >
+            className="bg-blue-800 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-900">
             Import Questions
           </button>
-          <button 
+          <button
             onClick={handleAddNewQuestion}
-            className="bg-white text-gray-900 border border-gray-300 font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-gray-50"
-          >
+            className="bg-white text-gray-900 border border-gray-300 font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-gray-50">
             Add New Question
           </button>
         </div>
@@ -385,7 +288,7 @@ function QuestionsPage() {
                   <SelectItem value='points'>Sort by Points</SelectItem>
                 </SelectContent>
               </Select>
-              <button 
+              <button
                 onClick={toggleSortOrder}
                 className="p-2 hover:bg-gray-100 rounded-md"
               >
@@ -397,29 +300,29 @@ function QuestionsPage() {
               </button>
             </div>
             <div className="relative flex-1">
-              <input 
+              <input
                 onChange={handleSearch}
-                type="text" 
-                placeholder="Search" 
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                type="text"
+                placeholder="Search"
+                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             </div>
           </div>
         </div>
-        
+
         <DynamicTableTwo
           columns={columns}
-          data={questionsData}
+          data={questionData}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-          itemsPerPageOptions={[5, 10, 20, 50]}
+          loading={loading}
         />
       </div>
 
-      {isOpen && <AddQuestionModal isOpen={isOpen} onClose={() => setIsOpen(false)} editData={editData} />}
+      {isOpen && <AddQuestionModal isOpen={isOpen} onClose={() => setIsOpen(false)} editData={editData} questionData={questionData} setQuestionData={setQuestionData}/>}
     </div>
   );
 }

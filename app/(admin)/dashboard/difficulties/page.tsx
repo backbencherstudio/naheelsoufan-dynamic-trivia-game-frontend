@@ -43,9 +43,7 @@ useEffect(() => {
     setTotalData(data?.pagination)
   }
 }, [data])
-  
-
-  
+    
  
  const columns = [
     {
