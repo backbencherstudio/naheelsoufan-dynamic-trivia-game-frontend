@@ -1,7 +1,8 @@
+import { Button } from '@/components/ui/button';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
 import { UserService } from '@/service/user/user.service';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FaDownload } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
@@ -26,19 +27,24 @@ type FormValues = {
 };
 
 function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestionData }: { isOpen: boolean, onClose: () => void, editData?: any, questionData?: any, setQuestionData?: any }) {
-  const [answers, setAnswers] = useState([
-    { text: "", is_correct: true },
-    { text: "", is_correct: false },
-    { text: "", is_correct: false },
-    { text: "", is_correct: false }
-  ]);
 
-  const { register, handleSubmit, watch, setValue, control, formState: { errors }, reset } = useForm<FormValues>({
+  const { register, handleSubmit, watch, setValue, control, formState: { errors, isSubmitting }, reset } = useForm<FormValues>({
     defaultValues: {
-      answerTime: 60,
+      answerTime: 30,
       points: 1,
-      answer: "0", // Set default answer to first option
-      ...editData
+      questionType: "",
+      optionA: "",
+      optionB: "",
+      optionC: "",
+      optionD: "",
+      answer: "0",
+      question: "",
+      language: "",
+      topic: "",
+      difficulty: "",
+      freeBundle: "false",
+      firebaseQuestion: "false",
+      image: null,
     }
   });
   
@@ -47,36 +53,76 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
   const { data: languageData } = useDataFetch(`/admin/languages`);
   const { data: topicData } = useDataFetch(`/admin/categories`);
   const { data: difficultData } = useDataFetch(`/admin/difficulties`);
-  const { data: questionTypeData } = useDataFetch(`/admin/question-types`);
+  const { data: questionTypeData, loading: questionTypeLoading, error: questionTypeError } = useDataFetch(`/admin/question-types`);
 
-  // Update answers when option values change
-  const optionA = watch('optionA');
-  const optionB = watch('optionB');
-  const optionC = watch('optionC');
-  const optionD = watch('optionD');
 
+
+  // Current selected question type name (derived once for rendering and validation)
+  const selectedTypeName = questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name;
+
+  // Update form values when editData changes
   useEffect(() => {
-    setAnswers(prev => [
-      { text: optionA || "", is_correct: prev[0].is_correct },
-      { text: optionB || "", is_correct: prev[1].is_correct },
-      { text: optionC || "", is_correct: prev[2].is_correct },
-      { text: optionD || "", is_correct: prev[3].is_correct }
-    ]);
-  }, [optionA, optionB, optionC, optionD]);
+    if (editData) {
+      setValue("question", editData.text);
+      const languageId = editData.language?.id ?? editData.language_id ?? editData.language;
+      const categoryId = editData.category?.id ?? editData.category_id ?? editData.category;
+      const difficultyId = editData.difficulty?.id ?? editData.difficulty_id ?? editData.difficulty;
+      const questionTypeId = editData.question_type?.id ?? editData.question_type_id ?? editData.question_type;
+      setValue("language", String(languageId || ""));
+      setValue("topic", String(categoryId || ""));
+      setValue("difficulty", String(difficultyId || ""));
+      setValue("questionType", String(questionTypeId || ""));
+      setValue("freeBundle", editData.free_bundle ? "true" : "false");
+      setValue("firebaseQuestion", editData.firebase ? "true" : "false");
+      setValue("answerTime", editData.time);
+      setValue("points", editData.points);
+      setValue("image", editData.image);
 
-  // Handle answer selection
+      // Handle answers based on question type
+      if (editData.answers && editData.answers.length > 0) {
+        const selectedQuestionType =
+          editData.question_type?.name ||
+          questionTypeData?.data?.find((item: any) => item.id === questionTypeId)?.name;
+
+        if (selectedQuestionType === 'Options') {
+          // Set options A, B, C, D
+          setValue("optionA", editData.answers[0]?.text || "");
+          setValue("optionB", editData.answers[1]?.text || "");
+          setValue("optionC", editData.answers[2]?.text || "");
+          setValue("optionD", editData.answers[3]?.text || "");
+
+          // Find correct answer index
+          const correctIndex = Math.max(0, editData.answers.findIndex((answer: any) => answer.is_correct));
+          setValue("answer", String(correctIndex));
+
+          // No local answers state needed; values are derived on submit
+        } else if (selectedQuestionType === 'True/False') {
+          // Set True/False answer
+          const correctAnswer = editData.answers.find((answer: any) => answer.is_correct);
+          setValue("answer", correctAnswer?.text || "True");
+        } else if (selectedQuestionType === 'Text') {
+          // Set text answer
+          const correctAnswer = editData.answers.find((answer: any) => answer.is_correct);
+          setValue("answer", correctAnswer?.text || "");
+        }
+      }
+    } else {
+      // Reset form for new question
+      reset();
+    }
+  }, [editData, setValue, questionTypeData, reset]);
+
+  // No automatic defaults for create mode; fields remain empty until user selects
+
+  // Handle answer selection (no extra state needed)
   const handleAnswerSelect = (selectedAnswer: string) => {
-    setAnswers(prev => prev.map((answer, index) => ({
-      ...answer,
-      is_correct: index === parseInt(selectedAnswer)
-    })));
-    // Also update the form field value
     setValue('answer', selectedAnswer);
   };
 
   const onSubmit = async(data: any) => {
     const selectedQuestionType = questionTypeData?.data?.find((item: any) => item.id === data.questionType);
     let answersArray = [];
+console.log(data.image);
 
     // Create answers array based on question type
     if (selectedQuestionType?.name === 'Options') {
@@ -127,6 +173,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       free_bundle: data.freeBundle === "true",
       time: data.answerTime,
       points: data.points,
+      questionFile: data.image,
       answers: JSON.stringify(answersArray)
     };
      try {
@@ -134,6 +181,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
         // Update existing item
         const endpoint = `/admin/questions/${editData.id}`;
         const response = await UserService.updateData(endpoint, formData, token);
+        console.log(response);
+        
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const updatedData = questionData?.map(item =>
@@ -365,23 +414,32 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               {/* Question Type */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">Question Type</label>
-                <div className="flex flex-wrap gap-4">
-                  {questionTypeData?.data?.map((item: any) => (
-                    <label key={item.id} className="flex items-center">
-                      <input
-                        {...register('questionType')}
-                        type="radio"
-                        value={item.id}
-                        className="h-5 w-5"
-                      />
-                      <span className="ml-2 text-sm">{item.name}</span>
-                    </label>
-                  ))}
-                </div>
+                {questionTypeLoading ? (
+                  <div className="text-sm text-gray-500">Loading question types...</div>
+                ) : questionTypeError ? (
+                  <div className="text-sm text-red-500">Error loading question types: {questionTypeError}</div>
+                ) : !questionTypeData?.data || questionTypeData.data.length === 0 ? (
+                  <div className="text-sm text-gray-500">No question types available</div>
+                ) : (
+                  <div className="flex flex-wrap gap-4">
+                    {questionTypeData?.data?.map((item: any) => (
+                      <label key={item.id} className="flex items-center">
+                        <input
+                          {...register('questionType', { required: 'Question type is required' })}
+                          type="radio"
+                          value={item.id}
+                          className="h-5 w-5"
+                        />
+                        <span className="ml-2 text-sm">{item.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {errors.questionType && <p className="text-red-500 text-xs mt-1">{errors.questionType.message as string}</p>}
               </div>
 
               {/* Options (only if question type is Options) */}
-              {questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name === 'Options' && (
+              {selectedTypeName === 'Options' && (
                 <>
                   <div className="mb-4">
                     <label htmlFor="optionA" className="block text-sm font-medium text-gray-700">Option A</label>
@@ -429,9 +487,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                     <Controller
                       name="answer"
                       control={control}
-                      rules={{ 
-                        required: questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name === 'Options' ? 'Answer is required' : false 
-                      }}
+                      rules={{ required: selectedTypeName === 'Options' ? 'Answer is required' : false }}
                       render={({ field }) => (
                         <Select 
                           value={field.value} 
@@ -458,15 +514,13 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               )}
 
               {/* True/False (only if question type is True/False) */}
-              {questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name === 'True/False' && (
+              {selectedTypeName === 'True/False' && (
                 <div className="mb-4">
                   <label htmlFor="answer" className="block text-sm font-medium text-gray-700">Answer</label>
                   <Controller
                     name="answer"
                     control={control}
-                    rules={{ 
-                      required: questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name === 'True/False' ? 'Answer is required' : false 
-                    }}
+                    rules={{ required: selectedTypeName === 'True/False' ? 'Answer is required' : false }}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger className="w-full">
@@ -484,13 +538,11 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               )}
 
               {/* Text (only if question type is Text) */}
-              {questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name === 'Text' && (
+              {selectedTypeName === 'Text' && (
                 <div className="mb-4">
                   <label htmlFor="answer" className="block text-sm font-medium text-gray-700">Answer</label>
                   <input
-                    {...register('answer', { 
-                      required: questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name === 'Text' ? 'Answer is required' : false 
-                    })}
+                    {...register('answer', { required: selectedTypeName === 'Text' ? 'Answer is required' : false })}
                     type="text"
                     id="answer"
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
@@ -501,12 +553,13 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               )}
 
               {/* Submit Button */}
-              <button
+              <Button
                 type="submit"
-                className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                disabled={isSubmitting}
+                className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                Create Question
-              </button>
+                {isSubmitting ? (editData ? 'Updating...' : 'Adding...') : (editData ? 'Update Question' : 'Add Question')}
+              </Button>
             </form>
           </div>
         </DialogContent>

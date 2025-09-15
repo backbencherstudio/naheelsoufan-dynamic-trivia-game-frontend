@@ -45,7 +45,6 @@ function QuestionsPage() {
   }, [data])
 
 
-
   const columns = [
     {
       label: "No.",
