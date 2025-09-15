@@ -340,6 +340,7 @@ function QuestionsPage() {
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           loading={loading}
+          paginationData={paginationData}
         />
       </div>
 

@@ -2,9 +2,10 @@ import { Button } from '@/components/ui/button';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
 import { UserService } from '@/service/user/user.service';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FaDownload } from 'react-icons/fa6';
+import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast } from 'react-toastify';
 import { Dialog, DialogContent } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -24,9 +25,19 @@ type FormValues = {
   answerTime: number;
   points: number;
   image?: File | null;
+  optionAFile?: File | null;
+  optionBFile?: File | null;
+  optionCFile?: File | null;
+  optionDFile?: File | null;
 };
 
 function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestionData }: { isOpen: boolean, onClose: () => void, editData?: any, questionData?: any, setQuestionData?: any }) {
+
+  // State for storing uploaded files
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  
+  // State for storing existing file URLs from edit data
+  const [existingFiles, setExistingFiles] = useState<{[key: string]: string}>({});
 
   const { register, handleSubmit, watch, setValue, control, formState: { errors, isSubmitting }, reset } = useForm<FormValues>({
     defaultValues: {
@@ -45,17 +56,18 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       freeBundle: "false",
       firebaseQuestion: "false",
       image: null,
+      optionAFile: null,
+      optionBFile: null,
+      optionCFile: null,
+      optionDFile: null,
     }
   });
   
   const {token} = useToken();
-
   const { data: languageData } = useDataFetch(`/admin/languages`);
   const { data: topicData } = useDataFetch(`/admin/categories`);
   const { data: difficultData } = useDataFetch(`/admin/difficulties`);
   const { data: questionTypeData, loading: questionTypeLoading, error: questionTypeError } = useDataFetch(`/admin/question-types`);
-
-
 
   // Current selected question type name (derived once for rendering and validation)
   const selectedTypeName = questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name;
@@ -91,6 +103,33 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
           setValue("optionC", editData.answers[2]?.text || "");
           setValue("optionD", editData.answers[3]?.text || "");
 
+          // Set answer files if they exist
+          const existingFilesData: {[key: string]: string} = {};
+          
+          if (editData.answers[0]?.file_url) {
+            existingFilesData.optionA = editData.answers[0].file_url;
+            // Create a mock File object for display purposes
+            const mockFileA = new File([''], editData.answers[0].file_url, { type: 'image/jpeg' });
+            setValue("optionAFile", mockFileA);
+          }
+          if (editData.answers[1]?.file_url) {
+            existingFilesData.optionB = editData.answers[1].file_url;
+            const mockFileB = new File([''], editData.answers[1].file_url, { type: 'image/jpeg' });
+            setValue("optionBFile", mockFileB);
+          }
+          if (editData.answers[2]?.file_url) {
+            existingFilesData.optionC = editData.answers[2].file_url;
+            const mockFileC = new File([''], editData.answers[2].file_url, { type: 'image/jpeg' });
+            setValue("optionCFile", mockFileC);
+          }
+          if (editData.answers[3]?.file_url) {
+            existingFilesData.optionD = editData.answers[3].file_url;
+            const mockFileD = new File([''], editData.answers[3].file_url, { type: 'image/jpeg' });
+            setValue("optionDFile", mockFileD);
+          }
+          
+          setExistingFiles(existingFilesData);
+
           // Find correct answer index
           const correctIndex = Math.max(0, editData.answers.findIndex((answer: any) => answer.is_correct));
           setValue("answer", String(correctIndex));
@@ -109,21 +148,35 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
     } else {
       // Reset form for new question
       reset();
+      setExistingFiles({});
+      setUploadedFiles([]);
     }
   }, [editData, setValue, questionTypeData, reset]);
-
-  // No automatic defaults for create mode; fields remain empty until user selects
-
   // Handle answer selection (no extra state needed)
   const handleAnswerSelect = (selectedAnswer: string) => {
     setValue('answer', selectedAnswer);
   };
 
+  // Handle file upload and store in state array
+  const handleFileUpload = (file: File | null, optionName: string) => {
+    if (file) {
+      setUploadedFiles(prevFiles => {
+        // Remove existing file for this option if any
+        const filteredFiles = prevFiles.filter(f => !f.name.includes(optionName));
+        // Add new file
+        return [...filteredFiles, file];
+      });
+      console.log(`File uploaded for ${optionName}:`, file.name);
+      console.log("Current uploaded files:", uploadedFiles);
+    }
+  };
+
   const onSubmit = async(data: any) => {
     const selectedQuestionType = questionTypeData?.data?.find((item: any) => item.id === data.questionType);
     let answersArray = [];
-console.log(data.image);
-
+    let answerFiles = [];
+    console.log(answerFiles);
+    
     // Create answers array based on question type
     if (selectedQuestionType?.name === 'Options') {
       answersArray = [
@@ -144,6 +197,20 @@ console.log(data.image);
           is_correct: data.answer === "3"
         }
       ];
+      
+      // Store answer files for Options - format: [optionimage1.jpg, optionimage2.jpg, optionimage3.jpg, optionimage4.jpg]
+      if (data.optionAFile) {
+        answerFiles.push(data.optionAFile.name || 'optionimage1.jpg');
+      }
+      if (data.optionBFile) {
+        answerFiles.push(data.optionBFile.name || 'optionimage2.jpg');
+      }
+      if (data.optionCFile) {
+        answerFiles.push(data.optionCFile.name || 'optionimage3.jpg');
+      }
+      if (data.optionDFile) {
+        answerFiles.push(data.optionDFile.name || 'optionimage4.jpg');
+      }
     } else if (selectedQuestionType?.name === 'True/False') {
       answersArray = [
         {
@@ -164,21 +231,42 @@ console.log(data.image);
       ];
     }
 
-    const formData = {
-      text: data.question,
-      category_id: data.topic,
-      language_id: data.language,
-      difficulty_id: data.difficulty,
-      question_type_id: data.questionType,
-      free_bundle: data.freeBundle === "true",
-      time: data.answerTime,
-      points: data.points,
-      questionFile: data.image,
-      answers: JSON.stringify(answersArray)
-    };
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('text', data.question);
+    formData.append('category_id', data.topic);
+    formData.append('language_id', data.language);
+    formData.append('difficulty_id', data.difficulty);
+    formData.append('question_type_id', data.questionType);
+    formData.append('free_bundle', String(data.freeBundle === "true"));
+    formData.append('time', data.answerTime.toString());
+    formData.append('points', data.points.toString());
+    formData.append('answers', JSON.stringify(answersArray));
+    
+    // Add question file
+    if (data.image) {
+      formData.append('questionFile', data.image);
+    }
+    
+    // Add answer files (only if they are new files, not existing ones)
+    if (data.optionAFile && !existingFiles.optionA) {
+      formData.append('answerFiles', data.optionAFile);
+    }
+    if (data.optionBFile && !existingFiles.optionB) {
+      formData.append('answerFiles', data.optionBFile);
+    }
+    if (data.optionCFile && !existingFiles.optionC) {
+      formData.append('answerFiles', data.optionCFile);
+    }
+    if (data.optionDFile && !existingFiles.optionD) {
+      formData.append('answerFiles', data.optionDFile);
+    }
+    
+    // Log existing files for debugging
+    console.log("Existing files:", existingFiles);
      try {
       if (editData?.id) {
-        // Update existing item
+        // Update existing item - use addFormData for FormData
         const endpoint = `/admin/questions/${editData.id}`;
         const response = await UserService.updateData(endpoint, formData, token);
         console.log(response);
@@ -443,42 +531,142 @@ console.log(data.image);
                 <>
                   <div className="mb-4">
                     <label htmlFor="optionA" className="block text-sm font-medium text-gray-700">Option A</label>
-                    <input
-                      {...register('optionA')}
-                      type="text"
-                      id="optionA"
-                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    />
+                    <div className="flex gap-3">
+                      <input
+                        {...register('optionA')}
+                        type="text"
+                        id="optionA"
+                        className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
+                      />
+                      <Controller
+                        name="optionAFile"
+                        control={control}
+                        render={({ field }) => (
+                          <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id="optionAFile"
+                              onChange={(e) => {
+                                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                                field.onChange(file);
+                                handleFileUpload(file, 'OptionA');
+                              }}
+                            />
+                            <label htmlFor="optionAFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
+                              <IoCloudUploadOutline  className='text-primaryColor text-base' />
+                              <span>{field.value ? (field.value as File).name : 'Upload'}</span>
+                            </label>
+                          </div>
+                        )}
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-4">
                     <label htmlFor="optionB" className="block text-sm font-medium text-gray-700">Option B</label>
-                    <input
-                      {...register('optionB')}
-                      type="text"
-                      id="optionB"
-                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    />
+                    <div className="flex gap-3">
+                      <input
+                        {...register('optionB')}
+                        type="text"
+                        id="optionB"
+                        className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
+                      />
+                      <Controller
+                        name="optionBFile"
+                        control={control}
+                        render={({ field }) => (
+                          <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id="optionBFile"
+                              onChange={(e) => {
+                                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                                field.onChange(file);
+                                handleFileUpload(file, 'OptionB');
+                              }}
+                            />
+                            <label htmlFor="optionBFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
+                              <IoCloudUploadOutline className='text-primaryColor text-sm' />
+                              <span>{field.value ? (field.value as File).name : 'Upload'}</span>
+                            </label>
+                          </div>
+                        )}
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-4">
                     <label htmlFor="optionC" className="block text-sm font-medium text-gray-700">Option C</label>
-                    <input
-                      {...register('optionC')}
-                      type="text"
-                      id="optionC"
-                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    />
+                    <div className="flex gap-3">
+                      <input
+                        {...register('optionC')}
+                        type="text"
+                        id="optionC"
+                        className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
+                      />
+                      <Controller
+                        name="optionCFile"
+                        control={control}
+                        render={({ field }) => (
+                          <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id="optionCFile"
+                              onChange={(e) => {
+                                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                                field.onChange(file);
+                                handleFileUpload(file, 'OptionC');
+                              }}
+                            />
+                            <label htmlFor="optionCFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
+                              <IoCloudUploadOutline className='text-primaryColor text-sm' />
+                              <span>{field.value ? (field.value as File).name : 'Upload'}</span>
+                            </label>
+                          </div>
+                        )}
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-4">
                     <label htmlFor="optionD" className="block text-sm font-medium text-gray-700">Option D</label>
-                    <input
-                      {...register('optionD')}
-                      type="text"
-                      id="optionD"
-                      className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    />
+                    <div className="flex gap-3">
+                      <input
+                        {...register('optionD')}
+                        type="text"
+                        id="optionD"
+                        className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
+                      />
+                      <Controller
+                        name="optionDFile"
+                        control={control}
+                        render={({ field }) => (
+                          <div className="w-[30%] mt-1 border border-gray-300  overflow-hidden rounded-md h-10 flex items-center p-2">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              id="optionDFile"
+                              onChange={(e) => {
+                                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                                field.onChange(file);
+                                handleFileUpload(file, 'OptionD');
+                              }}
+                            />
+                            <label htmlFor="optionDFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
+                              <IoCloudUploadOutline className='text-primaryColor  text-sm' />
+                              <span>{field.value ? (field.value as File).name : 'Upload'}</span>
+                            </label>
+                          </div>
+                        )}
+                      />
+                    </div>
                   </div>
 
                   {/* Answer for Options */}
