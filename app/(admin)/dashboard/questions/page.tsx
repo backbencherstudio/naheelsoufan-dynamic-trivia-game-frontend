@@ -5,12 +5,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from '@/helper/debounce.helper';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
+import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import { FaPen } from 'react-icons/fa6';
 import { HiSearch } from 'react-icons/hi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import { toast } from 'react-toastify';
 
 function QuestionsPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +34,7 @@ function QuestionsPage() {
   const pathname = usePathname();
   const [questionData, setQuestionData] = useState<any[]>([]);
   const [paginationData, setPaginationData] = useState({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { token } = useToken();
   const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
   const { data, loading } = useDataFetch(endpoint)
@@ -143,6 +146,7 @@ function QuestionsPage() {
       accessor: "options",
       width: "100px",
       formatter: (_: any, record: any) => {
+        const isDeleting = deletingId === record.id;
         return (
           <div className="flex gap-2.5">
             <button
@@ -153,9 +157,14 @@ function QuestionsPage() {
             </button>
             <button
               onClick={() => handleDelete(record)}
-              className='text-xl cursor-pointer text-red-600 hover:text-red-800'
+              disabled={isDeleting}
+              className='text-xl cursor-pointer text-red-600 hover:text-red-800 disabled:opacity-50'
             >
-              <RiDeleteBin6Line />
+              {isDeleting ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+              ) : (
+                <RiDeleteBin6Line />
+              )}
             </button>
           </div>
         );
@@ -212,8 +221,21 @@ function QuestionsPage() {
     setEditData(record)
   };
 
-  const handleDelete = (record: any) => {
-    console.log("Deleting question:", record);
+  const handleDelete = async (value: any) => {
+    setDeletingId(value.id);
+    try {
+      const response = await UserService.deleteData(`/admin/questions/${value?.id}`, token);
+      if (response?.data?.success) {
+        toast.success(response?.data?.message);
+        const updatedData = questionData.filter(item => item?.id !== value?.id);
+        setQuestionData(updatedData);
+      }
+    } catch (error) {
+      console.log(error?.message);
+      toast.error(error?.message);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleExportQuestions = () => {

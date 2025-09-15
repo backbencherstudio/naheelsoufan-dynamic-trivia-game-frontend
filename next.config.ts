@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "car-wash-backend.signalsmind.com",
+        hostname: "ceremony-julian-tampa-ken.trycloudflare.com",
       },
       {
         protocol: "https",
