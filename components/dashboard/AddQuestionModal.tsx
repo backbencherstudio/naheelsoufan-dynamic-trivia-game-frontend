@@ -346,11 +346,31 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
         const response = await UserService.updateQuestion(endpoint, formData, token);
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          const updatedData = questionData?.map(item =>
-            item.id === editData.id
-              ? { ...item, text: data.question, category_id: data.topic, language_id: data.language, difficulty_id: data.difficulty, question_type_id: data.questionType, free_bundle: data.freeBundle, firebase: data.firebaseQuestion, time: data.answerTime, points: data.points, answers: answersArray }
-              : item
-          );    
+          const categoryObj = topicData?.data?.find((t: any) => String(t.id) === String(data.topic));
+          const languageObj = languageData?.data?.find((l: any) => String(l.id) === String(data.language));
+          const difficultyObj = difficultData?.data?.find((d: any) => String(d.id) === String(data.difficulty));
+          const questionTypeObj = questionTypeData?.data?.find((q: any) => String(q.id) === String(data.questionType));
+
+          const updatedData = questionData?.map((item: any) => {
+            if (item.id !== editData.id) return item;
+            const server = response?.data?.data || {};
+            return {
+              ...item,
+              ...server,
+              id: server.id || item.id,
+              text: server.text ?? data.question,
+              file_url: server.file_url ?? item.file_url ?? (typeof imageFile === 'string' ? imageFile : undefined),
+              time: server.time ?? data.answerTime,
+              free_bundle: server.free_bundle ?? (data.freeBundle === 'true'),
+              firebase: server.firebase ?? item.firebase ?? null,
+              points: server.points ?? data.points,
+              category: server.category || (categoryObj ? { id: categoryObj.id, name: categoryObj.name } : item.category),
+              language: server.language || (languageObj ? { id: languageObj.id, name: languageObj.name } : item.language),
+              difficulty: server.difficulty || (difficultyObj ? { id: difficultyObj.id, name: difficultyObj.name } : item.difficulty),
+              question_type: server.question_type || (questionTypeObj ? { id: questionTypeObj.id, name: questionTypeObj.name } : item.question_type),
+              answers: server.answers || answersArray,
+            };
+          });
           setQuestionData(updatedData);
           reset();
           onClose();
@@ -363,7 +383,28 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
         
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          questionData?.unshift(response?.data?.data);
+          const server = response?.data?.data || {};
+          const categoryObj = topicData?.data?.find((t: any) => String(t.id) === String(data.topic));
+          const languageObj = languageData?.data?.find((l: any) => String(l.id) === String(data.language));
+          const difficultyObj = difficultData?.data?.find((d: any) => String(d.id) === String(data.difficulty));
+          const questionTypeObj = questionTypeData?.data?.find((q: any) => String(q.id) === String(data.questionType));
+
+          const created = {
+            ...server,
+            id: server.id,
+            text: server.text ?? data.question,
+            file_url: server.file_url ?? undefined,
+            time: server.time ?? data.answerTime,
+            free_bundle: server.free_bundle ?? (data.freeBundle === 'true'),
+            firebase: server.firebase ?? null,
+            points: server.points ?? data.points,
+            category: server.category || (categoryObj ? { id: categoryObj.id, name: categoryObj.name } : undefined),
+            language: server.language || (languageObj ? { id: languageObj.id, name: languageObj.name } : undefined),
+            difficulty: server.difficulty || (difficultyObj ? { id: difficultyObj.id, name: difficultyObj.name } : undefined),
+            question_type: server.question_type || (questionTypeObj ? { id: questionTypeObj.id, name: questionTypeObj.name } : undefined),
+            answers: server.answers || answersArray,
+          };
+          questionData?.unshift(created);
           reset();
           onClose();
         }
