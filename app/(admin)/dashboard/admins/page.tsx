@@ -3,17 +3,21 @@
 import { AddNewAdminForm } from '@/components/allForm/AddNewAdminForm';
 import { AdminResetPasswordForm } from '@/components/allForm/AdminResetPassword';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
+import { useDebounce } from '@/helper/debounce.helper';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
 import { UserService } from '@/service/user/user.service';
 import dayjs from 'dayjs';
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from "react";
+import { HiSearch } from 'react-icons/hi';
 import { HiShieldCheck } from 'react-icons/hi2';
 import { RiDeleteBin6Line, RiRotateLockLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 function AdminManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [search, setSearch] = useState('');
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [isAddAdminOpen, setIsAddAdminOpen] = useState(false);
   const [adminsData, setAdminsData] = useState<any[]>([]);
@@ -25,10 +29,21 @@ function AdminManagementPage() {
     email: string;
   } | null>(null);
   const { token } = useToken();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  // API endpoint
-  const endpoint = `/admin/user?page=${currentPage}&limit=${itemsPerPage}`;
+  // API endpoint with search
+  const endpoint = `/admin/user?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
   const { data, loading } = useDataFetch(endpoint);
+
+  // Get search parameter from URL on component mount
+  useEffect(() => {
+    const adminParam = searchParams.get('admin');
+    if (adminParam) {
+      setSearch(adminParam);
+    }
+  }, [searchParams]);
 
   // Update admins data when API response changes
   useEffect(() => {
@@ -39,7 +54,26 @@ function AdminManagementPage() {
       setPaginationData(data?.pagination);
     }
   }, [data]);
-console.log(adminsData);
+
+  // Search function
+  const searchFunction = useCallback((searchValue: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (searchValue === '') {
+      params.delete('admin');
+    } else {
+      params.set('admin', searchValue);
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [searchParams, router, pathname]);
+
+  // Debounced search function using the reusable hook
+  const debouncedSearch = useDebounce(searchFunction, 500);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+    debouncedSearch(value);
+  };
 
 
   const columns = [
@@ -163,6 +197,21 @@ console.log(adminsData);
       {/* Table Section */}
       <div className="border rounded-lg shadow-sm">
         <div className="p-5">
+          {/* Search Section */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Admin List</h2>
+            <div className="relative w-64">
+              <input 
+                value={search}
+                onChange={handleSearch}
+                type="text" 
+                placeholder="Search admins..." 
+                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
+              />
+              <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            </div>
+          </div>
+          
           <DynamicTableTwo
             columns={columns}
             data={adminsData}

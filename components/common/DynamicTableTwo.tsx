@@ -70,7 +70,7 @@ export default function DynamicTableTwo({
                 )}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="">
               { loading ? <tr>
                 <td colSpan={columns.length + 1} className="px-4 py-10 text-center text-[#4a4c56] text-sm dark:text-whiteColor">
                   <Loader/>

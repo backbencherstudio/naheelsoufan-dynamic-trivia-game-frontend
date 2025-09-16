@@ -27,18 +27,42 @@ function RecentOrderTable({ recentOrder }: any) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [subscriptionTypesData, setSubscriptionTypesData] = useState([]);
   const [paginationData, setPaginationData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
   const { token } = useToken();
   const endpoint = `/admin/subscription-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
-  const { data, loading } = useDataFetch(endpoint)
-  useEffect(() => {
-    if (data?.data?.length > 0) {
-      setSubscriptionTypesData(data?.data)
-    }
-    if (data) {
-      setPaginationData(data?.pagination)
-    }
-  }, [data])
 
+  // Debounced API call function
+  const debouncedFetchData = useDebounce(async (url: string) => {
+    try {
+      setLoading(true);
+      const response = await UserService.getData(url, token);
+      setSubscriptionTypesData(response.data?.data);
+      setPaginationData(response.data?.pagination);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }, 500);
+
+  // Get search parameter from URL on component mount
+  useEffect(() => {
+    const subscriptionTypeParam = searchParams.get('subscriptionType');
+    if (subscriptionTypeParam) {
+      setSearch(subscriptionTypeParam);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (endpoint && token) {
+      debouncedFetchData(endpoint);
+    }
+  }, [endpoint, token]);
+
+  console.log(paginationData);
+  
   const { data: languageData } = useDataFetch(`/admin/languages`);
 
   // Handle language selection
@@ -152,7 +176,7 @@ function RecentOrderTable({ recentOrder }: any) {
     } else {
       params.set('subscriptionType', searchValue);
     }
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`,{scroll: false});
   }, [searchParams, router, pathname]);
 
   // Debounced search function using the reusable hook
@@ -224,10 +248,11 @@ function RecentOrderTable({ recentOrder }: any) {
             </div>
             <div className="relative flex-1">
               <input
+                value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder="Search"
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search subscription types..."
+                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             </div>
