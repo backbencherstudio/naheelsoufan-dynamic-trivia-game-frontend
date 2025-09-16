@@ -3,8 +3,8 @@
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
-import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
+import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
@@ -20,21 +20,43 @@ function HostsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { token } = useToken();
-  const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
-  const { data, loading } = useDataFetch(endpoint)
   const [subscriptionData, setSubscriptionData] = useState([])
   const [paginationData, setPaginationData] = useState({})
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { token } = useToken();
+  
+  const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
+
+  // Debounced API call function
+  const debouncedFetchData = useDebounce(async (url: string) => {
+    try {
+      setLoading(true);
+      const response = await UserService.getData(url, token);
+      setSubscriptionData(response.data?.data);
+      setPaginationData(response.data?.pagination);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }, 500);
+
+  // Get search parameter from URL on component mount
   useEffect(() => {
-    if (data?.data?.length > 0) {
-      setSubscriptionData(data?.data)
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearch(searchParam);
+    } else {
+      setSearch(''); // Clear search if no URL parameter
     }
-    if (data) {
-      setPaginationData(data?.pagination)
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (endpoint && token) {
+      debouncedFetchData(endpoint);
     }
-  }, [data])
-  // Demo data matching the image
-  console.log(subscriptionData);
+  }, [endpoint, token]);
 
 
   const columns = [
@@ -113,7 +135,7 @@ function HostsPage() {
     } else {
       params.set('search', searchValue);
     }
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
   // Debounced search function using the reusable hook
@@ -133,7 +155,7 @@ function HostsPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Hosts</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Subscribers</h1>
       </div>
 
       {/* Table Section */}
@@ -141,7 +163,7 @@ function HostsPage() {
         <div className="p-5">
           {/* Filter and Search Section */}
           <div className="flex gap-4 mb-6">
-            <div className="w-48">
+            {/* <div className="w-48">
               <Select value={filterValue} onValueChange={setFilterValue}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
                   <SelectValue placeholder='All' />
@@ -153,7 +175,7 @@ function HostsPage() {
                   <SelectItem value='free-trial'>Free Trial</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
             <div className="w-48 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
@@ -163,7 +185,6 @@ function HostsPage() {
                   <SelectItem value='name'>Sort by Name</SelectItem>
                   <SelectItem value='email'>Sort by Email</SelectItem>
                   <SelectItem value='create'>Sort by CreateAt</SelectItem>
-
                 </SelectContent>
               </Select>
               <button
@@ -179,9 +200,10 @@ function HostsPage() {
             </div>
             <div className="relative flex-1">
               <input
+                value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder="Search"
+                placeholder="Search subscribers..."
                 className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
