@@ -3,53 +3,43 @@
 import { AddNewAdminForm } from '@/components/allForm/AddNewAdminForm';
 import { AdminResetPasswordForm } from '@/components/allForm/AdminResetPassword';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
-import { useState } from "react";
+import useDataFetch from '@/hooks/useDataFetch';
+import { useToken } from '@/hooks/useToken';
+import { UserService } from '@/service/user/user.service';
+import dayjs from 'dayjs';
+import { useEffect, useState } from "react";
 import { HiShieldCheck } from 'react-icons/hi2';
 import { RiDeleteBin6Line, RiRotateLockLine } from 'react-icons/ri';
-
+import { toast } from 'react-toastify';
 function AdminManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
   const [isAddAdminOpen, setIsAddAdminOpen] = useState(false);
+  const [adminsData, setAdminsData] = useState<any[]>([]);
+  const [paginationData, setPaginationData] = useState({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedAdmin, setSelectedAdmin] = useState<{
     name: string;
     email: string;
   } | null>(null);
+  const { token } = useToken();
 
-  // Demo data matching the image
-  const adminsData = [
-    { 
-      no: 1, 
-      name: "SmartQuip", 
-      email: "smartquip0@gmail.com", 
-      created: "May 10, 2025" 
-    },
-    { 
-      no: 2, 
-      name: "Inzily Admin", 
-      email: "admin@spamok.com", 
-      created: "May 10, 2025" 
-    },
-    { 
-      no: 3, 
-      name: "Atul", 
-      email: "atul.gautam@pixelcrayons.com", 
-      created: "Jun 2, 2025" 
-    },
-    { 
-      no: 4, 
-      name: "walid", 
-      email: "walid_h929@hotmail.com", 
-      created: "Aug 23, 2025" 
-    },
-    { 
-      no: 5, 
-      name: "Zain", 
-      email: "zain@spamok.com", 
-      created: "May 10, 2025" 
-    },
-  ];
+  // API endpoint
+  const endpoint = `/admin/user?page=${currentPage}&limit=${itemsPerPage}`;
+  const { data, loading } = useDataFetch(endpoint);
+
+  // Update admins data when API response changes
+  useEffect(() => {
+    if (data?.data?.length > 0) {
+      setAdminsData(data?.data);
+    }
+    if (data) {
+      setPaginationData(data?.pagination);
+    }
+  }, [data]);
+console.log(adminsData);
+
 
   const columns = [
     {
@@ -79,10 +69,10 @@ function AdminManagementPage() {
     },
     {
       label: "Created",
-      accessor: "created",
+      accessor: "created_at",
       width: "150px",
       formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+        <span className="text-sm">{dayjs(value).format("MMMM DD, YYYY")}</span>
       ),
     },
     {
@@ -90,6 +80,7 @@ function AdminManagementPage() {
       accessor: "actions",
       width: "120px",
       formatter: (_: any, record: any) => {
+        const isDeleting = deletingId === record.id;
         return (
           <div className="flex gap-2.5">
             <button 
@@ -100,9 +91,14 @@ function AdminManagementPage() {
             </button>
             <button 
               onClick={() => handleDelete(record)}
-              className='text-xl cursor-pointer text-red-600 hover:text-red-800 '
+              disabled={isDeleting}
+              className='text-xl cursor-pointer text-red-600 hover:text-red-800 disabled:opacity-50'
             >
-              <RiDeleteBin6Line />
+              {isDeleting ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+              ) : (
+                <RiDeleteBin6Line />
+              )}
             </button>
           </div>
         );
@@ -119,8 +115,21 @@ function AdminManagementPage() {
     setIsResetPasswordOpen(true);
   };
 
-  const handleDelete = (record: any) => {
-    console.log("Deleting admin:", record);
+  const handleDelete = async (record: any) => {
+    setDeletingId(record.id);
+    try {
+      const response = await UserService.deleteData(`/admin/user/${record.id}`, token);
+      if (response?.data?.success) {
+        toast.success(response?.data?.message);
+        const updatedData = adminsData.filter(item => item?.id !== record?.id);
+        setAdminsData(updatedData);
+      }
+    } catch (error) {
+      console.log(error?.message);
+      toast.error(error?.message);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const handleAddAdmin = () => {
@@ -159,7 +168,8 @@ function AdminManagementPage() {
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             onItemsPerPageChange={setItemsPerPage}
-            itemsPerPageOptions={[5, 10, 20, 50]}
+            paginationData={paginationData}
+            loading={loading}
           />
         </div>
       </div>
