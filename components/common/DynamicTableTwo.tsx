@@ -44,7 +44,7 @@ export default function DynamicTableTwo({
 
   let rowsPerPageOptions = [5, 10, 20, 50];
 
-  rowsPerPageOptions.push(itemsPerPage)
+  rowsPerPageOptions.unshift(itemsPerPage)
 
   return (
     <div>

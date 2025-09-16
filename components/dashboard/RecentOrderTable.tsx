@@ -1,5 +1,4 @@
 "use client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from "@/helper/debounce.helper";
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
@@ -9,11 +8,11 @@ import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { FaPen } from 'react-icons/fa6';
-import { HiSearch } from 'react-icons/hi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 import { SubscriptionAddForm } from '../allForm/SubscriptionAddForm';
 import DynamicTableTwo from "../common/DynamicTableTwo";
+import SearchComponent from '../common/SearchComponent';
 function RecentOrderTable({ recentOrder }: any) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -29,7 +28,6 @@ function RecentOrderTable({ recentOrder }: any) {
   const [paginationData, setPaginationData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [data, setData] = useState(null);
   const { token } = useToken();
   const endpoint = `/admin/subscription-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
 
@@ -49,9 +47,11 @@ function RecentOrderTable({ recentOrder }: any) {
 
   // Get search parameter from URL on component mount
   useEffect(() => {
-    const subscriptionTypeParam = searchParams.get('subscriptionType');
-    if (subscriptionTypeParam) {
-      setSearch(subscriptionTypeParam);
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearch(searchParam);
+    } else {
+      setSearch(''); // Clear search if no URL parameter
     }
   }, [searchParams]);
 
@@ -59,27 +59,16 @@ function RecentOrderTable({ recentOrder }: any) {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
     }
-  }, [endpoint, token]);
+  }, [endpoint, token,search ]);
 
-  console.log(paginationData);
   
   const { data: languageData } = useDataFetch(`/admin/languages`);
 
-  // Handle language selection
-  const handleLanguageChange = (value: string) => {
-    setSelectedLanguage(value === 'all' ? '' : value);
-    const params = new URLSearchParams(searchParams);
-    if (value === 'all') {
-      params.delete('language_id');
-    } else {
-      params.set('language_id', value);
-    }
-    router.replace(`${pathname}?${params.toString()}`,{scroll: false});
-  };
+  
 
   // Initialize selected language from URL params
   useEffect(() => {
-    const languageParam = searchParams.get('language_id');
+    const languageParam = searchParams.get('language');
     setSelectedLanguage(languageParam || '');
   }, [searchParams]);
 
@@ -172,9 +161,9 @@ function RecentOrderTable({ recentOrder }: any) {
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
-      params.delete('subscriptionType');
+      params.delete('search');
     } else {
-      params.set('subscriptionType', searchValue);
+      params.set('search', searchValue);
     }
     router.replace(`${pathname}?${params.toString()}`,{scroll: false});
   }, [searchParams, router, pathname]);
@@ -185,6 +174,7 @@ function RecentOrderTable({ recentOrder }: any) {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearch(value);
+    // Call debounced search for both empty and non-empty values
     debouncedSearch(value);
   };
 
@@ -228,36 +218,7 @@ function RecentOrderTable({ recentOrder }: any) {
             Create Subscription Type
           </button>
         </div>
-        <div className="p-5">
-          {/* Filter and Search Section */}
-          <div className="flex gap-4 mb-6">
-            <div className="w-48">
-              <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='Language' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>All</SelectItem>
-                  {
-                        languageData?.data?.map((item: any) => (
-                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
-                        ))
-                      }
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="relative flex-1">
-              <input
-                value={search}
-                onChange={handleSearch}
-                type="text"
-                placeholder="Search subscription types..."
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
-              />
-              <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
-          </div>
-        </div>
+        <SearchComponent placeholder="Search subscription types..."/>
         <DynamicTableTwo
           columns={columns}
           data={subscriptionTypesData}

@@ -17,6 +17,7 @@ function QuestionTypesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [search, setSearch] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -25,20 +26,45 @@ function QuestionTypesPage() {
   const [questionData, setQuestionData] = useState<any[]>([])
   const [totalData, setTotalData] = useState<any>(0)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { token } = useToken()
  const [editData, setEditData] = useState<{} | null>({});
-  const endpoint = `/admin/question-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
-  const { data, loading } = useDataFetch(endpoint)
-  useEffect(() => {
-    if (data?.data?.length > 0) {
-      setQuestionData(data?.data)
-    }
-    if (data) {
-      setTotalData(data?.pagination)
-    }
-  }, [data])
+  const endpoint = `/admin/question-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
 
-  console.log("check", questionData);
+  // Debounced API call function
+  const debouncedFetchData = useDebounce(async (url: string) => {
+    try {
+      setLoading(true);
+      const response = await UserService.getData(url, token);
+      setQuestionData(response.data?.data);
+      setTotalData(response.data?.pagination);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }, 500);
+
+  // Get search parameter from URL on component mount
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearch(searchParam);
+    } else {
+      setSearch(''); // Clear search if no URL parameter
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (endpoint && token) {
+      debouncedFetchData(endpoint);
+    }
+  }, [endpoint, token]);
+
+  // Fetch language data for the dropdown
+  const { data: languageData } = useDataFetch(`/admin/languages`);
+
 
 
   const columns = [
@@ -72,13 +98,22 @@ function QuestionTypesPage() {
       accessor: "actions",
       width: "120px",
       formatter: (_: any, record: any) => {
+        const isDeleting = deletingId === record.id;
         return (
           <div className="flex gap-2.5">
             <button onClick={() => handleEdit(record)} className='text-xl cursor-pointer text-grayColor1 hover:text-blue-600'>
               <FaPen />
             </button>
-            <button onClick={() => handleDelete(record)} className='text-xl cursor-pointer text-red-600 hover:text-red-800'>
-              <RiDeleteBin6Line />
+            <button 
+              onClick={() => handleDelete(record)} 
+              disabled={isDeleting}
+              className='text-xl cursor-pointer text-red-600 hover:text-red-800 disabled:opacity-50'
+            >
+              {isDeleting ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+              ) : (
+                <RiDeleteBin6Line />
+              )}
             </button>
           </div>
         );
@@ -90,11 +125,11 @@ function QuestionTypesPage() {
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
-      params.delete('questionType');
+      params.delete('search');
     } else {
-      params.set('questionType', searchValue);
+      params.set('search', searchValue);
     }
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
   // Debounced search function using the reusable hook
@@ -106,21 +141,44 @@ function QuestionTypesPage() {
     debouncedSearch(value);
   };
 
+  // Handle language selection
+  const handleLanguageChange = (value: string) => {
+    setSelectedLanguage(value === 'all' ? '' : value);
+    const params = new URLSearchParams(searchParams);
+    if (value === 'all') {
+      params.delete('language_id');
+    } else {
+      params.set('language_id', value);
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Initialize selected language from URL params
+  useEffect(() => {
+    const languageParam = searchParams.get('language_id');
+    setSelectedLanguage(languageParam || '');
+  }, [searchParams]);
+
+  
+
   const handleEdit = (record: any) => {
     setEditData(record);
     setIsOpen(true);
   };
 
   const handleDelete = async(record: any) => {
+    setDeletingId(record.id);
     try {
       const response = await UserService.deleteData(`/admin/question-types/${record.id}`, token);
-      console.log(response);
-      if (response.data.success) {
-        toast.success(response.data.message);
+      if (response?.data?.success) {
+        toast.success(response?.data?.message);
         setQuestionData(questionData.filter((item) => item.id !== record.id));
       }
     } catch (error) {
-      
+      console.log(error?.message);
+      toast.error(error?.message);
+    } finally {
+      setDeletingId(null);
     }
   };
  
@@ -145,27 +203,34 @@ function QuestionTypesPage() {
             </button>
           </div>
 
-          <div className="flex gap-4 mb-6">
-            <div className="w-48">
-              <Select>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='All' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='language'>Language</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="relative flex-1">
-              <input
-                onChange={handleSearch}
-                type="text"
-                placeholder="Search"
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
+        {/* Filter and Search Section */}
+        <div className="flex gap-4 mb-6">
+          <div className="w-48">
+            <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
+              <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
+                <SelectValue placeholder='Language' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>All</SelectItem>
+                {
+                  languageData?.data?.map((item: any) => (
+                    <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                  ))
+                }
+              </SelectContent>
+            </Select>
           </div>
+          <div className="relative flex-1">
+            <input
+              value={search}
+              onChange={handleSearch}
+              type="text"
+              placeholder="Search question types..."
+              className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
+            />
+            <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          </div>
+        </div>
         </div>
 
         <DynamicTableTwo

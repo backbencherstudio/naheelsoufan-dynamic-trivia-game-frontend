@@ -4,7 +4,6 @@ import { AddNewAdminForm } from '@/components/allForm/AddNewAdminForm';
 import { AdminResetPasswordForm } from '@/components/allForm/AdminResetPassword';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { useDebounce } from '@/helper/debounce.helper';
-import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
 import { UserService } from '@/service/user/user.service';
 import dayjs from 'dayjs';
@@ -23,6 +22,8 @@ function AdminManagementPage() {
   const [adminsData, setAdminsData] = useState<any[]>([]);
   const [paginationData, setPaginationData] = useState({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [selectedAdmin, setSelectedAdmin] = useState<{
     id: string;
     name: string;
@@ -35,7 +36,20 @@ function AdminManagementPage() {
 
   // API endpoint with search
   const endpoint = `/admin/user?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
-  const { data, loading } = useDataFetch(endpoint);
+
+  // Debounced API call function
+  const debouncedFetchData = useDebounce(async (url: string) => {
+    try {
+      setLoading(true);
+      const response = await UserService.getData(url, token);
+      setAdminsData(response.data?.data);
+      setPaginationData(response.data?.pagination);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }, 500);
 
   // Get search parameter from URL on component mount
   useEffect(() => {
@@ -45,15 +59,11 @@ function AdminManagementPage() {
     }
   }, [searchParams]);
 
-  // Update admins data when API response changes
   useEffect(() => {
-    if (data?.data?.length > 0) {
-      setAdminsData(data?.data);
+    if (endpoint && token) {
+      debouncedFetchData(endpoint);
     }
-    if (data) {
-      setPaginationData(data?.pagination);
-    }
-  }, [data]);
+  }, [endpoint, token]);
 
   // Search function
   const searchFunction = useCallback((searchValue: string) => {
