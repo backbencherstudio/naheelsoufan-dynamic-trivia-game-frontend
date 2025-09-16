@@ -20,6 +20,7 @@ function AdminManagementPage() {
   const [paginationData, setPaginationData] = useState({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedAdmin, setSelectedAdmin] = useState<{
+    id: string;
     name: string;
     email: string;
   } | null>(null);
@@ -109,6 +110,7 @@ console.log(adminsData);
   const handleEdit = (record: any) => {
     console.log("Resetting password for admin:", record);
     setSelectedAdmin({
+      id: record.id,
       name: record.name,
       email: record.email
     });

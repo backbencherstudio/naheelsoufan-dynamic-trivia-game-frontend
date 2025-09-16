@@ -1,16 +1,19 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToken } from "@/hooks/useToken";
+import { UserService } from "@/service/user/user.service";
 import { useForm } from "react-hook-form";
 import { FaUser } from "react-icons/fa6";
 import { MdEmail } from "react-icons/md";
 import { RiRotateLockLine } from "react-icons/ri";
+import { toast } from "react-toastify";
 
 // Form data interface
 interface AdminResetPasswordFormData {
@@ -22,6 +25,7 @@ interface AdminResetPasswordFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   adminData?: {
+    id: string;
     name: string;
     email: string;
   } | null;
@@ -36,21 +40,29 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData }: AdminRe
     reset,
     watch
   } = useForm<AdminResetPasswordFormData>();
-
+ const {token} = useToken();
   const newPassword = watch("newPassword");
+console.log(adminData);
 
   const onSubmit = async (data: AdminResetPasswordFormData) => {
+    const formdata = {
+      password:data.confirmPassword
+    }
     try {
-      console.log("New Password:", data.newPassword);
-      console.log("Confirm Password:", data.confirmPassword);
-      console.log("Admin:", adminData);
-      reset();
-      setIsOpen(false);
-      
-      // Show success message
-      console.log("Password reset successfully!");
+      const response = await UserService.updateData(`/admin/user/${adminData?.id}`, formdata, token);
+      if(response.data.success){
+        toast.success(response.data.message);
+        reset();
+        setIsOpen(false);
+      }else{
+        toast.error(response.data.message);
+      }
+
     } catch (error) {
       console.error("Error resetting password:", error);
+      toast.error(error.message);
+      reset();
+      setIsOpen(false);
     }
   };
 
