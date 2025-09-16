@@ -38,6 +38,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
   
   // State for storing existing file URLs from edit data
   const [existingFiles, setExistingFiles] = useState<{[key: string]: string}>({});
+  // Object URLs for previews
+  const [objectUrls, setObjectUrls] = useState<Record<string, string>>({});
 
   const { register, handleSubmit, watch, setValue, control, formState: { errors, isSubmitting }, reset } = useForm<FormValues>({
     defaultValues: {
@@ -72,6 +74,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
   // Current selected question type name (derived once for rendering and validation)
   const selectedTypeName = questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name;
 
+  console.log("editData",editData);
+  
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
@@ -89,7 +93,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       setValue("answerTime", editData.time);
       setValue("points", editData.points);
       setValue("image", editData.image);
-
+   
       // Handle answers based on question type
       if (editData.answers && editData.answers.length > 0) {
         const selectedQuestionType =
@@ -169,6 +173,77 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       console.log(`File uploaded for ${optionName}:`, file.name);
       console.log("Current uploaded files:", uploadedFiles);
     }
+  };
+
+  // Live watch of file fields
+  const imageFile = watch('image') as File | string | null;
+  const optionAWatch = watch('optionAFile') as File | null;
+  const optionBWatch = watch('optionBFile') as File | null;
+  const optionCWatch = watch('optionCFile') as File | null;
+  const optionDWatch = watch('optionDFile') as File | null;
+
+  // Manage object URLs and cleanup
+  useEffect(() => {
+    const entries: Array<{ key: string; file: File | null | undefined }> = [
+      { key: 'image', file: typeof imageFile !== 'string' ? (imageFile as File | null) : null },
+      { key: 'optionA', file: optionAWatch },
+      { key: 'optionB', file: optionBWatch },
+      { key: 'optionC', file: optionCWatch },
+      { key: 'optionD', file: optionDWatch },
+    ];
+
+    const nextUrls: Record<string, string> = {};
+    const toRevoke: string[] = [];
+
+    for (const { key, file } of entries) {
+      if (file && file.size > 0) {
+        const url = URL.createObjectURL(file);
+        nextUrls[key] = url;
+      }
+    }
+
+    for (const prevKey in objectUrls) {
+      if (!nextUrls[prevKey]) {
+        toRevoke.push(objectUrls[prevKey]);
+      }
+    }
+
+    setObjectUrls(nextUrls);
+
+    return () => {
+      toRevoke.forEach((u) => URL.revokeObjectURL(u));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageFile, optionAWatch, optionBWatch, optionCWatch, optionDWatch]);
+
+  const getPreviewSrc = (key: 'image' | 'optionA' | 'optionB' | 'optionC' | 'optionD'): string | null => {
+    if (objectUrls[key]) return objectUrls[key];
+    if (key !== 'image' && existingFiles[key]) return existingFiles[key];
+    if (key === 'image') {
+      // Prefer value bound to form if it's a URL string
+      if (typeof imageFile === 'string' && imageFile) return imageFile;
+      // Fallbacks for edit mode where image URL may be on different keys
+      const possible = [
+        (editData && (editData.image as string)) || '',
+        (editData && (editData.image_url as string)) || '',
+        (editData && (editData.file_url as string)) || '',
+        (editData && (editData.question_file as string)) || '',
+      ].find((u) => typeof u === 'string' && u.length > 0);
+      if (possible) return possible as string;
+    }
+    return null;
+  };
+
+  const detectMediaKind = (src: string, file?: File | null): 'image' | 'audio' | 'video' => {
+    if (file && file.type) {
+      if (file.type.startsWith('image')) return 'image';
+      if (file.type.startsWith('audio')) return 'audio';
+      if (file.type.startsWith('video')) return 'video';
+    }
+    const lower = src.toLowerCase();
+    if (/(mp4|webm|ogg|mov|m4v)$/.test(lower)) return 'video';
+    if (/(mp3|wav|ogg|m4a)$/.test(lower)) return 'audio';
+    return 'image';
   };
 
   const onSubmit = async(data: any) => {
@@ -268,9 +343,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       if (editData?.id) {
         // Update existing item - use addFormData for FormData
         const endpoint = `/admin/questions/${editData.id}`;
-        const response = await UserService.updateData(endpoint, formData, token);
-        console.log(response);
-        
+        const response = await UserService.updateQuestion(endpoint, formData, token);
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const updatedData = questionData?.map(item =>
@@ -308,7 +381,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className='max-w-[95vw] md:w-[650px] lg:max-w-[700px] max-h-[95vh] overflow-y-auto'>
           <div className="w-full ">
-            <h2 className="text-2xl font-semibold text-center mb-6">Create Question</h2>
+            <h2 className="text-2xl font-semibold text-center mb-6">{editData ? 'Update Question' : 'Create Question'}</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
 
               {/* Row: Language | Topic */}
@@ -494,7 +567,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   name="image"
                   control={control}
                   render={({ field }) => (
-                    <div className="mt-1 w-full border border-gray-300 rounded-md h-32 flex items-start p-4">
+                    <div className="mt-1 w-full border border-gray-300 rounded-md flex flex-col gap-3 p-4">
                       <input
                         id="image"
                         type="file"
@@ -506,6 +579,24 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                         <FaDownload className='text-primaryColor' />
                         <span className="text-gray-700">{field.value ? (field.value as File).name : 'Upload Image, Audio or Video'}</span>
                       </label>
+                      {(() => {
+                        const src = getPreviewSrc('image');
+                        if (!src) return null;
+                        const kind = detectMediaKind(src, typeof imageFile !== 'string' ? (imageFile as File | null) : null);
+                        return (
+                          <div className="border rounded-md p-2">
+                            {kind === 'image' && (
+                              <img src={src} alt="preview" className="h-28 w-auto object-contain" />
+                            )}
+                            {kind === 'audio' && (
+                              <audio controls src={src} className="w-full" />
+                            )}
+                            {kind === 'video' && (
+                              <video controls src={src} className="h-28 w-auto" />
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 />

@@ -15,7 +15,7 @@ import { toast } from 'react-toastify';
 
 function DifficultiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +35,7 @@ function DifficultiesPage() {
   const {token} = useToken()
   
   const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
-
+  
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
     try {

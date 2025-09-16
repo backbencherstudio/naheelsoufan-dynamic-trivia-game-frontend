@@ -1,9 +1,12 @@
 "use client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import useDataFetch from "@/hooks/useDataFetch";
 import { useToken } from "@/hooks/useToken";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import { MdDarkMode, MdLanguage, MdLightMode } from "react-icons/md";
 
@@ -23,8 +26,11 @@ const Header: React.FC<HeaderProps> = ({
   const [loading, setLoading] = useState(false);
   const [showAllNotifications, setShowAllNotifications] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
-  const { language, toggleLanguage } = useLanguage();
+  const { language } = useLanguage();
   const { token } = useToken()
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [notifications, setNotifications] = useState<null | []>([]);
   const [error, setError] = useState<string | null>()
   const [profile, setProfile] = useState<any>()
@@ -50,6 +56,8 @@ const Header: React.FC<HeaderProps> = ({
     const diffInDays = Math.floor(diffInHours / 24);
     return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
   }
+const {data: languageData} = useDataFetch(`/admin/languages`);
+console.log("nav----",languageData);
 
   return (
     <nav className="text-blackColor dark:text-white border-b border-borderColor dark:border-gray-700 bg-white dark:bg-blackColor py-3 transition-colors duration-200">
@@ -79,20 +87,34 @@ const Header: React.FC<HeaderProps> = ({
         {/* Notification and Profile Group */}
 
         <div className="flex items-center gap-2 lg:gap-5 justify-end">
-          {/* Language Toggle Button */}
-          <button
-            onClick={toggleLanguage}
-            className="cursor-pointer relative flex justify-center items-center p-2 rounded-full transition-all duration-200 hover:scale-105"
-            style={{ boxShadow: "2px 2px 7px 2px rgba(0, 0, 0, 0.08)" }}
-            title={language === 'en' ? "Switch to Arabic" : "Switch to English"}
-          >
-            <div className="flex items-center gap-1">
-              <MdLanguage className="w-5 h-5 text-blue-600" />
-              <span className="text-xs font-medium text-gray-700 dark:text-white">
-                {language === 'en' ? 'EN' : 'عربي'}
-              </span>
-            </div>
-          </button>
+          {/* Language Selector */}
+          <div className="cursor-pointer relative flex items-center">
+            <Select
+              value={searchParams.get('language') || 'all'}
+              onValueChange={(value) => {
+                const params = new URLSearchParams(searchParams);
+                if (value === 'all') {
+                  params.delete('language');
+                } else {
+                  params.set('language', value);
+                }
+                router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+              }}
+            >
+              <SelectTrigger className='w-[180px] !h-10 focus-visible:ring-0'>
+                <div className="flex items-center gap-2">
+                  <MdLanguage className="w-5 h-5 text-blue-600" />
+                  <SelectValue placeholder='Language' />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>All</SelectItem>
+                {languageData?.data?.map((item: any) => (
+                  <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Theme Toggle Button */}
           <button

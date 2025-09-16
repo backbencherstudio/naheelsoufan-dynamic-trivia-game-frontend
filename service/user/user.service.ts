@@ -90,19 +90,20 @@ export const UserService = {
   },
 
 
-  updateAvatar: async (data: any, context = null) => {
-    const userToken = CookieHelper.get({ key: "token", context });
-
+  updateQuestion: async (endpoint, data, token) => {
     const _config = {
       headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + userToken,
-        "content-type": "multipart/form-data",
+       "content-type": "multipart/form-data",
+        Authorization: "Bearer " + token,
       },
     };
-
-    return await Fetch.patch(`/user/avatar`, data, _config);
+    return await Fetch.patch(
+      `${endpoint}`,
+      data,
+      _config
+    );
   },
+
   //
 
   

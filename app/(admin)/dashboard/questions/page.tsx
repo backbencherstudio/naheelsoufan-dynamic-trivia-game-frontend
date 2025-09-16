@@ -38,7 +38,17 @@ function QuestionsPage() {
   const [error, setError] = useState(null);
   const { token } = useToken();
   
-  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}&sort_by=${sortBy}&sort_order=${sortOrder}`;
+  // map UI sort keys to API sort keys
+  const mapSortKey = (key: string) => {
+    if (key === 'topic') return 'category';
+    if (key === 'difficulty') return 'difficulty';
+    if (key === 'language') return 'language';
+    return '';
+  };
+
+  const apiSortKey = mapSortKey(sortBy);
+  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ? `&sort=${apiSortKey}&order=${sortOrder}` : ''}`;
+
 
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
@@ -61,6 +71,20 @@ function QuestionsPage() {
       setSearch(searchParam);
     } else {
       setSearch(''); // Clear search if no URL parameter
+    }
+  }, [searchParams]);
+
+  // Initialize sort and order from URL params
+  useEffect(() => {
+    const sortParam = searchParams.get('sort');
+    const orderParam = searchParams.get('order') as 'asc' | 'desc' | null;
+    if (sortParam) {
+      // reverse map for UI
+      const uiKey = sortParam === 'category' ? 'topic' : sortParam;
+      if (uiKey !== sortBy) setSortBy(uiKey);
+    }
+    if ((orderParam === 'asc' || orderParam === 'desc') && orderParam !== sortOrder) {
+      setSortOrder(orderParam);
     }
   }, [searchParams]);
 
@@ -165,14 +189,14 @@ function QuestionsPage() {
         <span className="text-sm">{value ? "Yes" : "No"}</span>
       ),
     },
-    {
-      label: "Firebase",
-      accessor: "firebase",
-      width: "100px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value ? "Yes" : "No"}</span>
-      ),
-    },
+    // {
+    //   label: "Firebase",
+    //   accessor: "firebase",
+    //   width: "100px",
+    //   formatter: (value: string) => (
+    //     <span className="text-sm">{value ? "Yes" : "No"}</span>
+    //   ),
+    // },
     {
       label: "Options",
       accessor: "options",
@@ -242,9 +266,33 @@ function QuestionsPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // Handle sort order toggle
+  // Sync URL when sortBy changes via dropdown (single source of truth - debounced effect will refetch)
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (mapSortKey(sortBy)) {
+      params.set('sort', mapSortKey(sortBy));
+      params.set('order', sortOrder);
+    } else {
+      params.delete('sort');
+      params.delete('order');
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortBy]);
+
+  // Handle sort order toggle and sync URL (debounced effect will refetch)
   const toggleSortOrder = () => {
-    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    const next = sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortOrder(next);
+    const params = new URLSearchParams(searchParams);
+    if (mapSortKey(sortBy)) {
+      params.set('sort', mapSortKey(sortBy));
+      params.set('order', next);
+    } else {
+      params.delete('sort');
+      params.delete('order');
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handleEdit = (record: any) => {
@@ -269,13 +317,85 @@ function QuestionsPage() {
       setDeletingId(null);
     }
   };
+  const {data: questionExportData} = useDataFetch(`/admin/questions/export`);
 
   const handleExportQuestions = () => {
-    console.log("Exporting questions...");
+    try {
+      // Prefer backend-provided export array if available
+      const rawArray = Array.isArray(questionExportData?.data)
+        ? questionExportData.data
+        : Array.isArray(questionExportData)
+          ? questionExportData
+          : null;
+
+      const payload = rawArray ?? questionData ?? [];
+
+      // Otherwise, map current table data to a similar structure.
+      const fileContents = rawArray
+        ? payload
+        : payload.map((q: any) => ({
+            text: q.question,
+            category_id: q.topic?.id ?? q.topic,
+            language_id: q.language?.id ?? q.language,
+            difficulty_id: q.difficulty?.id ?? q.difficulty,
+            question_type_id: q.questionType?.id ?? q.questionType,
+            points: q.points,
+            answers: q.answers,
+          }));
+
+      const jsonString = JSON.stringify(fileContents, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `questions_export_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting questions:', error);
+    }
   };
 
   const handleImportQuestions = () => {
-    console.log("Importing questions...");
+    try {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = async (e: any) => {
+        const file: File | undefined = e?.target?.files?.[0];
+        if (!file) return;
+        try {
+          // Read file to validate JSON quickly (optional)
+          const text = await file.text();
+          let parsed: any;
+          try { parsed = JSON.parse(text); } catch { parsed = null; }
+
+          // Send as FormData (backend can accept the uploaded JSON file)
+          const formData = new FormData();
+          const blob = new Blob([text], { type: 'application/json' });
+          formData.append('file', blob, file.name || 'questions.json');
+
+          const res = await UserService.addFormData('/admin/questions/import', formData, token);
+          if (res?.data?.success) {
+            toast.success(res?.data?.message || 'Questions imported successfully');
+            // Refresh list
+            if (endpoint && token) {
+              debouncedFetchData(endpoint);
+            }
+          } else {
+            toast.error(res?.data?.message || 'Failed to import questions');
+          }
+        } catch (err: any) {
+          console.error('Import error:', err);
+          toast.error(err?.message || 'Import failed');
+        }
+      };
+      input.click();
+    } catch (error) {
+      console.error('Error opening file dialog:', error);
+    }
   };
 
   const handleAddNewQuestion = () => {
@@ -319,7 +439,7 @@ function QuestionsPage() {
                   <SelectValue placeholder='Language' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>All</SelectItem>
+                  <SelectItem value='all'>Language</SelectItem>
                   {
                         languageData?.data?.map((item: any) => (
                           <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
@@ -331,10 +451,10 @@ function QuestionsPage() {
             <div className="w-48 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='Sort by Question' />
+                  <SelectValue  placeholder='Sort'  className='!text-blackColor'/>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='question'>Sort by Question</SelectItem>
+                  {/* <SelectItem value='question'>Sort by Question</SelectItem> */}
                   <SelectItem value='topic'>Sort by Topic</SelectItem>
                   <SelectItem value='difficulty'>Sort by Difficulty</SelectItem>
                   <SelectItem value='language'>Sort by Language</SelectItem>

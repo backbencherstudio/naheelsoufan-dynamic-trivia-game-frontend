@@ -86,7 +86,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       if (editData?.id) {
         // Update existing item
         const endpoint = `/admin/categories/${editData.id}`;
-        const response = await UserService.updateData(endpoint, formData, token);
+        const response = await UserService.updateQuestion(endpoint, formData, token);
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const updatedData = topicsData?.map(item =>

@@ -134,7 +134,7 @@ function TopicsPage() {
       width: "100px",
       formatter: (value: string) => (
         <div className="flex items-center justify-center w-[60px]">
-          {value ? <Image src={value} alt="icon" width={60} height={60} /> : <span className="text-2xl"> 📁</span>}
+          {value ? <Image src={value} alt="icon" width={60} height={60} /> : ""}
         </div>
       ),
     },
