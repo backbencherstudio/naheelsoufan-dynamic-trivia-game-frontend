@@ -190,6 +190,7 @@ console.log(adminsData);
         <AddNewAdminForm 
           isOpen={isAddAdminOpen} 
           setIsOpen={setIsAddAdminOpen}
+          adminsData={adminsData}
         />
       )}
     </div>

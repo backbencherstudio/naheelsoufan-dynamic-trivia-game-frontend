@@ -12,21 +12,21 @@ export default function StatCards({ data }: any) {
     {
       title: "Total Host",
       value: totalHost?.data?.overview?.totalHosts || 0,
-      percentage: "+6%",
+      link: "/dashboard/subscribers",
       icon: <RxBarChart className="text-greenColor" />,
       timeFrame: "Last Month",
     },
     {
       title: "Total Users",
       value: totalHost?.data?.overview?.totalUsers || 0,
-      percentage: "+6%",
+      link: "/dashboard/players",
       icon: <RxBarChart  className="text-teal-400"/>,
       timeFrame: "Last Month",
     },
     {
       title: "Total Questions",
       value: totalHost?.data?.overview?.totalQuestions || 0,
-      percentage: "+6%",
+      link: "/dashboard/questions",
       icon: <RxBarChart className="text-orange-400" />,
       timeFrame: "Last Month",
     },
@@ -37,7 +37,7 @@ export default function StatCards({ data }: any) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       
       {loading ? <Loader/> : statCards?.map((card, idx) => (
-        <Link href="#"
+        <Link href={card.link}
           key={idx}
           className="p-4 rounded-lg border border-borderColor flex hover:shadow-[2px_2px_7px_2px_rgba(0,_0,_0,_0.08)] transition-all card flex-col gap-5"
         >

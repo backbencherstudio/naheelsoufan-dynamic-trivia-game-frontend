@@ -79,10 +79,12 @@ function PreviousGamesPage() {
     },
     {
       label: "Players",
-      accessor: "players",
+      accessor: "game_players",
       width: "150px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+      formatter: (value: any) => (
+        <div className="text-sm">{value?.length > 0 ?
+          value?.map((item: any) => item?.user?.name).join(", ")
+          :0}</div>
       ),
     },
   ];
@@ -166,7 +168,7 @@ function PreviousGamesPage() {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-         
+         loading={loading}
         />
       </div>
     </div>

@@ -7,10 +7,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToken } from "@/hooks/useToken";
+import { UserService } from "@/service/user/user.service";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa6";
 import { MdAdminPanelSettings, MdEmail } from "react-icons/md";
+import { toast } from "react-toastify";
 
 // Form data interface
 interface AddNewAdminFormData {
@@ -22,28 +25,50 @@ interface AddNewAdminFormData {
 interface AddNewAdminFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  adminsData: any[];
 }
 
-export function AddNewAdminForm({ isOpen, setIsOpen }: AddNewAdminFormProps) {
+export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset
   } = useForm<AddNewAdminFormData>();
-
+  const { token } = useToken();
   const onSubmit = async (data: AddNewAdminFormData) => {
+    setLoading(true);
     try {
-      console.log("New Admin Data:", data);
-      reset();
-      setIsOpen(false);
+      const formdata = {
+        email: data.email,
+        name: data.displayName,
+        password: data.password,
+      }
+      const response = await UserService.createData(`/admin/user`, formdata, token);
+      console.log(response);
       
-      // Show success message
-      console.log("Admin created successfully!");
+      if(response.data.success){
+        toast.success(response.data.message);
+        adminsData?.unshift({
+          id: crypto.randomUUID(),
+          email: data.email,
+          name: data.displayName,
+          created_at: new Date().toISOString(),
+        });
+        reset();
+        setIsOpen(false);
+      }else{
+        toast.error(response.data.message);
+      }
     } catch (error) {
       console.error("Error creating admin:", error);
+      toast.error(error.message);
+      reset();
+      setIsOpen(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,10 +209,10 @@ export function AddNewAdminForm({ isOpen, setIsOpen }: AddNewAdminFormProps) {
               </Button>
               <Button 
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isSubmitting || loading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {isSubmitting ? "Creating..." : "Create Admin"}
+                {isSubmitting || loading ? "Creating..." : "Create Admin"}
               </Button>
             </div>
           </div>
