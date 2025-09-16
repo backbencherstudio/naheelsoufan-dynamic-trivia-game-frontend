@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 interface DifficultyFormData {
   name: string;
   language: string;
+  points: number | string;
 }
 
 interface DifficultyAddFormProps {
@@ -42,6 +43,7 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
     defaultValues: {
       name: editData?.name || "",
       language: editData?.language?.id || editData?.language || "",
+      points: editData?.points || "",
     }
   });
 
@@ -50,8 +52,10 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
   const { token } = useToken();
   // Update form values when editData changes
   useEffect(() => {
-    if (editData) {
-      setValue("name", editData.name);
+    if (editData && editData.id) {
+      // Edit mode - populate form with existing data
+      setValue("name", editData.name || "");
+      setValue("points", editData.points || 0);
       const languageValue = editData?.language?.id || editData?.language || "";
       // Small delay to ensure language data is loaded
       setTimeout(() => {
@@ -59,18 +63,22 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
         console.log("Setting language value:", languageValue);
       }, 100);
     } else {
-      // Reset form when no editData (new item)
-      setValue("name", "");
-      setValue("language", "");
+      // Create mode - clear all fields
+      reset({
+        name: "",
+        language: "",
+        points: ""
+      });
     }
-  }, [editData, setValue]);
+  }, [editData, setValue, reset]);
   const { data: languageData } = useDataFetch(`/admin/languages`);
 
   const onSubmit = async (data: DifficultyFormData) => {
 
     const formData ={
       language_id: data.language,
-      name: data.name
+      name: data.name,
+      points: Number(data.points)
     }
     try {
       if (editData?.id) {
@@ -81,11 +89,15 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
           toast.success(response?.data?.message);
           const updatedData = difficultiesData.map(item =>
             item.id === editData.id
-              ? { ...item, name: data.name, language: data.language, language_id: data.language }
+              ? { ...item, name: data.name, language: data.language, language_id: data.language, points: data.points }
               : item
           );
           setDifficultiesData(updatedData);
-          reset();
+          reset({
+            name: "",
+            language: "",
+            points: ""
+          });
           setIsOpen(false);
         }
       } else {
@@ -94,8 +106,12 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
         const response = await UserService.createData(endpoint, formData, token);
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          difficultiesData.unshift(response?.data?.data)
-          reset();
+          difficultiesData.unshift(response?.data?.data);
+          reset({
+            name: "",
+            language: "",
+            points: ""
+          });
           setIsOpen(false);
         }
       }
@@ -114,7 +130,7 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
             {editData ? "Edit Difficulty" : "Create Difficulty"}
           </DialogTitle>
         </DialogHeader>
-        <form key={editData?.id || 'new'} onSubmit={handleSubmit(onSubmit)} >
+        <form key={editData?.id || `new-${Date.now()}`} onSubmit={handleSubmit(onSubmit)} >
           <div className="space-y-6 px-6 pb-6 pt-4">
             {/* Difficulty Name Input */}
             <div>
@@ -137,6 +153,28 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
                 <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
               )}
             </div>
+         
+            <div>
+              <Label htmlFor="points" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
+                Points
+              </Label>
+              <Input
+                id="points"
+                type="number"
+                placeholder="Difficulty points"
+                {...register("points", {
+                  required: "Difficulty points is required",
+                  min: {
+                    value: 1,
+                    message: "Points must be at least 1"
+                  }
+                })}
+                className={`w-full !h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.points ? "border-red-500" : ""}  dark:text-whiteColor`}
+              />
+              {errors.points && (
+                <p className="text-sm text-red-500 mt-1">{errors.points.message}</p>
+              )}
+            </div>
             {/* Language Selection */}
             <div>
               <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
@@ -148,7 +186,7 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
                 rules={{ required: "Language selection is required" }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className={`w-full h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.language ? "border-red-500" : ""}`}>
+                    <SelectTrigger className={`w-full !h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.language ? "border-red-500" : ""}`}>
                       <SelectValue placeholder="Language" />
                     </SelectTrigger>
                     <SelectContent>
@@ -173,7 +211,11 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
                 type="button"
                 variant="outline"
                 onClick={() => {
-                  reset();
+                  reset({
+                    name: "",
+                    language: "",
+                    points: ""
+                  });
                   setIsOpen(false);
                 }}
                 className="px-6 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"

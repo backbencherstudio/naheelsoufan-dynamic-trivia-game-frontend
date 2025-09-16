@@ -18,11 +18,10 @@ function QuestionsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
-  const [questionFilter, setQuestionFilter] = useState('all');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const [sortBy, setSortBy] = useState('question');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('');
   const [editData, setEditData] = useState<{
     question: string;
     topic: string;
@@ -35,17 +34,50 @@ function QuestionsPage() {
   const [questionData, setQuestionData] = useState<any[]>([]);
   const [paginationData, setPaginationData] = useState({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { token } = useToken();
-  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
-  const { data, loading } = useDataFetch(endpoint)
+  
+  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}&sort_by=${sortBy}&sort_order=${sortOrder}`;
+
+  // Debounced API call function
+  const debouncedFetchData = useDebounce(async (url: string) => {
+    try {
+      setLoading(true);
+      const response = await UserService.getData(url, token);
+      setQuestionData(response.data?.data);
+      setPaginationData(response.data?.pagination);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }, 500);
+
+  // Get search parameter from URL on component mount
   useEffect(() => {
-    if (data?.data?.length > 0) {
-      setQuestionData(data?.data)
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearch(searchParam);
+    } else {
+      setSearch(''); // Clear search if no URL parameter
     }
-    if (data) {
-      setPaginationData(data?.pagination)
+  }, [searchParams]);
+
+  // Initialize selected language from URL params
+  useEffect(() => {
+    const languageParam = searchParams.get('language');
+    setSelectedLanguage(languageParam || '');
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (endpoint && token) {
+      debouncedFetchData(endpoint);
     }
-  }, [data])
+  }, [endpoint, token]);
+
+  // Fetch language data for dropdown
+  const { data: languageData } = useDataFetch(`/admin/languages`);
 
 
   const columns = [
@@ -171,23 +203,10 @@ function QuestionsPage() {
       },
     },
   ];
-  const { data: languageData } = useDataFetch(`/admin/languages`);
-
-  // Handle language selection
-  const handleLanguageChange = (value: string) => {
-    setSelectedLanguage(value === 'all' ? '' : value);
-    const params = new URLSearchParams(searchParams);
-    if (value === 'all') {
-      params.delete('language_id');
-    } else {
-      params.set('language_id', value);
-    }
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
 
   // Initialize selected language from URL params
   useEffect(() => {
-    const languageParam = searchParams.get('language_id');
+    const languageParam = searchParams.get('language');
     setSelectedLanguage(languageParam || '');
   }, [searchParams]);
 
@@ -199,7 +218,7 @@ function QuestionsPage() {
     } else {
       params.set('search', searchValue);
     }
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
   // Debounced search function using the reusable hook
@@ -211,8 +230,21 @@ function QuestionsPage() {
     debouncedSearch(value);
   };
 
+  // Handle language selection
+  const handleLanguageChange = (value: string) => {
+    setSelectedLanguage(value === 'all' ? '' : value);
+    const params = new URLSearchParams(searchParams);
+    if (value === 'all') {
+      params.delete('language');
+    } else {
+      params.set('language', value);
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Handle sort order toggle
   const toggleSortOrder = () => {
-    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
   };
 
   const handleEdit = (record: any) => {
@@ -282,17 +314,17 @@ function QuestionsPage() {
           {/* Filter and Search Section */}
           <div className="flex gap-4 mb-6">
             <div className="w-48">
-              <Select value={questionFilter} onValueChange={setQuestionFilter}>
+             <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='Question' />
+                  <SelectValue placeholder='Language' />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='all'>All</SelectItem>
-                  <SelectItem value='technology'>Technology</SelectItem>
-                  <SelectItem value='capitals'>Capitals</SelectItem>
-                  <SelectItem value='brands'>Brands</SelectItem>
-                  <SelectItem value='history'>History</SelectItem>
-                  <SelectItem value='science'>Science</SelectItem>
+                  {
+                        languageData?.data?.map((item: any) => (
+                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                        ))
+                      }
                 </SelectContent>
               </Select>
             </div>
@@ -322,10 +354,11 @@ function QuestionsPage() {
             </div>
             <div className="relative flex-1">
               <input
+                value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder="Search"
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search questions..."
+                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             </div>

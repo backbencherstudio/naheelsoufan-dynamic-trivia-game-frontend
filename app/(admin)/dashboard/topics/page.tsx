@@ -11,7 +11,6 @@ import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { FaPen, FaPlus } from 'react-icons/fa6';
-import { FiDownload, FiUpload } from 'react-icons/fi';
 import { HiSearch } from 'react-icons/hi';
 import { MdCategory } from 'react-icons/md';
 import { RiDeleteBin6Line } from 'react-icons/ri';
@@ -221,14 +220,14 @@ function TopicsPage() {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Topics</h2>
             </div>
             <div className="flex gap-3">
-              <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border dark:text-whiteColor border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+              {/* <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border dark:text-whiteColor border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                 <FiDownload className="w-4 h-4" />
                 Export Data
               </button>
               <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border dark:text-whiteColor border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                 <FiUpload className="w-4 h-4" />
                 Import Data
-              </button>
+              </button> */}
               <button onClick={handleAddNew} className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <FaPlus />
                 Add Topic

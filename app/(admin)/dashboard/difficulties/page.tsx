@@ -2,23 +2,22 @@
 "use client";
 import { DifficultyAddForm } from '@/components/allForm/DificultAddForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import SearchComponent from '@/components/common/SearchComponent';
 import { useDebounce } from '@/helper/debounce.helper';
-import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
 import { UserService } from '@/service/user/user.service';
 import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaPen } from 'react-icons/fa6';
-import { HiSearch } from 'react-icons/hi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 
 function DifficultiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(2);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [search, setSearch] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<{
     id?: string;
@@ -28,21 +27,50 @@ function DifficultiesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-const [difficultiesData , setDifficultiesData] = useState<any[]>([])
-const [totalData , setTotalData] = useState<any>(0)
-const [deletingId, setDeletingId] = useState<string | null>(null)
-const {token} = useToken()
+  const [difficultiesData, setDifficultiesData] = useState<any[]>([])
+  const [totalData, setTotalData] = useState<any>(0)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const {token} = useToken()
   
-const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
- const {data , loading}= useDataFetch(endpoint)
-useEffect(() => {
-  if (data?.data?.length > 0) {
-    setDifficultiesData(data?.data)
-  }
-  if (data) {
-    setTotalData(data?.pagination)
-  }
-}, [data])
+  const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
+
+  // Debounced API call function
+  const debouncedFetchData = useDebounce(async (url: string) => {
+    try {
+      setLoading(true);
+      const response = await UserService.getData(url, token);
+      setDifficultiesData(response.data?.data);
+      setTotalData(response.data?.pagination);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }, 500);
+
+  // Get search parameter from URL on component mount
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearch(searchParam);
+    } else {
+      setSearch(''); // Clear search if no URL parameter
+    }
+  }, [searchParams]);
+
+  // Initialize selected language from URL params
+  useEffect(() => {
+    const languageParam = searchParams.get('language');
+    setSelectedLanguage(languageParam || '');
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (endpoint && token) {
+      debouncedFetchData(endpoint);
+    }
+  }, [endpoint, token]);
     
  
  const columns = [
@@ -74,6 +102,15 @@ useEffect(() => {
       },
     },
     {
+      label: "Points",
+      accessor: "points",
+      width: "120px",
+      formatter: (value: any) => {
+        
+        return <span className="text-sm">{value || 0}</span>;
+      },
+    },
+    {
       label: "Actions",
       accessor: "actions",
       width: "120px",
@@ -100,25 +137,6 @@ useEffect(() => {
     },
   ];
 
-  // Search function
-  const searchFunction = useCallback((searchValue: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (searchValue === '') {
-      params.delete('difficulty');
-    } else {
-      params.set('difficulty', searchValue);
-    }
-    router.replace(`${pathname}?${params.toString()}`);
-  }, [searchParams, router, pathname]);
-
-  // Debounced search function using the reusable hook
-  const debouncedSearch = useDebounce(searchFunction, 500);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    debouncedSearch(value);
-  };
 
   // Handle edit functionality
   const handleEdit = (record: any) => {
@@ -172,27 +190,7 @@ useEffect(() => {
             </button>
           </div>
           
-          <div className="flex gap-4 mb-6">
-            <div className="w-48">
-              <Select>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='All' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='language'>Language</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="relative flex-1">
-              <input 
-                onChange={handleSearch}
-                type="text" 
-                placeholder="Search" 
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
-              />
-              <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
-          </div>
+          <SearchComponent placeholder="Search difficulties..."/>
         </div>
         
         <DynamicTableTwo

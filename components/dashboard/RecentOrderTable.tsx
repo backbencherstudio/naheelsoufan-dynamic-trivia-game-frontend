@@ -6,7 +6,7 @@ import { UserService } from '@/service/user/user.service';
 import { SubscriptionType } from '@/types';
 import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPen } from 'react-icons/fa6';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { toast } from 'react-toastify';
@@ -65,7 +65,6 @@ function RecentOrderTable({ recentOrder }: any) {
   const { data: languageData } = useDataFetch(`/admin/languages`);
 
   
-
   // Initialize selected language from URL params
   useEffect(() => {
     const languageParam = searchParams.get('language');
@@ -157,26 +156,6 @@ function RecentOrderTable({ recentOrder }: any) {
     },
   ];
 
-  // Search function
-  const searchFunction = useCallback((searchValue: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (searchValue === '') {
-      params.delete('search');
-    } else {
-      params.set('search', searchValue);
-    }
-    router.replace(`${pathname}?${params.toString()}`,{scroll: false});
-  }, [searchParams, router, pathname]);
-
-  // Debounced search function using the reusable hook
-  const debouncedSearch = useDebounce(searchFunction, 500);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    // Call debounced search for both empty and non-empty values
-    debouncedSearch(value);
-  };
 
   const handleEdit = (record: any) => {
     setEditData(record);

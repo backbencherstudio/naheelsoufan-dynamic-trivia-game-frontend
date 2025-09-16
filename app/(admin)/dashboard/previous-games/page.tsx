@@ -1,10 +1,9 @@
 
 "use client";
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
-import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
+import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { HiSearch } from 'react-icons/hi';
@@ -13,26 +12,46 @@ function PreviousGamesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
-  const [topicFilter, setTopicFilter] = useState('all');
-  const [difficultyFilter, setDifficultyFilter] = useState('all');
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const [gamesHistoryData, setGamesHistoryData] = useState([]);
   const [paginationData, setPaginationData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const {token} = useToken();
-  const endpoint = `/admin/games?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
-  const {data , loading}= useDataFetch(endpoint)
- useEffect(() => {
-  if (data?.data?.length > 0) {
-    setGamesHistoryData(data?.data)
-  }
-  if (data) {
-    setPaginationData(data?.pagination)
-  }
-}, [data])
-  // Demo data matching the image
- console.log(gamesHistoryData);
+  
+  const endpoint = `/admin/games?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
+
+  // Debounced API call function
+  const debouncedFetchData = useDebounce(async (url: string) => {
+    try {
+      setLoading(true);
+      const response = await UserService.getData(url, token);
+      setGamesHistoryData(response.data?.data);
+      setPaginationData(response.data?.pagination);
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }, 500);
+
+  // Get search parameter from URL on component mount
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearch(searchParam);
+    } else {
+      setSearch(''); // Clear search if no URL parameter
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (endpoint && token) {
+      debouncedFetchData(endpoint);
+    }
+  }, [endpoint, token]);
  
 
   const columns = [
@@ -97,7 +116,7 @@ function PreviousGamesPage() {
     } else {
       params.set('search', searchValue);
     }
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
   // Debounced search function using the reusable hook
@@ -121,9 +140,9 @@ function PreviousGamesPage() {
         <div className="p-5">
           {/* Filter and Search Section */}
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-whiteColor">Difficulties</h2>
+             <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-whiteColor">Search Games</h2>
             <div className="flex gap-4">
-              <div className="w-48">
+              {/* <div className="w-48">
                 <Select value={topicFilter} onValueChange={setTopicFilter}>
                   <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
                     <SelectValue placeholder='Topic' />
@@ -147,16 +166,17 @@ function PreviousGamesPage() {
                     <SelectItem value='hard'>Hard</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="relative flex-1">
-                <input 
-                  onChange={handleSearch}
-                  type="text" 
-                  placeholder="Search by host or player..." 
-                  className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                />
-                <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              </div>
+              </div> */}
+               <div className="relative flex-1">
+                 <input 
+                   value={search}
+                   onChange={handleSearch}
+                   type="text" 
+                   placeholder="Search by host or player..." 
+                   className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
+                 />
+                 <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+               </div>
             </div>
           </div>
         </div>
@@ -168,7 +188,8 @@ function PreviousGamesPage() {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-         loading={loading}
+          paginationData={paginationData}
+          loading={loading}
         />
       </div>
     </div>
