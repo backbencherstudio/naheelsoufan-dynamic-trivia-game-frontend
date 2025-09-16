@@ -338,7 +338,6 @@ function QuestionsPage() {
                   <SelectItem value='topic'>Sort by Topic</SelectItem>
                   <SelectItem value='difficulty'>Sort by Difficulty</SelectItem>
                   <SelectItem value='language'>Sort by Language</SelectItem>
-                  <SelectItem value='points'>Sort by Points</SelectItem>
                 </SelectContent>
               </Select>
               <button

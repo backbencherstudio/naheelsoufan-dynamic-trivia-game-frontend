@@ -143,9 +143,6 @@ console.log("player",usersData);
                 <SelectContent>
                   <SelectItem value='name'>Sort by Name</SelectItem>
                   <SelectItem value='score'>Sort by Score</SelectItem>
-                  <SelectItem value='correct'>Sort by Correct</SelectItem>
-                  <SelectItem value='wrong'>Sort by Wrong</SelectItem>
-                  <SelectItem value='skipped'>Sort by Skipped</SelectItem>
                 </SelectContent>
               </Select>
               <button 

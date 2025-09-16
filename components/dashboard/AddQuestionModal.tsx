@@ -372,7 +372,17 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   control={control}
                   rules={{ required: 'Difficulty is required' }}
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select 
+                      value={field.value} 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        // Auto-populate points from selected difficulty
+                        const selectedDifficulty = difficultData?.data?.find((item: any) => item.id === value);
+                        if (selectedDifficulty?.points) {
+                          setValue('points', selectedDifficulty.points);
+                        }
+                      }}
+                    >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Difficulty" />
                       </SelectTrigger>
@@ -423,9 +433,11 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   {...register('points', { required: 'Points are required', valueAsNumber: true })}
                   type="number"
                   id="points"
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
                   placeholder="1"
                   min={1}
+                  disabled
+                  readOnly
                 />
                 {errors.points && <p className="text-red-500 text-xs mt-1">{errors.points.message as string}</p>}
               </div>
@@ -475,9 +487,9 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                 </div>
               </div> */}
 
-              {/* File (image upload) */}
+              {/* File (image/audio/video upload) */}
               <div className="mb-4">
-                <label htmlFor="image" className="block text-sm font-medium text-gray-700">File</label>
+                <label htmlFor="image" className="block text-sm font-medium text-gray-700">File (Image/Audio/Video)</label>
                 <Controller
                   name="image"
                   control={control}
@@ -486,13 +498,13 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                       <input
                         id="image"
                         type="file"
-                        accept="image/*"
+                        accept="image/*,audio/*,video/*"
                         className="hidden"
                         onChange={(e) => field.onChange(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
                       />
                       <label htmlFor="image" className="cursor-pointer flex items-center gap-3 select-none">
                         <FaDownload className='text-primaryColor' />
-                        <span className="text-gray-700">{field.value ? (field.value as File).name : 'file to upload'}</span>
+                        <span className="text-gray-700">{field.value ? (field.value as File).name : 'Upload Image, Audio or Video'}</span>
                       </label>
                     </div>
                   )}
@@ -545,7 +557,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                           <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/*,audio/*,video/*"
                               className="hidden"
                               id="optionAFile"
                               onChange={(e) => {
@@ -580,7 +592,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                           <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/*,audio/*,video/*"
                               className="hidden"
                               id="optionBFile"
                               onChange={(e) => {
@@ -615,7 +627,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                           <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/*,audio/*,video/*"
                               className="hidden"
                               id="optionCFile"
                               onChange={(e) => {
@@ -650,7 +662,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                           <div className="w-[30%] mt-1 border border-gray-300  overflow-hidden rounded-md h-10 flex items-center p-2">
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/*,audio/*,video/*"
                               className="hidden"
                               id="optionDFile"
                               onChange={(e) => {

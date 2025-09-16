@@ -162,10 +162,8 @@ function HostsPage() {
                 <SelectContent>
                   <SelectItem value='name'>Sort by Name</SelectItem>
                   <SelectItem value='email'>Sort by Email</SelectItem>
-                  <SelectItem value='games'>Sort by Games</SelectItem>
-                  <SelectItem value='questions'>Sort by Questions</SelectItem>
-                  <SelectItem value='players'>Sort by Players</SelectItem>
-                  <SelectItem value='price'>Sort by Price</SelectItem>
+                  <SelectItem value='create'>Sort by CreateAt</SelectItem>
+
                 </SelectContent>
               </Select>
               <button
