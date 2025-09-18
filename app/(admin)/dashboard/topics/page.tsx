@@ -96,6 +96,8 @@ function TopicsPage() {
       setDeletingId(null);
     }
   };
+  console.log("topicsData check",topicsData);
+  
 
   const handleAddNew = () => {
     setEditData(null);
@@ -204,13 +206,9 @@ function TopicsPage() {
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Topics</h1>
         </div>
-
-
       </div>
-
       {/* Table Section */}
       <div className="border rounded-lg pb-6">
         <div className="p-6">

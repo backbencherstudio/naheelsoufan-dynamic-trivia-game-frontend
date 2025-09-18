@@ -18,7 +18,6 @@ import {
 } from 'react-icons/lu';
 import {
   MdOutlineDashboard,
-  MdOutlineQuestionAnswer,
   MdOutlineSubscriptions,
   MdOutlineTopic
 } from 'react-icons/md';
@@ -59,11 +58,11 @@ const navItems: NavItem[] = [
     label: "Topics",
     href: "/dashboard/topics",
   },
-  {
-    icon: <MdOutlineQuestionAnswer />,
-    label: "Question Types",
-    href: "/dashboard/question-types",
-  },
+  // {
+  //   icon: <MdOutlineQuestionAnswer />,
+  //   label: "Question Types",
+  //   href: "/dashboard/question-types",
+  // },
   {
     icon: <IoIosSwitch />,
     label: "Difficulties",

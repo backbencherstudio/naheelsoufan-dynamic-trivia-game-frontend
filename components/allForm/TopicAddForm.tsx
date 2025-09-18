@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToken } from "@/hooks/useToken";
 import { UserService } from "@/service/user/user.service";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -32,7 +33,9 @@ interface TopicAddFormProps {
 
 export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopicsData, languageData}: TopicAddFormProps) {
   const [selectedFileName, setSelectedFileName] = useState<string>("");
+  const [selectedFilePreview, setSelectedFilePreview] = useState<string>("");
   const { token } = useToken();
+console.log("topic data======== ",editData);
 
   const {
     register,
@@ -45,7 +48,11 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
   } = useForm<TopicFormData>({
     defaultValues: {
       name: editData?.name || "",
-      language: editData?.language?.id || editData?.language || "",
+      language: editData?.language?.id
+        ? String(editData?.language?.id)
+        : editData?.language
+        ? String(editData?.language)
+        : "",
     }
   });
 
@@ -55,13 +62,15 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       setValue("name", editData.name);
       const languageValue = editData?.language?.id || editData?.language || "";
       setTimeout(() => {
-        setValue("language", languageValue);
+        setValue("language", languageValue ? String(languageValue) : "");
       }, 100);
       if (editData.icon) {
         setSelectedFileName(editData.icon);
+        setSelectedFilePreview(editData.image_url || "");
       }
     } else {
       setSelectedFileName("");
+      setSelectedFilePreview("");
     }
   }, [editData, setValue]);
 
@@ -69,8 +78,17 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFileName(file.name);
+      
+      // Create preview URL for image files
+      if (file.type.startsWith('image/')) {
+        const previewUrl = URL.createObjectURL(file);
+        setSelectedFilePreview(previewUrl);
+      } else {
+        setSelectedFilePreview("");
+      }
     } else {
       setSelectedFileName("");
+      setSelectedFilePreview("");
     }
   };
 
@@ -87,16 +105,25 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
         // Update existing item
         const endpoint = `/admin/categories/${editData.id}`;
         const response = await UserService.updateQuestion(endpoint, formData, token);
+        
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          const updatedData = topicsData?.map(item =>
-            item.id === editData.id
-              ? { ...item, name: data.name, language: { name: languageData?.data?.find((lang: any) => lang?.id === data.language)?.name, id: data.language } }
-              : item
+          const updatedItem = response?.data?.data
+            ? 
+             {
+                ...editData,
+                name: data.name,
+                language: { name: languageData?.data?.find((lang: any) => lang?.id 
+              === data.language)?.name, id: data.language , },
+                image_url: response?.data?.image_url ?? editData?.image_url,
+              } :response.data.data;
+          const updatedList = (topicsData || []).map((item: any) =>
+            item.id === editData.id ? updatedItem : item
           );
-          setTopicsData(updatedData);
+          setTopicsData?.(updatedList);
           reset();
           setSelectedFileName("");
+          setSelectedFilePreview("");
           setIsOpen(false);
         }
       } else {
@@ -106,7 +133,8 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
         
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          topicsData?.unshift(response?.data?.data);
+          const newList = [response?.data?.data, ...((topicsData as any[]) || [])];
+          setTopicsData?.(newList);
           reset();
           setSelectedFileName("");
           setIsOpen(false);
@@ -161,14 +189,14 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                 control={control}
                 rules={{ required: "Language selection is required" }}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value ? String(field.value) : ""}>
                     <SelectTrigger className={`w-full !h-10 md:!h-14 ${errors.language ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}>
                       <SelectValue placeholder="Select Language" />
                     </SelectTrigger>
                     <SelectContent>
                       {
                         languageData?.data?.map((item: any) => (
-                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                          <SelectItem key={item?.id} value={String(item?.id)}>{item?.name}</SelectItem>
                         ))
                       }
                     </SelectContent>
@@ -199,12 +227,36 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                       {selectedFileName ? (
                         <div>
                           <p className="text-green-600 text-sm font-medium">✓ File Selected</p>
-                          <p className="text-gray-600 text-xs mt-1 break-all">{selectedFileName}</p>
+
+                          {/* Image Preview */}
+                          {selectedFilePreview && (
+                            <div className="mt-3">
+                              <Image 
+                                src={selectedFilePreview} 
+                                alt="File preview" 
+                                width={100} 
+                                height={100} 
+                                className="object-cover rounded-lg border"
+                              />
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <div>
                           <p className="text-blue-600 text-sm font-medium">Choose Icon to upload</p>
                           <p className="text-gray-500 text-xs mt-1">jpg/png</p>
+                          {/* Show existing image if editing */}
+                          {editData?.image_url && !selectedFileName && (
+                            <div className="mt-3">
+                              <Image 
+                                src={editData.image_url} 
+                                alt="Current topic media" 
+                                width={100} 
+                                height={100} 
+                                className="object-cover rounded-lg border"
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -215,17 +267,18 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                 <Input 
                   type="file" 
                   id="file" 
-                  accept="image/jpeg,image/png" 
+                  accept="image/*,video/*,audio/*" 
                   {...register("file", { 
-                    required: !editData?.id ? "Topic Icon file is required" : false,
                     validate: (files) => {
                       if (files && files[0]) {
                         const file = files[0];
-                        if (file.type !== "image/jpeg" && file.type !== "image/png") {
-                          return "Please upload a jpg/png file";
+                        // Check file type
+                        if (!file.type.startsWith('image/') && !file.type.startsWith('video/') && !file.type.startsWith('audio/')) {
+                          return "Please upload an image, video, or audio file";
                         }
-                        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                          return "File size must be less than 5MB";
+                        // Check file size (10MB limit for all files)
+                        if (file.size > 10 * 1024 * 1024) {
+                          return "File size must be less than 10MB";
                         }
                       }
                       return true;
@@ -250,6 +303,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
               onClick={() => {
                 reset();
                 setSelectedFileName("");
+                setSelectedFilePreview("");
                 setIsOpen(false);
               }}
               className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"

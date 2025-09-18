@@ -238,6 +238,8 @@ function AdminManagementPage() {
       {/* Reset Password Modal */}
       {isResetPasswordOpen && (
         <AdminResetPasswordForm 
+        adminsData={adminsData} 
+        setAdminsData={setAdminsData}
           isOpen={isResetPasswordOpen} 
           setIsOpen={setIsResetPasswordOpen}
           adminData={selectedAdmin}
