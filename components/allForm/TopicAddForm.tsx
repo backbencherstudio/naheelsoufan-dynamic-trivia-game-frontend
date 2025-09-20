@@ -35,8 +35,8 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [selectedFilePreview, setSelectedFilePreview] = useState<string>("");
   const { token } = useToken();
-console.log("topic data======== ",editData);
 
+  // form handle
   const {
     register,
     handleSubmit,
@@ -78,7 +78,6 @@ console.log("topic data======== ",editData);
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFileName(file.name);
-      
       // Create preview URL for image files
       if (file.type.startsWith('image/')) {
         const previewUrl = URL.createObjectURL(file);
@@ -105,22 +104,10 @@ console.log("topic data======== ",editData);
         // Update existing item
         const endpoint = `/admin/categories/${editData.id}`;
         const response = await UserService.updateQuestion(endpoint, formData, token);
-        
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          const updatedItem = response?.data?.data
-            ? 
-             {
-                ...editData,
-                name: data.name,
-                language: { name: languageData?.data?.find((lang: any) => lang?.id 
-              === data.language)?.name, id: data.language , },
-                image_url: response?.data?.image_url ?? editData?.image_url,
-              } :response.data.data;
-          const updatedList = (topicsData || []).map((item: any) =>
-            item.id === editData.id ? updatedItem : item
-          );
-          setTopicsData?.(updatedList);
+            const updatedData = topicsData.map(item => item.id === editData?.id ? {...response.data.data, image_url: response.data.data.image_url || editData.image_url } : item)
+          setTopicsData?.(updatedData);
           reset();
           setSelectedFileName("");
           setSelectedFilePreview("");
