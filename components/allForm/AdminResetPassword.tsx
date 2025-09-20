@@ -141,8 +141,7 @@ console.log(adminData);
                 id="newPassword" 
                 type="password"
                 placeholder="Enter new password"
-                {...register("newPassword", { 
-                  required: "New password is required",
+                {...register("newPassword", {
                   minLength: {
                     value: 8,
                     message: "Password must be at least 8 characters"
@@ -169,7 +168,6 @@ console.log(adminData);
                 type="password"
                 placeholder="Confirm new password"
                 {...register("confirmPassword", { 
-                  required: "Please confirm your password",
                   validate: (value) => 
                     value === newPassword || "Passwords do not match"
                 })}

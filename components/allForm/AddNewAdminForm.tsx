@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,16 +47,11 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
         password: data.password,
       }
       const response = await UserService.createData(`/admin/user`, formdata, token);
-      console.log(response);
+      console.log(response?.data?.data);
       
       if(response.data.success){
         toast.success(response.data.message);
-        adminsData?.unshift({
-          id: crypto.randomUUID(),
-          email: data.email,
-          name: data.displayName,
-          created_at: new Date().toISOString(),
-        });
+        adminsData?.unshift(response?.data?.data);
         reset();
         setIsOpen(false);
       }else{
