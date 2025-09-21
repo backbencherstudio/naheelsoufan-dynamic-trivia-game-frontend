@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
 import { UserService } from '@/service/user/user.service';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FaDownload } from 'react-icons/fa6';
@@ -427,32 +428,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
               {/* Row: Language | Topic */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Language (select dropdown) */}
-                <div className="mb-4">
-                  <label htmlFor="language" className="block text-sm font-medium text-gray-700">Language</label>
-                  <Controller
-                    name="language"
-                    control={control}
-                    rules={{ required: 'Language is required' }}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {
-                            languageData?.data?.map((item: any) => (
-                              <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
-                            ))
-                          }
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.language && <p className="text-red-500 text-xs mt-1">{errors.language.message as string}</p>}
-                </div>
-
-                {/* Topic (select dropdown) */}
+               {/* Topic (select dropdown) */}
                 <div className="mb-4">
                   <label htmlFor="topic" className="block text-sm font-medium text-gray-700">Topic</label>
                   <Controller
@@ -476,9 +452,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   />
                   {errors.topic && <p className="text-red-500 text-xs mt-1">{errors.topic.message as string}</p>}
                 </div>
-              </div>
-
-              {/* Difficulty (select dropdown) */}
+{/* Difficulty (select dropdown) */}
               <div className="mb-4">
                 <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Difficulty</label>
                 <Controller
@@ -513,6 +487,33 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                 {errors.difficulty && <p className="text-red-500 text-xs mt-1">{errors.difficulty.message as string}</p>}
               </div>
 
+               
+              </div>
+  {/* Language (select dropdown) */}
+                <div className="mb-4">
+                  <label htmlFor="language" className="block text-sm font-medium text-gray-700">Language</label>
+                  <Controller
+                    name="language"
+                    control={control}
+                    rules={{ required: 'Language is required' }}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {
+                            languageData?.data?.map((item: any) => (
+                              <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                            ))
+                          }
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.language && <p className="text-red-500 text-xs mt-1">{errors.language.message as string}</p>}
+                </div>
+              
               {/* Question (text input) */}
               <div className="mb-4">
                 <label htmlFor="question" className="block text-sm font-medium text-gray-700">Question</label>
@@ -627,13 +628,101 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                         return (
                           <div className="border rounded-md p-2">
                             {kind === 'image' && (
-                              <img src={src} alt="preview" className="h-28 w-auto object-contain" />
+                              <Image src={src} alt="preview" width={100} height={100} className="h-28 w-auto object-contain" />
                             )}
                             {kind === 'audio' && (
-                              <audio controls src={src} className="w-full" />
+                              <div className="relative">
+                                {src.startsWith('blob:') ? (
+                                  // Local preview audio (blob URL)
+                                  <audio controls src={src} className="w-full" />
+                                ) : (
+                                  // Server audio with CORS handling
+                                  <div className="relative">
+                                    <audio 
+                                      controls 
+                                      className="w-full" 
+                                      preload="none"
+                                      crossOrigin="anonymous"
+                                      onLoadStart={() => console.log('Audio loading started for:', src)}
+                                      onCanPlay={() => console.log('Audio can play:', src)}
+                                      onLoadedData={() => console.log('Audio data loaded:', src)}
+                                      onError={(e) => {
+                                        console.error('Server audio error:', e);
+                                        console.error('Audio src:', src);
+                                        console.error('NetworkState:', e.currentTarget.networkState);
+                                        console.error('ReadyState:', e.currentTarget.readyState);
+                                        
+                                        // Try without CORS
+                                        if (e.currentTarget.crossOrigin) {
+                                          console.log('Retrying audio without CORS...');
+                                          e.currentTarget.crossOrigin = null;
+                                          e.currentTarget.load();
+                                        }
+                                      }}
+                                    >
+                                      <source src={src} type="audio/mpeg" />
+                                      <source src={src} type="audio/wav" />
+                                      <source src={src} type="audio/ogg" />
+                                      Your browser does not support the audio element.
+                                    </audio>
+                                    
+                                    
+                                  </div>
+                                )}
+                              </div>
                             )}
                             {kind === 'video' && (
-                              <video controls src={src} className="h-28 w-auto" />
+                              <div className="relative">
+                                {src.startsWith('blob:') ? (
+                                  // Local preview video (blob URL)
+                                  <video 
+                                    controls 
+                                    src={src}
+                                    className="h-28 w-auto object-contain rounded-lg border" 
+                                    width={200} 
+                                    height={100}
+                                    preload="metadata"
+                                    playsInline
+                                    muted
+                                    style={{ maxWidth: '100%', maxHeight: '112px' }}
+                                  />
+                                ) : (
+                                  // Server video with CORS handling
+                                  <div className="relative">
+                                    <video 
+                                      controls 
+                                      className="h-28 w-auto object-contain rounded-lg border bg-gray-100" 
+                                      width={200} 
+                                      height={100}
+                                      preload="none"
+                                      playsInline
+                                      crossOrigin="anonymous"
+                                      onLoadStart={() => console.log('Video loading started for:', src)}
+                                      onCanPlay={() => console.log('Video can play:', src)}
+                                      onLoadedData={() => console.log('Video data loaded:', src)}
+                                      onLoadedMetadata={() => console.log('Video metadata loaded:', src)}
+                                      onError={(e) => {
+                                        console.error('Server video error:', e);
+                                        console.error('Video src:', src);
+                                        console.error('NetworkState:', e.currentTarget.networkState);
+                                        console.error('ReadyState:', e.currentTarget.readyState);
+                                        
+                                        // Try without CORS
+                                        if (e.currentTarget.crossOrigin) {
+                                          console.log('Retrying without CORS...');
+                                          e.currentTarget.crossOrigin = null;
+                                          e.currentTarget.load();
+                                        }
+                                      }}
+                                      style={{ maxWidth: '100%', maxHeight: '112px' }}
+                                    >
+                                      <source src={src} type="video/mp4" />
+                                      <source src={src} type="video/webm" />
+                                      Your browser does not support the video tag.
+                                    </video>
+                                  </div>
+                                )}
+                              </div>
                             )}
                           </div>
                         );

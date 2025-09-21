@@ -18,7 +18,7 @@ export default function StatCards({ data }: any) {
     },
     {
       title: "Total Users",
-      value: totalHost?.data?.overview?.totalUsers || 0,
+      value: totalHost?.data?.overview?.totalPlayers || 0,
       link: "/dashboard/players",
       icon: <RxBarChart className="text-teal-400" />,
       timeFrame: "Last Month",

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToken } from "@/hooks/useToken";
 import { UserService } from "@/service/user/user.service";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -19,7 +19,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 interface TopicFormData {
   name: string;
   language: string;
-  file: FileList;
 }
 
 interface TopicAddFormProps {
@@ -34,6 +33,8 @@ interface TopicAddFormProps {
 export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopicsData, languageData}: TopicAddFormProps) {
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [selectedFilePreview, setSelectedFilePreview] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { token } = useToken();
 
   // form handle
@@ -77,26 +78,50 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (5MB limit)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error("File size must be less than 5MB");
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      // Check if it's PNG or JPG image file
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Please select only PNG or JPG image file");
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      setSelectedFile(file);
       setSelectedFileName(file.name);
       // Create preview URL for image files
-      if (file.type.startsWith('image/')) {
-        const previewUrl = URL.createObjectURL(file);
-        setSelectedFilePreview(previewUrl);
-      } else {
-        setSelectedFilePreview("");
-      }
+      const previewUrl = URL.createObjectURL(file);
+      setSelectedFilePreview(previewUrl);
     } else {
+      setSelectedFile(null);
       setSelectedFileName("");
       setSelectedFilePreview("");
     }
+  };
+
+  const handleUploadAreaClick = () => {
+    fileInputRef.current?.click();
   };
 
   const onSubmit = async (data: TopicFormData) => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("language_id", data.language);
-    if (data.file && data.file[0]) {
-      formData.append("file", data.file[0]);
+    if (selectedFile) {
+      formData.append("file", selectedFile);
     }
 
     try {
@@ -109,6 +134,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
             const updatedData = topicsData.map(item => item.id === editData?.id ? {...response.data.data, image_url: response.data.data.image_url || editData.image_url } : item)
           setTopicsData?.(updatedData);
           reset();
+          setSelectedFile(null);
           setSelectedFileName("");
           setSelectedFilePreview("");
           setIsOpen(false);
@@ -117,13 +143,16 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
         // Add new item
         const endpoint = `/admin/categories`;
         const response = await UserService.addFormData(endpoint, formData, token);
+        console.log("check",response);
         
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const newList = [response?.data?.data, ...((topicsData as any[]) || [])];
           setTopicsData?.(newList);
           reset();
+          setSelectedFile(null);
           setSelectedFileName("");
+          setSelectedFilePreview("");
           setIsOpen(false);
         }
       }
@@ -201,7 +230,10 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                 Upload Topic Icon
               </Label>
               <div className="relative">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
+                <div 
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer"
+                  onClick={handleUploadAreaClick}
+                >
                   <div className="flex flex-col items-center space-y-2">
                     {/* Upload Icon */}
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -230,8 +262,8 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                         </div>
                       ) : (
                         <div>
-                          <p className="text-blue-600 text-sm font-medium">Choose Icon to upload</p>
-                          <p className="text-gray-500 text-xs mt-1">jpg/png</p>
+                          <p className="text-blue-600 text-sm font-medium">Choose Image to upload</p>
+                          <p className="text-gray-500 text-xs mt-1">PNG and JPG only (Max 5MB)</p>
                           {/* Show existing image if editing */}
                           {editData?.image_url && !selectedFileName && (
                             <div className="mt-3">
@@ -250,34 +282,16 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                   </div>
                 </div>
                 
-                {/* Hidden file input that only covers the upload area */}
+                {/* Hidden file input */}
                 <Input 
+                  ref={fileInputRef}
                   type="file" 
                   id="file" 
-                  accept="image/*,video/*,audio/*" 
-                  {...register("file", { 
-                    validate: (files) => {
-                      if (files && files[0]) {
-                        const file = files[0];
-                        // Check file type
-                        if (!file.type.startsWith('image/') && !file.type.startsWith('video/') && !file.type.startsWith('audio/')) {
-                          return "Please upload an image, video, or audio file";
-                        }
-                        // Check file size (10MB limit for all files)
-                        if (file.size > 10 * 1024 * 1024) {
-                          return "File size must be less than 10MB";
-                        }
-                      }
-                      return true;
-                    }
-                  })}
+                  accept=".png,.jpg,.jpeg,image/png,image/jpeg"
                   onChange={handleFileChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="hidden"
                 />
               </div>
-              {errors.file && (
-                <p className="text-sm text-red-500 mt-1">{errors.file.message}</p>
-              )}
             </div>
           </div>
           
@@ -289,6 +303,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
               variant="outline" 
               onClick={() => {
                 reset();
+                setSelectedFile(null);
                 setSelectedFileName("");
                 setSelectedFilePreview("");
                 setIsOpen(false);

@@ -136,7 +136,7 @@ const id = data?.id;
             </div>
             
             {/* File Upload Section */}
-            {/* <div>
+            <div>
               <Label className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Choose file to upload
               </Label>
@@ -180,7 +180,7 @@ const id = data?.id;
               {errors.file && (
                 <p className="text-sm text-red-500 mt-1">{errors.file.message}</p>
               )}
-            </div> */}
+            </div>
           </div>
           
           {/* Action Buttons */}

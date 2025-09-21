@@ -19,7 +19,7 @@ function QuestionsPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
-  const [sortBy, setSortBy] = useState('question');
+  const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<{
@@ -451,10 +451,10 @@ function QuestionsPage() {
             <div className="w-48 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue  placeholder='Sort'  className='!text-blackColor'/>
+                   <SelectValue placeholder='Sort by...' />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* <SelectItem value='question'>Sort by Question</SelectItem> */}
+               
                   <SelectItem value='topic'>Sort by Topic</SelectItem>
                   <SelectItem value='difficulty'>Sort by Difficulty</SelectItem>
                   <SelectItem value='language'>Sort by Language</SelectItem>
