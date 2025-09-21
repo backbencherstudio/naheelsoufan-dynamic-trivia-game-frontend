@@ -46,7 +46,7 @@ export const UserService = {
   addFormData: async (endpoint, data, token) => {
     const _config = {
       headers: {
-        "Content-Type": "multipart/form-data;",
+        "Content-Type": "multipart/form-data",
         Authorization: "Bearer " + token,
       },
     };
@@ -102,6 +102,16 @@ export const UserService = {
       data,
       _config
     );
+  },
+
+  updateFormData: async (endpoint, data, token) => {
+    const _config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: "Bearer " + token,
+      },
+    };
+    return await Fetch.patch(`${endpoint}`, data, _config);
   },
 
   //

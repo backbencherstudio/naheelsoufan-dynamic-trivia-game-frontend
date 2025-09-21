@@ -106,9 +106,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     return pathname.startsWith(href);
   };
   const handleLogout = () => {
-    Cookies.remove("token");
+    Cookies.remove("gametoken");
     router.push("/login")
-
   }
   return (
     <div className="h-screen  ">

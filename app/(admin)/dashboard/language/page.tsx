@@ -107,8 +107,40 @@ function page() {
     setSearch(value);
     debouncedSearch(value);
   };
-  const handleDownload = (value: any) => {
-    console.log(value);
+  const handleDownload = async (value: any) => {
+    try {
+      if (!value?.file_url) {
+        toast.error('No file available for download');
+        return;
+      }
+
+      // Fetch the file content directly
+      const response = await fetch(value.file_url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch file');
+      }
+      
+      const blob = await response.blob();
+      
+      // Create a blob URL and download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${value.name || 'language'}_file.json`;
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the blob URL
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('File downloaded successfully');
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to download file');
+    }
   }
   const handleEdit = (value: any) => {
     setEditData(value);

@@ -11,10 +11,16 @@ export default function ProtectedPageWrapper({ children }: { children: React.Rea
   const getCookieToken = () => {
     if (typeof document === "undefined") return null;
 
-    const cookieString = document.cookie
+    // Check for both 'gametoken' and 'token' cookies
+    const gameTokenString = document.cookie
       .split("; ")
       .find((cookie) => cookie.startsWith("gametoken="));
-    return cookieString?.split("=")[1] || null;
+    
+    const tokenString = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.startsWith("token="));
+
+    return gameTokenString?.split("=")[1] || tokenString?.split("=")[1] || null;
   };
 
   useEffect(() => {
