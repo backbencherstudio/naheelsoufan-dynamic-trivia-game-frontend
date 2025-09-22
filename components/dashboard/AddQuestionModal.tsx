@@ -385,6 +385,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const server = response?.data?.data || {};
+          console.log("check server",server);
+          
           const categoryObj = topicData?.data?.find((t: any) => String(t.id) === String(data.topic));
           const languageObj = languageData?.data?.find((l: any) => String(l.id) === String(data.language));
           const difficultyObj = difficultData?.data?.find((d: any) => String(d.id) === String(data.difficulty));
@@ -392,9 +394,9 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
           const created = {
             ...server,
-            id: server.id,
+            id: server?.question.id,
             text: server.text ?? data.question,
-            file_url: server.file_url ?? undefined,
+            file_url: server?.question?.file_url ?? undefined,
             time: server.time ?? data.answerTime,
             free_bundle: server.free_bundle ?? (data.freeBundle === 'true'),
             firebase: server.firebase ?? null,
