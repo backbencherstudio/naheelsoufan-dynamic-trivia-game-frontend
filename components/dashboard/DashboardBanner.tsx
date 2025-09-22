@@ -3,7 +3,7 @@ import vectorImg from '@/public/image/vectore.svg'
 import Image from 'next/image'
 import { useState } from 'react'
 import AddQuestionModal from './AddQuestionModal'
-function DashboardBanner() {
+function DashboardBanner({userinfo}: {userinfo: string}) {
       const [isOpen, setIsOpen] = useState(false)
   return (
     <div className='bg-whiteColor my-10 rounded-2xl '>
@@ -14,7 +14,7 @@ function DashboardBanner() {
                 Welcome back!
                </h4>
                <h4 className='text-xl lg:text-2xl font-semibold text-primaryColor '>
-               walid_h929
+               {userinfo}
                </h4>
                <p className='text-sm text-headerColor mt-3'>
                 If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything

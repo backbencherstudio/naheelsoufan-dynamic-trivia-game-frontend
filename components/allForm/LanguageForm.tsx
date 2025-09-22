@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToken } from "@/hooks/useToken";
 import { UserService } from "@/service/user/user.service";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
@@ -33,16 +33,24 @@ export function LanguageForm({
     defaultValues: {
       name: data?.name || "",
       code: data?.code || "",
-      file: data?.file || null,
+      file: null, // File inputs can't have default values
     },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFileName, setSelectedFileName] = useState<string | null>(null); // state to hold file name
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(data?.file_url || null); // Initialize with existing file name
 
   const id = data?.id;
   const { token } = useToken();
-console.log(data);
+
+  // Update selectedFileName when data changes (for edit mode)
+  useEffect(() => {
+    if (data?.file_url) {
+      setSelectedFileName(data.file_url);
+    } else {
+      setSelectedFileName(null);
+    }
+  }, [data]);
 
   const onSubmit = async (data: LanguageFormData) => {
     setIsSubmitting(true);
@@ -85,7 +93,7 @@ console.log(data);
           languageData.unshift(response?.data?.data);
           reset();
         }
-        console.log("============", response);
+        console.log("============", response?.data?.data);
       }
 
       reset();
@@ -175,7 +183,7 @@ console.log(data);
               <Label className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 Choose file to upload
               </Label>
-              <div className="relative">
+              <div className="relative ">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
                   <div className="flex flex-col items-center space-y-2">
                     <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -196,10 +204,10 @@ console.log(data);
 
                     <div className="text-center">
                       <p className="text-blue-600 text-sm font-medium">
-                        choose file to upload
+                        {id ? "Choose new file to replace current file" : "choose file to upload"}
                       </p>
                      {selectedFileName ? (
-                <p className="text-sm text-primaryColor mt-2"> {selectedFileName}</p>
+                <p className="text-sm text-primaryColor mt-2 break-all w-full"> {selectedFileName}</p>
               ) : <p className="text-gray-500 text-xs mt-1">JSON</p>} 
                     </div>
                   </div>
@@ -209,7 +217,7 @@ console.log(data);
                   id="file"
                   accept="application/json,.json"
                   {...register("file", {
-                    required: "Language file is required",
+                    required: !id ? "Language file is required" : false, // File is optional when editing
                     validate: (files) => {
                       if (files && files[0]) {
                         const file = files[0];

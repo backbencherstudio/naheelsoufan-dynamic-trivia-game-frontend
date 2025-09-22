@@ -1,5 +1,6 @@
 
 
+import { UserService } from '@/service/user/user.service'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import DashboardBanner from './DashboardBanner'
@@ -18,10 +19,14 @@ async function DashboardPage() {
     );
   }
 
+ 
+
   try {
+     const userinfo = await UserService?.getData("/auth/me", token)
+
     return (
       <div className='flex flex-col justify-between h-full'>
-        <DashboardBanner/>
+        <DashboardBanner userinfo={userinfo?.data?.data?.name}/>
         <StatCards />
         <div>
           <RecentOrderTable />

@@ -337,9 +337,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
     if (data.optionDFile && !existingFiles.optionD) {
       formData.append('answerFiles', data.optionDFile);
     }
-    
-    // Log existing files for debugging
-    console.log("Existing files:", existingFiles);
+
      try {
       if (editData?.id) {
         // Update existing item - use addFormData for FormData
@@ -380,13 +378,10 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
         // Add new item
         const endpoint = `/admin/questions`;
         const response = await UserService.addFormData(endpoint, formData, token);
-        console.log("response create question", response);
         
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const server = response?.data?.data || {};
-          console.log("check server",server);
-          
           const categoryObj = topicData?.data?.find((t: any) => String(t.id) === String(data.topic));
           const languageObj = languageData?.data?.find((l: any) => String(l.id) === String(data.language));
           const difficultyObj = difficultData?.data?.find((d: any) => String(d.id) === String(data.difficulty));
@@ -430,6 +425,29 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
               {/* Row: Language | Topic */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="mb-4">
+                  <label htmlFor="language" className="block text-sm font-medium text-gray-700">Language</label>
+                  <Controller
+                    name="language"
+                    control={control}
+                    rules={{ required: 'Language is required' }}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {
+                            languageData?.data?.map((item: any) => (
+                              <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                            ))
+                          }
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.language && <p className="text-red-500 text-xs mt-1">{errors.language.message as string}</p>}
+                </div>
                {/* Topic (select dropdown) */}
                 <div className="mb-4">
                   <label htmlFor="topic" className="block text-sm font-medium text-gray-700">Topic</label>
@@ -454,7 +472,12 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   />
                   {errors.topic && <p className="text-red-500 text-xs mt-1">{errors.topic.message as string}</p>}
                 </div>
-{/* Difficulty (select dropdown) */}
+
+
+               
+              </div>
+ 
+               {/* Difficulty (select dropdown) */}
               <div className="mb-4">
                 <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Difficulty</label>
                 <Controller
@@ -488,33 +511,6 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                 />
                 {errors.difficulty && <p className="text-red-500 text-xs mt-1">{errors.difficulty.message as string}</p>}
               </div>
-
-               
-              </div>
-  {/* Language (select dropdown) */}
-                <div className="mb-4">
-                  <label htmlFor="language" className="block text-sm font-medium text-gray-700">Language</label>
-                  <Controller
-                    name="language"
-                    control={control}
-                    rules={{ required: 'Language is required' }}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Language" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {
-                            languageData?.data?.map((item: any) => (
-                              <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
-                            ))
-                          }
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.language && <p className="text-red-500 text-xs mt-1">{errors.language.message as string}</p>}
-                </div>
               
               {/* Question (text input) */}
               <div className="mb-4">
