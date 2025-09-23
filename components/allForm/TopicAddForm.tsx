@@ -132,7 +132,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
         const response = await UserService.updateQuestion(endpoint, formData, token);
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-            const updatedData = topicsData.map(item => item.id === editData?.id ? {...response.data.data, image_url: response.data.data.image_url || editData.image_url } : item)
+            const updatedData = topicsData.map(item => item.id === editData?.id ? {...response.data.data, image: response.data.data.image || editData.image } : item)
           setTopicsData?.(updatedData);
           reset();
           setSelectedFile(null);

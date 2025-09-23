@@ -133,7 +133,7 @@ function TopicsPage() {
     },
     {
       label: t("icon"),
-      accessor: "image_url",
+      accessor: "image",
       width: "100px",
       formatter: (value: string) => (
         <div className="flex items-center justify-center w-[60px]">
@@ -200,6 +200,84 @@ function TopicsPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
+  const {data: questionExportData} = useDataFetch(`/admin/categories/export`);
+
+  const handleExportQuestions = () => {
+    try {
+      // Prefer backend-provided export array if available
+      const rawArray = Array.isArray(questionExportData?.data)
+        ? questionExportData.data
+        : Array.isArray(questionExportData)
+          ? questionExportData
+          : null;
+
+      const payload = rawArray ?? topicsData ?? [];
+
+      // Otherwise, map current table data to a similar structure.
+      const fileContents = rawArray
+        ? payload
+        : payload.map((q: any) => ({
+            text: q.name,
+            category_id: q.category?.id ?? q.category,
+            language_id: q.language?.id ?? q.language,
+            points: q.points,
+            answers: q.answers,
+          }));
+
+      const jsonString = JSON.stringify(fileContents, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `questions_export_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting questions:', error);
+    }
+  };
+
+  const handleImportQuestions = () => {
+    try {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = async (e: any) => {
+        const file: File | undefined = e?.target?.files?.[0];
+        if (!file) return;
+        try {
+          // Read file to validate JSON quickly (optional)
+          const text = await file.text();
+          let parsed: any;
+          try { parsed = JSON.parse(text); } catch { parsed = null; }
+
+          // Send as FormData (backend can accept the uploaded JSON file)
+          const formData = new FormData();
+          const blob = new Blob([text], { type: 'application/json' });
+          formData.append('file', blob, file.name || 'topics.json');
+
+          const res = await UserService.addFormData('/admin/categories/export', formData, token);
+          if (res?.data?.success) {
+            toast.success(res?.data?.message || t("topics_imported_successfully"));
+            // Refresh list
+            if (endpoint && token) {
+              debouncedFetchData(endpoint);
+            }
+          } else {
+            toast.error(res?.data?.message || t("failed_to_import_topics"));
+          }
+        } catch (err: any) {
+          console.error('Import error:', err);
+          toast.error(err?.message || t("import_failed"));
+        }
+      };
+      input.click();
+    } catch (error) {
+      console.error('Error opening file dialog:', error);
+    }
+  };
 
 
   return (
@@ -219,14 +297,16 @@ function TopicsPage() {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">{t("topic")}</h2>
             </div>
             <div className="flex gap-3">
-              {/* <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border dark:text-whiteColor border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                <FiDownload className="w-4 h-4" />
-                Export Data
-              </button>
-              <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border dark:text-whiteColor border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-                <FiUpload className="w-4 h-4" />
-                Import Data
-              </button> */}
+             <button
+            onClick={handleExportQuestions}
+            className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700">
+            {t("export_topic")}
+          </button>
+          <button
+            onClick={handleImportQuestions}
+            className="bg-blue-800 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-900">
+            {t("import_topic")}
+          </button>
               <button onClick={handleAddNew} className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <FaPlus />
                 {t("add_topic")}

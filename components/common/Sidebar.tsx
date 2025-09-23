@@ -102,11 +102,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 ];
   const pathname = usePathname();
   const router = useRouter()
-  const isActive = (href: string): boolean => {
+ const isActive = (href: string): boolean => {
+    // Remove locale prefix like /en, /bn, /ar from pathname
+    const pathWithoutLocale = (pathname?.replace(/^\/[a-z]{2}(?=\/|$)/, "") || "/");
     if (href === "/") {
-      return pathname === "/";
+      return pathWithoutLocale === "/";
     }
-    return pathname.startsWith(href);
+    return pathWithoutLocale.startsWith(href);
   };
   const handleLogout = () => {
     Cookies.remove("gametoken");

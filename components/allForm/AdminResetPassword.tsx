@@ -99,7 +99,9 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData, adminsDat
             {/* New Password Input */}
             <div>
               <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                {t("name")}
+     Subscribers
+
+           {t("name")}
               </Label>
               <Input 
                 id="name" 

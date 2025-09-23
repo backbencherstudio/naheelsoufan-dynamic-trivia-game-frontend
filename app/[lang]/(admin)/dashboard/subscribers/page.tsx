@@ -4,6 +4,7 @@ import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
@@ -25,7 +26,7 @@ function HostsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token } = useToken();
-  
+  const {t} = useTranslation();
   const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
 
   // Debounced API call function
@@ -36,7 +37,7 @@ function HostsPage() {
       setSubscriptionData(response.data?.data);
       setPaginationData(response.data?.pagination);
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError(err.message || t("something_went_wrong"));
     } finally {
       setLoading(false);
     }
@@ -61,7 +62,7 @@ function HostsPage() {
 
   const columns = [
     {
-      label: "No.",
+      label: t("no"),
       accessor: "no",
       width: "60px",
       formatter: (_: any, _row: any, index: number) => {
@@ -70,7 +71,7 @@ function HostsPage() {
       },
     },
     {
-      label: "Full Name",
+      label: t("full_name"),
       accessor: "user",
       width: "150px",
       formatter: (value: { name: string }) => (
@@ -78,7 +79,7 @@ function HostsPage() {
       ),
     },
     {
-      label: "Email",
+      label: t("email"),
       accessor: "user",
       width: "200px",
       formatter: (value: { email: string }) => (
@@ -86,7 +87,7 @@ function HostsPage() {
       ),
     },
     {
-      label: "Games",
+      label: t("games"),
       accessor: "subscription_type",
       width: "100px",
       formatter: (value: { games: number }) => (
@@ -94,7 +95,7 @@ function HostsPage() {
       ),
     },
     {
-      label: "Questions",
+      label: t("questions"),
       accessor: "subscription_type",
       width: "100px",
       formatter: (value: { questions: number }) => (
@@ -102,7 +103,7 @@ function HostsPage() {
       ),
     },
     {
-      label: "Players",
+      label: t("players"),
       accessor: "subscription_type",
       width: "100px",
       formatter: (value: { players: number }) => (
@@ -110,7 +111,7 @@ function HostsPage() {
       ),
     },
     {
-      label: "Price",
+      label: t("price"),
       accessor: "subscription_type",
       width: "100px",
       formatter: (value: { price: number }) => (
@@ -118,11 +119,11 @@ function HostsPage() {
       ),
     },
     {
-      label: "Free Trial",
+      label: t("free_trial"),
       accessor: "games_played_count",
       width: "100px",
       formatter: (value: number) => (
-        <span className="text-sm">{value > 1 ? "No" : "Yes"}</span>
+        <span className="text-sm">{value > 1 ? t("no") : t("yes")}</span>
       ),
     },
   ];
@@ -155,7 +156,7 @@ function HostsPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Subscribers</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("subscribers")}</h1>
       </div>
 
       {/* Table Section */}
@@ -179,12 +180,12 @@ function HostsPage() {
             <div className="w-48 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='Sort by Name' />
+                  <SelectValue placeholder={t("sort_name")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='name'>Sort by Name</SelectItem>
-                  <SelectItem value='email'>Sort by Email</SelectItem>
-                  <SelectItem value='create'>Sort by CreateAt</SelectItem>
+                  <SelectItem value='name'>{t("sort_name")}</SelectItem>
+                  <SelectItem value='email'>{t("sort_email")}</SelectItem>
+                  <SelectItem value='create'>{t("sort_creatat")}</SelectItem>
                 </SelectContent>
               </Select>
               <button
@@ -203,7 +204,7 @@ function HostsPage() {
                 value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder="Search subscribers..."
+                placeholder={t("search_Subscribers")}
                 className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

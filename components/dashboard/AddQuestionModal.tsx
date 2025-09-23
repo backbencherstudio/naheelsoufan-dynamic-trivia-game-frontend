@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -10,7 +11,6 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast } from 'react-toastify';
 import { Dialog, DialogContent } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import useTranslation from '@/hooks/useTranslation';
 type FormValues = {
   language?: string;
   topic?: string;
@@ -973,7 +973,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                 disabled={isSubmitting}
                 className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {isSubmitting ? (editData ? t("updating") : t("creating")) : (editData ? t("s") : t("add_questions"))}
+                {isSubmitting ? (editData ? t("updating") : t("creating")) : (editData ? t("update_questions") : t("add_questions"))}
               </Button>
             </form>
           </div>
