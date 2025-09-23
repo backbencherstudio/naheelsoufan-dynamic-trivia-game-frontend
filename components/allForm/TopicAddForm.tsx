@@ -8,6 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToken } from "@/hooks/useToken";
+import useTranslation from "@/hooks/useTranslation";
 import { UserService } from "@/service/user/user.service";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
@@ -36,7 +37,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { token } = useToken();
-
+  const {t}=useTranslation()
   // form handle
   const {
     register,
@@ -81,7 +82,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       // Check file size (5MB limit)
       const maxSize = 5 * 1024 * 1024; // 5MB in bytes
       if (file.size > maxSize) {
-        toast.error("File size must be less than 5MB");
+        toast.error(t("file_size_must_be_less_then_5mb"));
         // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -92,7 +93,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       // Check if it's PNG or JPG image file
       const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
       if (!allowedTypes.includes(file.type)) {
-        toast.error("Please select only PNG or JPG image file");
+        toast.error(t("please_select_only_PNG_or_JPG_image_file"));
         // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -143,8 +144,6 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
         // Add new item
         const endpoint = `/admin/categories`;
         const response = await UserService.addFormData(endpoint, formData, token);
-        console.log("check",response);
-        
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const newList = [response?.data?.data, ...((topicsData as any[]) || [])];
@@ -158,7 +157,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       }
     } catch (error) {
       console.error("Error saving topic:", error);
-      toast.error("Failed to save topic");
+      toast.error(t("failed_to_save_topic"));
     }
   };
 
@@ -167,7 +166,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
-            {editData ? "Edit Topic" : "Add Topic"}
+            {editData ? t("update_topic"): t("add_new_topic")}
           </DialogTitle>
         </DialogHeader>
         
@@ -176,16 +175,16 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
             {/* Topic Name Input */}
             <div>
               <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Topic Name
+                {t("topic_name")}
               </Label>
               <Input 
                 id="name" 
-                placeholder="Topic Name"
+                placeholder={t("topic_name")}
                 {...register("name", { 
-                  required: "Topic name is required",
+                  required: t("topic_name_required"),
                   minLength: {
                     value: 2,
-                    message: "Topic name must be at least 2 characters"
+                    message: t("topic_name_must_be_at_least_2_characters")
                   }
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.name ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
@@ -198,16 +197,16 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
             {/* Language Selection */}
             <div>
               <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Select Language
+               {t("select_language")}
               </Label>
               <Controller
                 name="language"
                 control={control}
-                rules={{ required: "Language selection is required" }}
+                rules={{ required: t("language_selection_is_required") }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value ? String(field.value) : ""}>
                     <SelectTrigger className={`w-full !h-10 md:!h-14 ${errors.language ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}>
-                      <SelectValue placeholder="Select Language" />
+                      <SelectValue placeholder={t("select_language")} />
                     </SelectTrigger>
                     <SelectContent>
                       {
@@ -227,7 +226,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
             {/* File Upload Section */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Upload Topic Icon
+                {t("upload_topic_icon")}
               </Label>
               <div className="relative">
                 <div 
@@ -245,7 +244,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                     <div className="text-center">
                       {selectedFileName ? (
                         <div>
-                          <p className="text-green-600 text-sm font-medium">✓ File Selected</p>
+                          <p className="text-green-600 text-sm font-medium">✓ {t("file_selected")}</p>
 
                           {/* Image Preview */}
                           {selectedFilePreview && (
@@ -262,8 +261,8 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                         </div>
                       ) : (
                         <div>
-                          <p className="text-blue-600 text-sm font-medium">Choose Image to upload</p>
-                          <p className="text-gray-500 text-xs mt-1">PNG and JPG only (Max 5MB)</p>
+                          <p className="text-blue-600 text-sm font-medium">{t("choose_image_to_upload")}</p>
+                          <p className="text-gray-500 text-xs mt-1">{t("PNG_and_JPG_only")}</p>
                           {/* Show existing image if editing */}
                           {editData?.image_url && !selectedFileName && (
                             <div className="mt-3">
@@ -310,14 +309,14 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
               }}
               className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button 
               type="submit" 
               disabled={isSubmitting}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              {isSubmitting ? (editData ? "Updating..." : "Adding...") : (editData ? "Update Topic" : "Add Topic")}
+                {isSubmitting ? (editData ? t("updating") : t("adding")) : (editData ? t("update_topic") : t("add_topic"))}
             </Button>
           </div>
           </div>

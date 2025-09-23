@@ -189,7 +189,7 @@ function RecentOrderTable() {
     <section>
       <div className="border p-5 rounded-md">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("subscription_types")}</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("subscription_type")}</h1>
           <button
             onClick={handleAddNew}
             className="bg-grayColor1/50 dark:bg-whiteColor text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer"

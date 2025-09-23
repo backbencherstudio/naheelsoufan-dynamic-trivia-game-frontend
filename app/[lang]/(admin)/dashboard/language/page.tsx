@@ -4,6 +4,7 @@ import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -25,6 +26,7 @@ function page() {
    const pathname = usePathname()
    const [editData, setEditData] = useState(null);
      const [isOpen, setIsOpen] = useState(false);
+     const {t}=useTranslation()
      const [deletingId, setDeletingId] = useState<string | null>(null);
      const {token} = useToken();
      const endpoint = `/admin/languages?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
@@ -60,7 +62,7 @@ function page() {
 
   const columns = [
     {
-      label: "No",
+      label: t("no"),
       accessor: "no",
       width: "200px",
       formatter: (_: any, _row: any, index: number) => {
@@ -68,9 +70,9 @@ function page() {
         return <span className="text-sm font-medium">{serial}</span>;
       },
     },
-    { label: 'Language', accessor: "name", width: '200px' },
+    { label: t("language"), accessor: "name", width: '200px' },
     {
-      accessor: 'actions', label: 'Actions', width: '200px',
+      accessor: 'actions', label: t("actions"), width: '200px',
       formatter: (_,value: any) => {
         const isDeleting = deletingId === value.id;
         return <div className="flex gap-2.5">
@@ -110,14 +112,14 @@ function page() {
   const handleDownload = async (value: any) => {
     try {
       if (!value?.file_url) {
-        toast.error('No file available for download');
+        toast.error(t("no_file_available_for_download"));
         return;
       }
 
       // Fetch the file content directly
       const response = await fetch(value.file_url);
       if (!response.ok) {
-        throw new Error('Failed to fetch file');
+        throw new Error(t("failed_to_fetch_file"));
       }
       
       const blob = await response.blob();
@@ -126,7 +128,7 @@ function page() {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${value.name || 'language'}_file.json`;
+      link.download = `${value.name || t("language")}_file.json`;
       
       // Append to body, click, and remove
       document.body.appendChild(link);
@@ -136,10 +138,10 @@ function page() {
       // Clean up the blob URL
       window.URL.revokeObjectURL(url);
       
-      toast.success('File downloaded successfully');
+      toast.success(t("file_downloaded_successfully"));
     } catch (error) {
       console.error('Download error:', error);
-      toast.error('Failed to download file');
+      toast.error(t("failed_to_download_file"));
     }
   }
   const handleEdit = (value: any) => {
@@ -169,23 +171,23 @@ function page() {
   return (
     <div>
       <div>
-        <h2 className='text-2xl font-semibold text-headerColor dark:text-whiteColor pb-4'>Language</h2>
+        <h2 className='text-2xl font-semibold text-headerColor dark:text-whiteColor pb-4'>{t("language")}</h2>
       </div>
       <div className='border pb-4  rounded-md'>
         <div className='p-5'>
           <div className=' flex justify-between items-center mt-3 pb-6'>
-            <h2 className='text-xl font-semibold text-headerColor dark:text-whiteColor pb-4'> Language</h2>
-           <button onClick={handleAddNew} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor dark:text-blackColor'>Add New Language </button>
+            <h2 className='text-xl font-semibold text-headerColor dark:text-whiteColor pb-4'> {t("language")}</h2>
+           <button onClick={handleAddNew} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor dark:text-blackColor'>{t("add_new_language")}</button>
 
           </div>
         <div className='flex gap-4'>
           <div>
             <Select>
                <SelectTrigger   className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                <SelectValue placeholder='All' />
+                <SelectValue placeholder={t("all")} />
                </SelectTrigger>
                <SelectContent>
-                <SelectItem value='language'>Language</SelectItem>
+                <SelectItem value='language'>{t("language")}</SelectItem>
                 </SelectContent>
             </Select>
           </div>
@@ -194,7 +196,7 @@ function page() {
             value={search}
             onChange={handleSearch} 
             type="text" 
-            placeholder='Search languages...' 
+            placeholder={t("search_language_type")} 
             className='w-full border border-gray-300 rounded-md px-7 md:px-8 py-3 dark:border-gray-700 dark:text-whiteColor focus:outline-none focus:ring-2 focus:ring-blue-500' 
           />
              <HiSearch className='absolute left-1.5 top-1/2 -translate-y-1/2 text-grayColor1 text-xl' />

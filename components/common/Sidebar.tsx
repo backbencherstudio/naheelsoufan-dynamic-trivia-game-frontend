@@ -150,7 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             href={"/"}
             className="text-headerColor flex justify-center dark:text-whiteColor/80 pb-5 text-xl lg:text-3xl font-semibold tracking-wide"
           >
-            {t("inzilly")}<span className="text-primaryColor pl-1" >{t("inzilly_admin")}</span> 
+            {t("appName")}<span className="text-primaryColor pl-1" >{t("admin")}</span> 
           </Link>
           <div className=" space-y-2">
 

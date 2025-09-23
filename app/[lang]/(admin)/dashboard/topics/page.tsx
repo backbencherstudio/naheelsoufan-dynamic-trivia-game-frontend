@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from '@/helper/debounce.helper';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
@@ -32,7 +33,7 @@ function TopicsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<any | null>(null);
   const { token } = useToken();
-
+ const {t}=useTranslation()
   // API endpoint with language filtering
   const endpoint = `/admin/categories?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`;
 
@@ -91,7 +92,7 @@ function TopicsPage() {
       }
     } catch (error) {
       console.error("Error deleting topic:", error);
-      toast.error("Failed to delete topic");
+      toast.error(t("failed_to_delete_topic"));
     } finally {
       setDeletingId(null);
     }
@@ -106,7 +107,7 @@ function TopicsPage() {
 
   const columns = [
     {
-      label: "No.",
+      label: t("no"),
       accessor: "no",
       width: "100px",
       formatter: (_: any, _row: any, index: number) => {
@@ -115,7 +116,7 @@ function TopicsPage() {
       },
     },
     {
-      label: "Topic Name",
+      label: t("topic_name"),
       accessor: "name",
       width: "200px",
       formatter: (value: string) => (
@@ -123,7 +124,7 @@ function TopicsPage() {
       ),
     },
     {
-      label: "Language",
+      label: t("language"),
       accessor: "language",
       width: "120px",
       formatter: (value: { name: string }) => (
@@ -131,7 +132,7 @@ function TopicsPage() {
       ),
     },
     {
-      label: "Icon",
+      label: t("icon"),
       accessor: "image_url",
       width: "100px",
       formatter: (value: string) => (
@@ -141,7 +142,7 @@ function TopicsPage() {
       ),
     },
     {
-      label: "Actions",
+      label: t("actions"),
       accessor: "actions",
       width: "120px",
       formatter: (_: any, record: any) => {
@@ -206,7 +207,7 @@ function TopicsPage() {
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Topics</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("topic")}</h1>
         </div>
       </div>
       {/* Table Section */}
@@ -215,7 +216,7 @@ function TopicsPage() {
           <div className="flex justify-between items-center mb-6">
             <div className='flex items-center gap-2.5'>
               <MdCategory className='text-primaryColor' size={24} />
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Topics</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">{t("topic")}</h2>
             </div>
             <div className="flex gap-3">
               {/* <button className="flex cursor-pointer items-center gap-2 px-4 py-2 border dark:text-whiteColor border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
@@ -228,7 +229,7 @@ function TopicsPage() {
               </button> */}
               <button onClick={handleAddNew} className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <FaPlus />
-                Add Topic
+                {t("add_topic")}
               </button>
             </div>
           </div>
@@ -238,10 +239,10 @@ function TopicsPage() {
             <div className="w-48">
               <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='Language' />
+                      <SelectValue placeholder={t("language")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>All</SelectItem>
+                  <SelectItem value='all'>{t("language")}</SelectItem>
                   {
                     languageData?.data?.map((item: any) => (
                       <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
@@ -255,7 +256,7 @@ function TopicsPage() {
                 value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder="Search topics..."
+                placeholder={t("search_topics")}
                 className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

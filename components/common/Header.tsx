@@ -91,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({
     // Navigate to the same path with new language
     navigateWithSpecificLanguage(pathWithoutLanguage, langCode);
   };
-
+ 
   return (
     <nav className="text-blackColor dark:text-white border-b border-borderColor dark:border-gray-700 bg-white dark:bg-blackColor py-3 transition-colors duration-200">
       <div className=" container px-5   relative flex justify-between mb-1 z-50">
@@ -112,7 +112,7 @@ const Header: React.FC<HeaderProps> = ({
             href={"/"}
             className="text-headerColor dark:text-white flex justify-center text-xl lg:text-3xl font-semibold tracking-wide"
           >
-            Inzilly <span className="text-primaryColor pl-1" > Admin</span> 
+            {t('appName')} <span className="text-primaryColor pl-1" > {t('admin')}</span> 
           </Link>
           </div>
         </div>

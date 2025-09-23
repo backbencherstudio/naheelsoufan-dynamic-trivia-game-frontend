@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useDataFetch from "@/hooks/useDataFetch";
 import { useToken } from "@/hooks/useToken";
+import useTranslation from "@/hooks/useTranslation";
 import { UserService } from "@/service/user/user.service";
 import { SubscriptionType } from "@/types";
 import { useEffect } from "react";
@@ -48,14 +48,14 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
     defaultValues: {
       subscriptionType: editData?.type || "",
       language: editData?.language?.id || "",
-      numberOfGames: editData?.games || 0,
-      numberOfQuestions: editData?.questions || 0,
-      numberOfPlayers: editData?.players || 0,
-      price: editData?.price || 0,
+      numberOfGames: editData?.games ?? undefined,
+      numberOfQuestions: editData?.questions ?? undefined,
+      numberOfPlayers: editData?.players ?? undefined,
+      price: editData?.price ?? undefined,
     }
   });
   const { token } = useToken()
-
+ const {t}=useTranslation()
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
@@ -120,7 +120,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
-            {editData ? "Edit Subscription Type" : "Add Subscription Type"}
+            {editData ? t("eidt_subscription_type") : t("add_subscription_type")}
           </DialogTitle>
         </DialogHeader>
 
@@ -129,17 +129,14 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
             {/* Subscription Type Input */}
             <div>
               <Label htmlFor="subscriptionType" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Subscription Type
+                {t("subscription_type")}
               </Label>
               <Input
                 id="subscriptionType"
-                placeholder="Subscription Type"
+                placeholder={t("subscription_type")}
                 {...register("subscriptionType", {
-                  required: "Subscription type is required",
-                  minLength: {
-                    value: 2,
-                    message: "Subscription type must be at least 2 characters"
-                  }
+                  required: t("subscription_type_is_required"),
+                 
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscriptionType ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
               />
@@ -151,16 +148,16 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
             {/* Language Selection */}
             <div>
               <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Language
+                {t("language")}
               </Label>
               <Controller
                 name="language"
                 control={control}
-                rules={{ required: "Language selection is required" }}
+                rules={{ required: t("language_is_required") }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger className={`w-full !h-10 md:!h-14 ${errors.language ? "border-red-500" : ""}`}>
-                      <SelectValue placeholder="Language" />
+                      <SelectValue placeholder={t("language")} />
                     </SelectTrigger>
                     <SelectContent>
                       {
@@ -181,18 +178,15 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="numberOfGames" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                  Number of games
+                  {t("number_of_games")}
                 </Label>
                 <Input
                   id="numberOfGames"
-                  placeholder="Number of games"
+                  placeholder={t("number_of_games")}
                   type="number"
                   {...register("numberOfGames", {
-                    required: "Number of games is required",
-                    min: {
-                      value: 1,
-                      message: "Number of games must be at least 1"
-                    }
+                    required: t("number_of_games_is_required"),
+                   
                   })}
                   className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfGames ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
                 />
@@ -203,18 +197,15 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
 
               <div>
                 <Label htmlFor="numberOfQuestions" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                  Number of Questions
+                  {t("number_of_question")}
                 </Label>
                 <Input
                   id="numberOfQuestions"
-                  placeholder="Number of Questions"
+                  placeholder={t("number_of_question")}
                   type="number"
                   {...register("numberOfQuestions", {
-                    required: "Number of questions is required",
-                    min: {
-                      value: 1,
-                      message: "Number of questions must be at least 1"
-                    }
+                    required: t("number_of_questions_is_required"),
+                   
                   })}
                   className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfQuestions ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
                 />
@@ -228,18 +219,15 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="numberOfPlayers" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                  Number of Players
+                  {t("number_of_players")}
                 </Label>
                 <Input
                   id="numberOfPlayers"
-                  placeholder="Number of Players"
+                  placeholder={t("number_of_players")}
                   type="number"
                   {...register("numberOfPlayers", {
-                    required: "Number of players is required",
-                    min: {
-                      value: 1,
-                      message: "Number of players must be at least 1"
-                    }
+                    required: t("players_is_required"),
+                    
                   })}
                   className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfPlayers ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
                 />
@@ -250,19 +238,16 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
 
               <div>
                 <Label htmlFor="price" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                  Price
+                  {t("price")}
                 </Label>
                 <Input
                   id="price"
-                  placeholder="Price"
+                  placeholder={t("price")}
                   type="number"
                   step="0.01"
                   {...register("price", {
-                    required: "Price is required",
-                    min: {
-                      value: 0,
-                      message: "Price must be greater than 0"
-                    }
+                    required: t("price_is_required"),
+                   
                   })}
                   className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.price ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor `}
                 />
@@ -285,14 +270,14 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
                 }}
                 className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {isSubmitting ? (editData ? "Updating..." : "Adding...") : (editData ? "Update Subscription Type" : "Add Subscription Type")}
+                {isSubmitting ? (editData ? "Updating..." : "Adding...") : (editData ? t("update_subscription_type") : t("add_subscription_type"))}
               </Button>
             </div>
           </div>
