@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useDataFetch from "@/hooks/useDataFetch";
 import { useToken } from "@/hooks/useToken";
+import useTranslation from "@/hooks/useTranslation";
 import { UserService } from "@/service/user/user.service";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -46,9 +47,7 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
       points: editData?.points || "",
     }
   });
-
-  console.log(editData);
-  
+  const {t}=useTranslation()
   const { token } = useToken();
   // Update form values when editData changes
   useEffect(() => {
@@ -127,7 +126,7 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
-            {editData ? "Edit Difficulty" : "Create Difficulty"}
+            {editData ? t("update_difficulty") : t("create_difficulty")}
           </DialogTitle>
         </DialogHeader>
         <form key={editData?.id || `new-${Date.now()}`} onSubmit={handleSubmit(onSubmit)} >
@@ -135,16 +134,16 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
             {/* Difficulty Name Input */}
             <div>
               <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Difficulty Name
+                {t("difficulty_name")}
               </Label>
               <Input
                 id="name"
-                placeholder="Difficulty Name"
+                placeholder={t("difficulty_name")}
                 {...register("name", {
-                  required: "Difficulty name is required",
+                  required: t("difficulty_name_is_required"),
                   minLength: {
                     value: 2,
-                    message: "Difficulty name must be at least 2 characters"
+                    message: t("difficulty_name_must_be_at_least_2_characters")
                   }
                 })}
                 className={`w-full h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? "border-red-500" : ""}  dark:text-whiteColor`}
@@ -156,19 +155,19 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
          
             <div>
               <Label htmlFor="points" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Points
+                {t("point")}
               </Label>
               <Input
                 id="points"
                 type="number"
-                placeholder="Difficulty points"
+                placeholder={t("difficulty_points")}
                 {...register("points", {
-                  required: "Difficulty points is required",
+                  required: t("difficulty_points_is_required"),
                   min: {
                     value: 1,
-                    message: "Points must be at least 1"
+                    message: t("points_must_be_at_least_1")
                   }
-                })}
+                })} 
                 className={`w-full !h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.points ? "border-red-500" : ""}  dark:text-whiteColor`}
               />
               {errors.points && (
@@ -178,16 +177,16 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
             {/* Language Selection */}
             <div>
               <Label htmlFor="language" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Language
+                {t("language")}
               </Label>
               <Controller
                 name="language"
                 control={control}
-                rules={{ required: "Language selection is required" }}
+                rules={{ required: t("language_is_required") }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger className={`w-full !h-12 px-3 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.language ? "border-red-500" : ""}`}>
-                      <SelectValue placeholder="Language" />
+                      <SelectValue placeholder={t("language")} />
                     </SelectTrigger>
                     <SelectContent>
                       {
@@ -220,14 +219,14 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
                 }}
                 className="px-6 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {isSubmitting ? (editData ? "Updating..." : "Creating...") : (editData ? "Update Difficulty" : "Create Difficulty")}
+                {isSubmitting ? (editData ? t("updating") : t("creating")) : (editData ? t("update_difficulty") : t("create_difficulty"))}
               </Button>
             </div>
           </div>

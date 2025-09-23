@@ -5,6 +5,7 @@ import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import SearchComponent from '@/components/common/SearchComponent';
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -33,7 +34,7 @@ function DifficultiesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const {token} = useToken()
-  
+  const {t}=useTranslation()
   const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
   
   // Debounced API call function
@@ -75,7 +76,7 @@ function DifficultiesPage() {
  
  const columns = [
     {
-      label: "No",
+      label: t("no"),
       accessor: "no",
       width: "80px",
       formatter: (_: any, _row: any, index: number) => {
@@ -84,7 +85,7 @@ function DifficultiesPage() {
       },
     },
     {
-      label: "Question Type",
+      label: t("question_type"),
       accessor: "name",
       width: "200px",
       formatter: (value: any) => {
@@ -93,7 +94,7 @@ function DifficultiesPage() {
       },
     },
     {
-      label: "Language",
+      label: t("language"),
       accessor: "language",
       width: "120px",
       formatter: (value: any) => {
@@ -102,7 +103,7 @@ function DifficultiesPage() {
       },
     },
     {
-      label: "Points",
+      label: t("points"),
       accessor: "points",
       width: "120px",
       formatter: (value: any) => {
@@ -111,7 +112,7 @@ function DifficultiesPage() {
       },
     },
     {
-      label: "Actions",
+      label: t("actions"),
       accessor: "actions",
       width: "120px",
       formatter: (_: any, record: any) => {
@@ -164,7 +165,7 @@ function DifficultiesPage() {
       }
     } catch (error) {
       console.error("Error deleting difficulty:", error);
-      toast.error("Failed to delete difficulty");
+      toast.error(t("failed_to_delete_difficulty"));
     } finally {
       setDeletingId(null);
     }
@@ -186,11 +187,11 @@ function DifficultiesPage() {
               onClick={handleAddNew}
               className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor/20 dark:text-whiteColor"
             >
-              Add New Difficulty
+              {t("add_new_difficulty")}
             </button>
           </div>
           
-          <SearchComponent placeholder="Search difficulties..."/>
+          <SearchComponent placeholder={t("search_difficulties_type")}/>
         </div>
         
         <DynamicTableTwo

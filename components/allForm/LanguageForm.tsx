@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToken } from "@/hooks/useToken";
+import useTranslation from "@/hooks/useTranslation";
 import { UserService } from "@/service/user/user.service";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -39,7 +40,7 @@ export function LanguageForm({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(data?.file_url || null); // Initialize with existing file name
-
+  const {t}=useTranslation()
   const id = data?.id;
   const { token } = useToken();
 
@@ -118,7 +119,7 @@ export function LanguageForm({
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
-            Add Language
+            {data ? t("update_language") : t("add_language")}
           </DialogTitle>
         </DialogHeader>
 
@@ -130,16 +131,16 @@ export function LanguageForm({
                 htmlFor="language"
                 className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor"
               >
-                Language
+                {t("language")}
               </Label>
               <Input
                 id="name"
-                placeholder="Language"
+                placeholder={t("language")}
                 {...register("name", {
-                  required: "Language name is required",
+                  required: t("language_is_required"),
                   minLength: {
                     value: 2,
-                    message: "Language name must be at least 2 characters",
+                    message: t("language_name_must_be_at_least_2_characters"),
                   },
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${
@@ -157,16 +158,16 @@ export function LanguageForm({
                 htmlFor="languageCode"
                 className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor"
               >
-                Language Code
+                {t("language_code")}
               </Label>
               <Input
                 id="code"
-                placeholder="Language Code"
+                placeholder={t("language_code")}
                 {...register("code", {
-                  required: "Language code is required",
+                  required: t("language_code_is_required"),
                   pattern: {
                     value: /^[a-z]{2,3}$/,
-                    message: "Language code must be 2-3 lowercase letters",
+                    message: t("language_code_must_be_2_3_lowercase_letters"),
                   },
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${
@@ -181,7 +182,7 @@ export function LanguageForm({
             {/* File Upload Section */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Choose file to upload
+                {t("choose_file_upload")}
               </Label>
               <div className="relative ">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
@@ -204,11 +205,11 @@ export function LanguageForm({
 
                     <div className="text-center">
                       <p className="text-blue-600 text-sm font-medium">
-                        {id ? "Choose new file to replace current file" : "choose file to upload"}
+                        {id ? t("choose_new_file_to_replace_current_file") : t("choose_file_upload")}
                       </p>
                      {selectedFileName ? (
                 <p className="text-sm text-primaryColor mt-2 break-all w-full"> {selectedFileName}</p>
-              ) : <p className="text-gray-500 text-xs mt-1">JSON</p>} 
+              ) : <p className="text-gray-500 text-xs mt-1">{t("JSON")}</p>} 
                     </div>
                   </div>
                 </div>
@@ -217,16 +218,14 @@ export function LanguageForm({
                   id="file"
                   accept="application/json,.json"
                   {...register("file", {
-                    required: !id ? "Language file is required" : false, // File is optional when editing
+                    required: !id ? t("language_file_is_required") : false, // File is optional when editing
                     validate: (files) => {
                       if (files && files[0]) {
                         const file = files[0];
                         if (file.type !== "application/json") {
-                          return "Please upload a JSON file";
+                          return t("please_upload_a_JSON_file");
                         }
-                        if (file.size > 5 * 1024 * 1024) {
-                          return "File size must be less than 5MB";
-                        }
+                        
                       }
                       return true;
                     },
@@ -256,14 +255,14 @@ export function LanguageForm({
                 }}
                 className="px-4 py-2 border border-gray-300 dark:hover:text-white bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {isSubmitting ? "Adding..." : data ? "Update Language" : "Add Language"}
+                {isSubmitting ? t("creating") : data ? t("update_language") : t("add_language")}
               </Button>
             </div>
           </div>
