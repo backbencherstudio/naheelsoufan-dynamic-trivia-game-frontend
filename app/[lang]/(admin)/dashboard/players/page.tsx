@@ -3,6 +3,7 @@ import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
@@ -24,7 +25,8 @@ function UsersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const {token} = useToken();
-  
+  const {t} = useTranslation();
+ 
   const endpoint = `/admin/players?page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort_by=${sortBy}&sort_order=${sortOrder}&status=${filterValue}`;
 
   // Debounced API call function
@@ -35,7 +37,7 @@ function UsersPage() {
       setUsersData(response.data?.data);
       setTotalUsersData(response.data?.pagination);
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError(err.message || t("something_went_wrong"));
     } finally {
       setLoading(false);
     }
@@ -47,7 +49,7 @@ function UsersPage() {
     if (searchParam) {
       setSearch(searchParam);
     } else {
-      setSearch(''); // Clear search if no URL parameter
+      setSearch('');
     }
   }, [searchParams]);
 
@@ -60,7 +62,7 @@ function UsersPage() {
 
   const columns = [
     {
-      label: "No.",
+      label: t("no"),
       accessor: "no",
       width: "60px",
       formatter: (_: any, _row: any, index: number) => {
@@ -69,7 +71,7 @@ function UsersPage() {
       },
     },
     {
-      label: "Name",
+      label: t("name"),
       accessor: "user",
       width: "150px",
       formatter: (value: {name: string}) => (
@@ -77,7 +79,7 @@ function UsersPage() {
       ),
     },
     {
-      label: "Score",
+      label: t("score"),
       accessor: "score",
       width: "100px",
       formatter: (value: number) => (
@@ -85,7 +87,7 @@ function UsersPage() {
       ),
     },
     {
-      label: "Correct",
+      label: t("correct"),
       accessor: "correct_answers",
       width: "100px",
       formatter: (value: number) => (
@@ -93,7 +95,7 @@ function UsersPage() {
       ),
     },
     {
-      label: "Wrong",
+      label: t("wrong"),
       accessor: "wrong_answers",
       width: "100px",
       formatter: (value: number) => (
@@ -101,7 +103,7 @@ function UsersPage() {
       ),
     },
     {
-      label: "Skipped",
+      label: t("skipped"),
       accessor: "skipped_answers",
       width: "100px",
       formatter: (value: number) => (
@@ -138,7 +140,7 @@ function UsersPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Users</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("users")}</h1>
       </div>
 
       {/* Table Section */}
@@ -161,11 +163,11 @@ function UsersPage() {
             <div className="w-48 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='Sort by Name' />
+                  <SelectValue placeholder={t("sort_name")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='name'>Sort by Name</SelectItem>
-                  <SelectItem value='score'>Sort by Score</SelectItem>
+                  <SelectItem value='name'>{t("sort_name")}</SelectItem>
+                  <SelectItem value='score'>{t("sort_score")}</SelectItem>
                 </SelectContent>
               </Select>
               <button 
@@ -184,7 +186,7 @@ function UsersPage() {
                 value={search}
                 onChange={handleSearch}
                 type="text" 
-                placeholder="Search players..." 
+                  placeholder={t("search_games_placeholder")} 
                 className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
