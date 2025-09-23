@@ -1,7 +1,7 @@
 "use client";
+import useTranslation from "@/hooks/useTranslation";
 import Cookies from "js-cookie";
 import { X } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
@@ -14,6 +14,7 @@ import {
 } from 'react-icons/hi2';
 import { IoIosSwitch } from "react-icons/io";
 import {
+  LuLogOut,
   LuUsers
 } from 'react-icons/lu';
 import {
@@ -37,25 +38,29 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const navItems: NavItem[] = [
+
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+    const { t, currentLanguage, isLoading, error } = useTranslation();
+    const navItems: NavItem[] = [
   {
     icon: <MdOutlineDashboard />,
-    label: "Dashboard",
+    label: t("dashboard"),
     href: "/",
   },
   {
     icon: <MdOutlineSubscriptions />,
-    label: "Subscription Types",
+    label: t("subscription_type"),
     href: "/dashboard/subscription-types",
   },
   {
     icon: <BiWorld />,
-    label: "Language",
+    label: t("language"),
     href: "/dashboard/language",
   },
   {
     icon: <MdOutlineTopic />,
-    label: "Topics",
+    label: t("topic"),
     href: "/dashboard/topics",
   },
   // {
@@ -65,38 +70,36 @@ const navItems: NavItem[] = [
   // },
   {
     icon: <IoIosSwitch />,
-    label: "Difficulties",
+    label: t("difficulties"),
     href: "/dashboard/difficulties",
   },
   {
     icon: <RiGamepadLine />,
-    label: "Previous Games",
+    label: t("previous_game"),
     href: "/dashboard/previous-games",
   },
   {
     icon: <RiQuestionnaireLine />,
-    label: "Questions",
+    label: t("questions"),
     href: "/dashboard/questions",
   },
   {
     icon: <LuUsers />,
-    label: "Players",
+    label: t("players"),
     href: "/dashboard/players",
   },
   {
     icon: <RiAdminLine />,
-    label: "Admins",
+    label: t("admin"),
     href: "/dashboard/admins",
   },
   {
     icon: <HiOutlineUserGroup />,
-    label: "Subscribers",
+    label: t("subscribers"),
     href: "/dashboard/subscribers",
   },
 
 ];
-
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const router = useRouter()
   const isActive = (href: string): boolean => {
@@ -147,7 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             href={"/"}
             className="text-headerColor flex justify-center dark:text-whiteColor/80 pb-5 text-xl lg:text-3xl font-semibold tracking-wide"
           >
-            Inzilly <span className="text-primaryColor pl-1" > Admin</span> 
+            {t("inzilly")}<span className="text-primaryColor pl-1" >{t("inzilly_admin")}</span> 
           </Link>
           <div className=" space-y-2">
 
@@ -202,15 +205,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             className="flex items-center cursor-pointer gap-3 px-3 py-3  transition-colors duration-200 "
           >
             <div className="w-[30px] h-[30px] flex justify-center items-center flex-shrink-0 ">
-              <Image
-                src="/icon/logout.svg"
-                alt="Log out"
-                width={20}
-                height={20}
-              />
+             <LuLogOut size={20} /> 
             </div>
             <span className="text-base font-normal text-[#111111] dark:text-whiteColor/80">
-              Log out account
+              {t("logout")}
             </span>
           </button>
         </div>

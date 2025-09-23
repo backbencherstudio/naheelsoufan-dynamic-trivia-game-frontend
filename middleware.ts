@@ -2,36 +2,44 @@ import { match } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+
+// Default fallback languages - will be extended dynamically
 let defaultLocale = "en";
-let locales = ["bn", "en"];
+let locales = ["en", "bn", "ar"]; // Base supported languages
 
 function getLocale(request: NextRequest) {
   const acceptedLanguage = request.headers.get("accept-language") ?? undefined;
   let headers = { "accept-language": acceptedLanguage };
   let languages = new Negotiator({ headers }).languages();
 
-  return match(languages, locales, defaultLocale); // -> 'en-US'
+  return match(languages, locales, defaultLocale);
 }
 export function middleware(request: NextRequest) {
   // Get the pathname of the request (e.g. /, /login, /dashboard, /en/login, /bn/dashboard)
   const pathname = request.nextUrl.pathname
 
   // Extract locale from pathname (e.g., /en/login -> /login, /bn/dashboard -> /dashboard)
-  const locales = ['en', 'bn'];
-  const pathnameHasLocale = locales.some(
+  const supportedLocales = ['en', 'bn', 'ar', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh']; // Extended support
+  const pathnameHasLocale = supportedLocales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-
-  const pathnameIsMissingLocale = locales.every(
+  const pathnameIsMissingLocale = supportedLocales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   );
+  
   if (pathnameIsMissingLocale) {
-    const locale = getLocale(request);
-
-    return NextResponse.redirect(
-      new URL(`/${locale}/${pathname}`, request.url)
-    );
+    // Check if there's a language preference in cookies
+    const preferredLanguage = request.cookies.get('preferred_language')?.value;
+    const locale = preferredLanguage && supportedLocales.includes(preferredLanguage) 
+      ? preferredLanguage 
+      : getLocale(request);
+    
+    // Ensure we redirect to a valid language URL
+    const newUrl = new URL(`/${locale}${pathname}`, request.url);
+    console.log(`Redirecting to: ${newUrl.toString()}`);
+    
+    return NextResponse.redirect(newUrl);
   }
   
   // Remove locale from pathname for route checking

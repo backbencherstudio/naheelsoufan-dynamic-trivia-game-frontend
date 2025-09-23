@@ -1,6 +1,6 @@
 import CustomToastContainer from "@/components/CustomToast/CustomToastContainer";
 import { AppConfig } from "@/config/app.config";
-import { LanguageProvider } from "@/contexts/LanguageContext";
+import { DynamicLanguageProvider } from "@/contexts/DynamicLanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TokenProvider } from "@/hooks/useToken";
 import type { Metadata } from "next";
@@ -15,23 +15,26 @@ export const metadata: Metadata = {
   description: AppConfig().app.slogan,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: { lang: string };
 }) {
+  const {lang} = await params || {lang: "en"};
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html   suppressHydrationWarning>
       <body className={`${roboto.className}`}>
         <TokenProvider>
-        <LanguageProvider>
-      <ThemeProvider>
-        <CustomToastContainer/>       
-         {children}
-         </ThemeProvider>
-         </LanguageProvider>
+          <DynamicLanguageProvider initialLanguage={lang}>
+            <ThemeProvider>
+              <CustomToastContainer/>       
+              {children}
+            </ThemeProvider>
+          </DynamicLanguageProvider>
         </TokenProvider>
-        </body>
+      </body>
     </html>
   );
 }

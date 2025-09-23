@@ -1,5 +1,7 @@
 
 
+import LanguageNavigationDemo from '@/components/example/LanguageNavigationDemo'
+import TranslationExample from '@/components/example/TranslationExample'
 import { UserService } from '@/service/user/user.service'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
@@ -30,6 +32,18 @@ async function DashboardPage() {
         <StatCards />
         <div>
           <RecentOrderTable />
+        </div>
+        {/* Translation Example - Remove this in production */}
+        <div className="mt-8 space-y-6">
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <h3 className="text-lg font-semibold mb-4">Dynamic Translation Example:</h3>
+            <TranslationExample />
+          </div>
+          
+          <div className="p-4 border rounded-lg bg-blue-50">
+            <h3 className="text-lg font-semibold mb-4">Language Navigation Demo:</h3>
+            <LanguageNavigationDemo />
+          </div>
         </div>
       </div>
     )
