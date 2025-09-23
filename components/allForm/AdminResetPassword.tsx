@@ -8,6 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToken } from "@/hooks/useToken";
+import useTranslation from "@/hooks/useTranslation";
 import { UserService } from "@/service/user/user.service";
 import { useForm } from "react-hook-form";
 import { RiRotateLockLine } from "react-icons/ri";
@@ -51,7 +52,7 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData, adminsDat
   });
  const {token} = useToken();
   const newPassword = watch("newPassword");
-console.log(adminData);
+  const {t} = useTranslation();
 
   const onSubmit = async (data: AdminResetPasswordFormData) => {
     const formdata = {
@@ -73,6 +74,7 @@ console.log(adminData);
 
     } catch (error) {
       console.error("Error resetting password:", error);
+      toast.error(error.message || t("something_went_wrong"));
       toast.error(error.message);
       reset();
       setIsOpen(false);
@@ -84,27 +86,27 @@ console.log(adminData);
       <DialogContent className="sm:max-w-[505px] p-0">
         <DialogHeader className="md:px-6 px-3 pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="text-lg md:text-xl flex gap-2 items-center font-semibold text-gray-900 dark:text-whiteColor">
-            <RiRotateLockLine size={24} className="text-primaryColor" />  Update Admin Information
+            <RiRotateLockLine size={24} className="text-primaryColor" />  {t("update_admin_information")}
           </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onSubmit)} >
           <div className="space-y-4 md:px-6 px-3 pb-6">
             {/* Admin Info Display */}
-            <h3 className="text-sm font-normal text-headerColor mb-2 dark:text-whiteColor">Update information for admin:</h3>
+            <h3 className="text-sm font-normal text-headerColor mb-2 dark:text-whiteColor">{t("update_information_for_admin")}:</h3>
             
             
             {/* New Password Input */}
             <div>
               <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Name
+                {t("name")}
               </Label>
               <Input 
                 id="name" 
                 type="text"
-                placeholder="Enter new name"
+                placeholder={t("enter_new_name")}
                 {...register("name", { 
-                  required: "Name is required",
+                  required: t("name_is_required"),
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.name ? "border-red-500" : ""}`}
               />
@@ -114,17 +116,17 @@ console.log(adminData);
             </div>
             <div>
               <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Email
+                {t("email")}
               </Label>
               <Input 
                 id="email" 
                 type="email"
-                placeholder="Enter new email"
+                placeholder={t("enter_new_email")}
                 {...register("email", { 
-                  required: "Email is required",
+                  required: t("email_is_required"),
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address"
+                    message: t("invalid_email_address")
                   }
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.email ? "border-red-500" : ""}`}
@@ -135,20 +137,20 @@ console.log(adminData);
             </div>
             <div>
               <Label htmlFor="newPassword" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                New Password
+                {t("new_password")}
               </Label>
               <Input 
                 id="newPassword" 
                 type="password"
-                placeholder="Enter new password"
+                placeholder={t("enter_new_password")}
                 {...register("newPassword", {
                   minLength: {
                     value: 8,
-                    message: "Password must be at least 8 characters"
+                    message: t("password_must_be_at_least_8_characters")
                   },
                   pattern: {
                     value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-                    message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+                    message: t("strong_password_hint")
                   }
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.newPassword ? "border-red-500" : ""}`}
@@ -161,15 +163,15 @@ console.log(adminData);
             {/* Confirm Password Input */}
             <div>
               <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Confirm Password
+                  {t("confirm_password")}
               </Label>
               <Input 
                 id="confirmPassword" 
                 type="password"
-                placeholder="Confirm new password"
+                placeholder={t("confirm_new_password")}
                 {...register("confirmPassword", { 
                   validate: (value) => 
-                    value === newPassword || "Passwords do not match"
+                    value === newPassword || t("password_mismatch")
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.confirmPassword ? "border-red-500" : ""}`}
               />
@@ -191,14 +193,14 @@ console.log(adminData);
                 }}
                 className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50 dark:bg-whiteColor dark:text-blackColor"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 dark:bg-whiteColor dark:text-blackColor"
               >
-                {isSubmitting ? "Updating..." : "Update Admin"}
+                {isSubmitting ? t("updating") : t("update_admin_information")}
               </Button>
             </div>
           </div>

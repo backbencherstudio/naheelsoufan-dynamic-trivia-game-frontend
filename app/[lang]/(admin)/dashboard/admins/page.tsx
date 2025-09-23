@@ -5,6 +5,7 @@ import { AdminResetPasswordForm } from '@/components/allForm/AdminResetPassword'
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -33,7 +34,7 @@ function AdminManagementPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
+  const {t} = useTranslation();
   // API endpoint with search
   const endpoint = `/admin/user?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
 
@@ -45,7 +46,7 @@ function AdminManagementPage() {
       setAdminsData(response.data?.data);
       setPaginationData(response.data?.pagination);
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError(err.message || t("something_went_wrong"));
     } finally {
       setLoading(false);
     }
@@ -88,7 +89,7 @@ function AdminManagementPage() {
 
   const columns = [
     {
-      label: "No.",
+      label: t("no"),
       accessor: "no",
       width: "60px",
       formatter: (_: any, _row: any, index: number) => {
@@ -97,7 +98,7 @@ function AdminManagementPage() {
       },
     },
     {
-      label: "Name",
+      label: t("name"),
       accessor: "name",
       width: "200px",
       formatter: (value: string) => (
@@ -105,7 +106,7 @@ function AdminManagementPage() {
       ),
     },
     {
-      label: "Email",
+      label: t("email"),
       accessor: "email",
       width: "250px",
       formatter: (value: string) => (
@@ -113,7 +114,7 @@ function AdminManagementPage() {
       ),
     },
     {
-      label: "Created",
+      label: t("created"),
       accessor: "created_at",
       width: "150px",
       formatter: (value: string) => (
@@ -121,7 +122,7 @@ function AdminManagementPage() {
       ),
     },
     {
-      label: "Actions",
+      label: t("actions"),
       accessor: "actions",
       width: "120px",
       formatter: (_: any, record: any) => {
@@ -179,7 +180,6 @@ function AdminManagementPage() {
   };
 
   const handleAddAdmin = () => {
-    console.log("Adding new admin...");
     setIsAddAdminOpen(true);
   };
 
@@ -191,7 +191,7 @@ function AdminManagementPage() {
           <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center dark:bg-whiteColor dark:text-blackColor ">
             <HiShieldCheck className="md:w-5 md:h-5 text-white" />
           </div>
-          <h1 className="md:text-2xl text-xl font-semibold text-gray-900 dark:text-whiteColor">Admin Management</h1>
+          <h1 className="md:text-2xl text-xl font-semibold text-gray-900 dark:text-whiteColor">{t("admin_management")}</h1>
         </div>
         <div className='flex justify-end'>
         <button 
@@ -199,7 +199,7 @@ function AdminManagementPage() {
           className="bg-blue-600  text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700 flex items-center gap-2 dark:bg-whiteColor dark:text-blackColor"
         >
           <span className="text-lg">+</span>
-          Add Admin
+          {t("add_admin")}
         </button>
         </div>
       </div>
@@ -209,13 +209,13 @@ function AdminManagementPage() {
         <div className="p-5">
           {/* Search Section */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Admin List</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">{t("admin_list")}</h2>
             <div className="relative w-64">
               <input 
                 value={search}
                 onChange={handleSearch}
                 type="text" 
-                placeholder="Search admins..." 
+                placeholder={t("search_admin")} 
                 className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

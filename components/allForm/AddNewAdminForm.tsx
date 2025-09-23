@@ -8,6 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToken } from "@/hooks/useToken";
+import useTranslation from "@/hooks/useTranslation";
 import { UserService } from "@/service/user/user.service";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -38,6 +39,7 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
     reset
   } = useForm<AddNewAdminFormData>();
   const { token } = useToken();
+  const {t} = useTranslation();
   const onSubmit = async (data: AddNewAdminFormData) => {
     setLoading(true);
     try {
@@ -47,7 +49,6 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
         password: data.password,
       }
       const response = await UserService.createData(`/admin/user`, formdata, token);
-      console.log(response?.data?.data);
       
       if(response.data.success){
         toast.success(response.data.message);
@@ -58,7 +59,8 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.error("Error creating admin:", error);
+        console.error("Error creating admin:", error);
+      toast.error(error.message || t("something_went_wrong"));
       toast.error(error.message);
       reset();
       setIsOpen(false);
@@ -75,7 +77,7 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
             <div className=" rounded-full flex items-center justify-center">
               <MdAdminPanelSettings  className="w-6 h-6 md:w-7 md:h-7 text-primaryColor/90 dark:text-whiteColor" />
             </div>
-            Add New Admin
+            {t("add_new_admin")}
           </DialogTitle>
         </DialogHeader>
         
@@ -83,13 +85,13 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
           <div className="space-y-4 md:px-6 px-3 pb-6">
             {/* Description */}
             <p className="text-sm text-gray-600 mb-4 dark:text-whiteColor">
-              Create a new admin account with the following details:
+              {t("create_a_new_admin_account_with_the_following_details")}
             </p>
             
             {/* Email Input */}
             <div>
               <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                Email
+                {t("email")}
               </Label>
               <div className="relative">
                 <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
@@ -98,12 +100,12 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
                 <Input 
                   id="email" 
                   type="email"
-                  placeholder="Email"
+                  placeholder={t("email")}
                   {...register("email", { 
-                    required: "Email is required",
+                    required: t("email_is_required"),
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: "Invalid email address"
+                      message: t("invalid_email_address")
                     }
                   })}
                   className={`w-full !h-12 md:pl-10 pl-8 pr-3 border border-gray-300 rounded-md bg-white ${errors.email ? "border-red-500" : ""}`}
@@ -117,7 +119,7 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
             {/* Display Name Input */}
             <div>
               <Label htmlFor="displayName" className="text-sm font-medium text-gray-700 mb-2 block">
-                Display Name
+                {t("display_name")}
               </Label>
               <div className="relative">
                 <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
@@ -126,12 +128,12 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
                 <Input 
                   id="displayName" 
                   type="text"
-                  placeholder="Display Name"
+                  placeholder={t("display_name")}
                   {...register("displayName", { 
-                    required: "Display name is required",
+                    required: t("display_name_is_required"),
                     minLength: {
                       value: 2,
-                      message: "Display name must be at least 2 characters"
+                      message: t("display_name_2_characters")
                     }
                   })}
                   className={`w-full !h-12 md:pl-10 pl-8 pr-3 border border-gray-300 rounded-md bg-white ${errors.displayName ? "border-red-500" : ""}`}
@@ -145,7 +147,7 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
             {/* Password Input */}
             <div>
               <Label htmlFor="password" className="text-sm font-medium text-gray-700 mb-2 block">
-                Password
+                {t("password")}
               </Label>
               <div className="relative">
                 <div className="absolute top-1/2 -translate-y-1/2 left-0 pl-3 flex items-center pointer-events-none">
@@ -156,16 +158,16 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
                 <Input 
                   id="password" 
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder={t("password")}
                   {...register("password", { 
-                    required: "Password is required",
+                    required: t("password_required"),
                     minLength: {
                       value: 8,
-                      message: "Password must be at least 8 characters"
+                      message: t("password_must_be_at_least_8_characters")
                     },
                     pattern: {
                       value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-                      message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+                      message: t("strong_password_hint")
                     }
                   })}
                   className={`w-full !h-12 md:pl-10 pl-8 pr-8 border border-gray-300 rounded-md bg-white ${errors.password ? "border-red-500" : ""}`}
@@ -200,14 +202,14 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
                 }}
                 className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting || loading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {isSubmitting || loading ? "Creating..." : "Create Admin"}
+                {isSubmitting || loading ? t("creating") : t("create_admin")}
               </Button>
             </div>
           </div>
