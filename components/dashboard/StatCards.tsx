@@ -1,34 +1,35 @@
 "use client"
 import useDataFetch from "@/hooks/useDataFetch";
+import useTranslation from "@/hooks/useTranslation";
 import { Loader } from "lucide-react";
 import Link from "next/link";
 import { RxBarChart } from "react-icons/rx";
 
-export default function StatCards({ data }: any) {
+export default function StatCards() {
   const { data: totalHost, loading } = useDataFetch(`/admin/dashboard/stats`);
-  console.log(totalHost?.data?.overview);
+  const {t}=useTranslation()
 
   const statCards = [
     {
-      title: "Total Host",
+      title: t("total_host"),
       value: totalHost?.data?.overview?.totalSubscriptions || 0,
       link: "/dashboard/subscribers",
       icon: <RxBarChart className="text-greenColor" />,
-      timeFrame: "Last Month",
+      timeFrame: t("last_month"),
     },
     {
-      title: "Total Users",
+      title: t("total_users"),
       value: totalHost?.data?.overview?.totalPlayers || 0,
       link: "/dashboard/players",
       icon: <RxBarChart className="text-teal-400" />,
-      timeFrame: "Last Month",
+      timeFrame: t("last_month"),
     },
     {
-      title: "Total Questions",
+      title: t("total_questions"),
       value: totalHost?.data?.overview?.totalQuestions || 0,
       link: "/dashboard/questions",
       icon: <RxBarChart className="text-orange-400" />,
-      timeFrame: "Last Month",
+      timeFrame: t("last_month"),
     },
 
   ];

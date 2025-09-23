@@ -6,7 +6,7 @@ export default async function Page({params}) {
   
   return (
     <div>
-      <DashboardPage />
+      <DashboardPage lagncode={lang} />
     </div>
   );
 }

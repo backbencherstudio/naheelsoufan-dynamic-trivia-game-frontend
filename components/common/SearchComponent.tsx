@@ -2,10 +2,11 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
 import useDataFetch from '@/hooks/useDataFetch';
+import useTranslation from '@/hooks/useTranslation';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
-function SearchComponent({placeholder}: {placeholder: string}) {
+function SearchComponent({placeholder}: {placeholder: string, }) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
@@ -13,7 +14,7 @@ function SearchComponent({placeholder}: {placeholder: string}) {
     const [selectedLanguage, setSelectedLanguage] = useState('');
   const { data: languageData } = useDataFetch(`/admin/languages`);
     const [loading, setLoading] = useState(false);
-
+    const {t}=useTranslation()
     // Get search parameter from URL on component mount
     useEffect(() => {
       const searchParam = searchParams.get('search');
@@ -65,10 +66,10 @@ function SearchComponent({placeholder}: {placeholder: string}) {
             <div className="w-48">
               <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='Language' />
+                  <SelectValue placeholder={t("language")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>All</SelectItem>
+                  <SelectItem value='all'>{t("language")}</SelectItem>
                   {
                         languageData?.data?.map((item: any) => (
                           <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>

@@ -3,7 +3,7 @@ import vectorImg from '@/public/image/vectore.svg'
 import Image from 'next/image'
 import { useState } from 'react'
 import AddQuestionModal from './AddQuestionModal'
-function DashboardBanner({userinfo}: {userinfo: string}) {
+function DashboardBanner({userinfo, lang, dict}: {userinfo: string, lang: string, dict: any}) {
       const [isOpen, setIsOpen] = useState(false)
   return (
     <div className='bg-whiteColor my-10 rounded-2xl '>
@@ -11,16 +11,16 @@ function DashboardBanner({userinfo}: {userinfo: string}) {
           <div className='flex justify-between items-center'>
              <div>
                <h4 className='text-xl lg:text-2xl font-semibold text-primaryColor '>
-                Welcome back!
+                {dict?.welcome_back}
                </h4>
                <h4 className='text-xl lg:text-2xl font-semibold text-primaryColor '>
                {userinfo}
                </h4>
                <p className='text-sm text-headerColor mt-3'>
-                If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything
+                {dict?.if_you_are_going_to_use_a_passage_of_lorem_ipsum_you_need_to_be_sure_there_isn_t_anything}
                </p>
                <button onClick={() => setIsOpen(true)} className='text-sm cursor-pointer text-white px-3 py-1 rounded-lg bg-primaryColor mt-4'>
-                Add Questions
+                {dict?.add_questions}
                </button>
              </div>
              <div>

@@ -2,10 +2,11 @@
 import { useDebounce } from "@/helper/debounce.helper";
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from "@/hooks/useTranslation";
 import { UserService } from '@/service/user/user.service';
 import { SubscriptionType } from '@/types';
 import { Loader2 } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaPen } from 'react-icons/fa6';
 import { RiDeleteBin6Line } from 'react-icons/ri';
@@ -13,14 +14,12 @@ import { toast } from 'react-toastify';
 import { SubscriptionAddForm } from '../allForm/SubscriptionAddForm';
 import DynamicTableTwo from "../common/DynamicTableTwo";
 import SearchComponent from '../common/SearchComponent';
-function RecentOrderTable({ recentOrder }: any) {
+function RecentOrderTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [search, setSearch] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<SubscriptionType | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -29,6 +28,7 @@ function RecentOrderTable({ recentOrder }: any) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token } = useToken();
+  const {t}=useTranslation()
   const endpoint = `/admin/subscription-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
 
   // Debounced API call function
@@ -73,7 +73,7 @@ function RecentOrderTable({ recentOrder }: any) {
 
   const columns = [
     {
-      label: "No",
+      label: t("no"),
       accessor: "no",
       width: "60px",
       formatter: (_: any, _row: any, index: number) => {
@@ -82,7 +82,7 @@ function RecentOrderTable({ recentOrder }: any) {
       },
     },
     {
-      label: "Type Name",
+      label: t("type_name"),
       accessor: "type",
       width: "150px",
       formatter: (value: string) => (
@@ -90,7 +90,7 @@ function RecentOrderTable({ recentOrder }: any) {
       ),
     },
     {
-      label: "Price",
+      label: t("price"),
       accessor: "price",
       width: "80px",
       formatter: (value: number) => (
@@ -98,7 +98,7 @@ function RecentOrderTable({ recentOrder }: any) {
       ),
     },
     {
-      label: "Players",
+      label: t("players"),
       accessor: "players",
       width: "80px",
       formatter: (value: number) => (
@@ -106,7 +106,7 @@ function RecentOrderTable({ recentOrder }: any) {
       ),
     },
     {
-      label: "Games",
+      label: t("games"),
       accessor: "games",
       width: "80px",
       formatter: (value: number) => (
@@ -114,7 +114,7 @@ function RecentOrderTable({ recentOrder }: any) {
       ),
     },
     {
-      label: "Languages",
+      label: t("languages"),
       accessor: "language",
       width: "100px",
       formatter: (value: { name: string }) => (
@@ -122,7 +122,7 @@ function RecentOrderTable({ recentOrder }: any) {
       ),
     },
     {
-      label: "Questions",
+      label: t("questions"),
       accessor: "questions",
       width: "90px",
       formatter: (value: number) => (
@@ -130,7 +130,7 @@ function RecentOrderTable({ recentOrder }: any) {
       ),
     },
     {
-      label: "Actions",
+      label: t("actions"),
       accessor: "actions",
       width: "100px",
       formatter: (_: any, record: any) => {
@@ -189,15 +189,15 @@ function RecentOrderTable({ recentOrder }: any) {
     <section>
       <div className="border p-5 rounded-md">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Subscription types</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("subscription_types")}</h1>
           <button
             onClick={handleAddNew}
             className="bg-grayColor1/50 dark:bg-whiteColor text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer"
           >
-            Create Subscription Type
+            {t("create_subscription_type")}
           </button>
         </div>
-        <SearchComponent placeholder="Search subscription types..."/>
+        <SearchComponent placeholder={t("search_subscription_type")} />
         <DynamicTableTwo
           columns={columns}
           data={subscriptionTypesData}

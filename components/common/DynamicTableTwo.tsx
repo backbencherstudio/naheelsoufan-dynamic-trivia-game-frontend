@@ -1,5 +1,6 @@
 "use client";
 
+import useTranslation from "@/hooks/useTranslation";
 import Image from "next/image";
 import React from "react";
 import { MdArrowBackIosNew, MdArrowForwardIos, MdFirstPage, MdLastPage } from "react-icons/md";
@@ -43,7 +44,7 @@ export default function DynamicTableTwo({
 
 
   let rowsPerPageOptions = [5, 10, 20, 50];
-
+ const {t}=useTranslation()
 
 
   return (
@@ -65,7 +66,7 @@ export default function DynamicTableTwo({
                 ))}
                 {(onView || onDelete) && (
                   <th className="px-4 py-3 text-sm font-medium text-[#4a4c56] border-b border-gray-100 dark:border-gray-700 dark:text-whiteColor">
-                    Action
+                    {t("action")}
                   </th>
                 )}
               </tr>
@@ -96,7 +97,7 @@ export default function DynamicTableTwo({
                             className="text-xs underline text-[#4a4c56]  cursor-pointer dark:text-whiteColor"
                             onClick={() => onView(row)}
                           >
-                            View details
+                            {t("view_details")}
                           </span>
                         )}
                         {onDelete && (
@@ -131,7 +132,7 @@ export default function DynamicTableTwo({
       {/* Pagination */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 mt-6 pr-6">
         <div className="flex items-center gap-2 text-sm text-[#4a4c56]">
-          <span>Rows per page:</span>
+          <span>{t("rows_per_page")}:</span>
           <select
             className="border border-gray-300 rounded px-2 py-1 text-sm dark:border-gray-700 dark:text-whiteColor"
             value={itemsPerPage}
@@ -145,7 +146,7 @@ export default function DynamicTableTwo({
         </div>
         <div className="flex items-center gap-4 text-sm text-[#4a4c56] dark:text-whiteColor">
           <span>
-            {currentPage * itemsPerPage - itemsPerPage + 1}-{itemsPerPage * currentPage} of {paginationData?.total}
+            {currentPage * itemsPerPage - itemsPerPage + 1}-{itemsPerPage * currentPage} {t("of")} {paginationData?.total}
           </span>
           <div className="flex items-center gap-1">
             <button
