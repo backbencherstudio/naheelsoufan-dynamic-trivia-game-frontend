@@ -3,6 +3,7 @@
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
@@ -20,7 +21,7 @@ function PreviousGamesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const {token} = useToken();
-  
+  const {t}=useTranslation()
   const endpoint = `/admin/games?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
 
   // Debounced API call function
@@ -56,7 +57,7 @@ function PreviousGamesPage() {
 
   const columns = [
     {
-      label: "No.",
+      label: t("no"),
       accessor: "no",
       width: "60px",
       formatter: (_: any, _row: any, index: number) => {
@@ -73,7 +74,7 @@ function PreviousGamesPage() {
     //   ),
     // },
     {
-      label: "Game Mode",
+      label: t("game_mode"),
       accessor: "mode",
       width: "100px",
       formatter: (value: string) => (
@@ -81,7 +82,7 @@ function PreviousGamesPage() {
       ),
     },
     {
-      label: "Host Name",
+      label: t("host_name"),
       accessor: "host",
       width: "200px",
       formatter: (value:{name: string}) => (
@@ -89,7 +90,7 @@ function PreviousGamesPage() {
       ),
     },
     {
-      label: "Host Email",
+      label: t("host_email"),
       accessor: "host",
       width: "200px",
       formatter: (value: {email:string}) => (
@@ -97,7 +98,7 @@ function PreviousGamesPage() {
       ),
     },
     {
-      label: "Players",
+      label: t("players"),
       accessor: "game_players",
       width: "150px",
       formatter: (value: any) => (
@@ -132,7 +133,7 @@ function PreviousGamesPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Games History</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("games_history")}</h1>
       </div>
 
       {/* Table Section */}
@@ -140,15 +141,15 @@ function PreviousGamesPage() {
         <div className="p-5">
           {/* Filter and Search Section */}
           <div className="mb-6">
-             <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-whiteColor">Search Games</h2>
+             <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-whiteColor">{t("search_games")}</h2>
             <div className="flex gap-4">
               {/* <div className="w-48">
                 <Select value={topicFilter} onValueChange={setTopicFilter}>
                   <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                    <SelectValue placeholder='Topic' />
+                    <SelectValue placeholder={t("topic")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>All</SelectItem>
+                    <SelectItem value='all'>{t("all")}</SelectItem>
                     <SelectItem value='testing'>Testing</SelectItem>
                    
                   </SelectContent>
@@ -157,13 +158,13 @@ function PreviousGamesPage() {
               <div className="w-48">
                 <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
                   <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                    <SelectValue placeholder='Difficulty' />
+                    <SelectValue placeholder={t("difficulty")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>All</SelectItem>
-                    <SelectItem value='easy'>Easy</SelectItem>
-                    <SelectItem value='medium'>Medium</SelectItem>
-                    <SelectItem value='hard'>Hard</SelectItem>
+                    <SelectItem value='all'>{t("all")}</SelectItem>
+                    <SelectItem value='easy'>{t("easy")}</SelectItem>
+                    <SelectItem value='medium'>{t("medium")}</SelectItem>
+                    <SelectItem value='hard'>{t("hard")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div> */}
@@ -172,7 +173,7 @@ function PreviousGamesPage() {
                    value={search}
                    onChange={handleSearch}
                    type="text" 
-                   placeholder="Search by host or player..." 
+                   placeholder={t("search_games_placeholder")} 
                    className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
                  />
                  <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

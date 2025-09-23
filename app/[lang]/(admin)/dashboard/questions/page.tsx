@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from '@/helper/debounce.helper';
 import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
+import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
@@ -49,7 +50,7 @@ function QuestionsPage() {
   const apiSortKey = mapSortKey(sortBy);
   const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ? `&sort=${apiSortKey}&order=${sortOrder}` : ''}`;
 
-
+  const {t}=useTranslation()
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
     try {
@@ -58,7 +59,7 @@ function QuestionsPage() {
       setQuestionData(response.data?.data);
       setPaginationData(response.data?.pagination);
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError(err.message || t("something_went_wrong"));
     } finally {
       setLoading(false);
     }
@@ -106,7 +107,7 @@ function QuestionsPage() {
 
   const columns = [
     {
-      label: "No.",
+      label: t("no"),
       accessor: "no",
       width: "60px",
       formatter: (_: any, _row: any, index: number) => {
@@ -115,7 +116,7 @@ function QuestionsPage() {
       },
     },
     {
-      label: "Question",
+      label: t("question"),
       accessor: "text",
       width: "250px",
       formatter: (value: string) => (
@@ -123,7 +124,7 @@ function QuestionsPage() {
       ),
     },
     {
-      label: "Topic",
+      label: t("topic"),
       accessor: "category",
       width: "120px",
       formatter: (value: { name: string }) => (
@@ -131,7 +132,7 @@ function QuestionsPage() {
       ),
     },
     {
-      label: "Difficulty",
+      label: t("difficulty"),
       accessor: "difficulty",
       width: "100px",
       formatter: (value: { name: string }) => (
@@ -139,7 +140,7 @@ function QuestionsPage() {
       ),
     },
     {
-      label: "Language",
+      label: t("language"),
       accessor: "language",
       width: "100px",
       formatter: (value: { name: string }) => (
@@ -147,7 +148,7 @@ function QuestionsPage() {
       ),
     },
     {
-      label: "Question Type",
+      label: t("question_type"),
       accessor: "question_type",
       width: "120px",
       formatter: (value: { name: string }) => (
@@ -155,7 +156,7 @@ function QuestionsPage() {
       ),
     },
     {
-      label: "Answer",
+      label: t("answer"),
       accessor: "answers",
       width: "120px",
       formatter: (value: any) => {
@@ -166,7 +167,7 @@ function QuestionsPage() {
       },
     },
     {
-      label: "Question Timer",
+      label: t("question_timer"),
       accessor: "time",
       width: "120px",
       formatter: (value: string) => (
@@ -174,7 +175,7 @@ function QuestionsPage() {
       ),
     },
     {
-      label: "Difficulty Points",
+        label: t("difficulty_points"),
       accessor: "points",
       width: "130px",
       formatter: (value: string) => (
@@ -182,7 +183,7 @@ function QuestionsPage() {
       ),
     },
     {
-      label: "Free Bundle",
+      label: t("free_bundle"),
       accessor: "free_bundle",
       width: "100px",
       formatter: (value: string) => (
@@ -198,7 +199,7 @@ function QuestionsPage() {
     //   ),
     // },
     {
-      label: "Options",
+      label: t("options"),
       accessor: "options",
       width: "100px",
       formatter: (_: any, record: any) => {
@@ -399,7 +400,6 @@ function QuestionsPage() {
   };
 
   const handleAddNewQuestion = () => {
-    console.log("Adding new question...");
     setIsOpen(true)
     setEditData(null)
   };
@@ -408,22 +408,22 @@ function QuestionsPage() {
     <div>
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Questions</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("questions")}</h1>
         <div className="flex gap-3">
           <button
             onClick={handleExportQuestions}
             className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700">
-            Export Questions
+            {t("export_question")}
           </button>
           <button
             onClick={handleImportQuestions}
             className="bg-blue-800 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-900">
-            Import Questions
+            {t("import_question")}
           </button>
           <button
             onClick={handleAddNewQuestion}
             className="bg-white text-gray-900 border border-gray-300 font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-gray-50">
-            Add New Question
+            {t("add_new_question")}
           </button>
         </div>
       </div>
@@ -436,10 +436,10 @@ function QuestionsPage() {
             <div className="w-48">
              <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='Language' />
+                  <SelectValue placeholder={t("language")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>Language</SelectItem>
+                  <SelectItem value='all'>{t("language")}</SelectItem>
                   {
                         languageData?.data?.map((item: any) => (
                           <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
@@ -451,13 +451,13 @@ function QuestionsPage() {
             <div className="w-48 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                   <SelectValue placeholder='Sort by...' />
+                   <SelectValue placeholder={t("sort_by")} />
                 </SelectTrigger>
                 <SelectContent>
                
-                  <SelectItem value='topic'>Sort by Topic</SelectItem>
-                  <SelectItem value='difficulty'>Sort by Difficulty</SelectItem>
-                  <SelectItem value='language'>Sort by Language</SelectItem>
+                  <SelectItem value='topic'>{t("sort_topic")}</SelectItem>
+                  <SelectItem value='difficulty'>{t("sort_difficulty")}</SelectItem>
+                  <SelectItem value='language'>{t("sort_language")}</SelectItem>
                 </SelectContent>
               </Select>
               <button
@@ -476,7 +476,7 @@ function QuestionsPage() {
                 value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder="Search questions..."
+                placeholder={t("search_question_placeholder")}
                 className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

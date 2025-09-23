@@ -10,6 +10,7 @@ import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast } from 'react-toastify';
 import { Dialog, DialogContent } from '../ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import useTranslation from '@/hooks/useTranslation';
 type FormValues = {
   language?: string;
   topic?: string;
@@ -33,7 +34,7 @@ type FormValues = {
 };
 
 function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestionData }: { isOpen: boolean, onClose: () => void, editData?: any, questionData?: any, setQuestionData?: any }) {
-
+ const {t}=useTranslation()
   // State for storing uploaded files
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   
@@ -75,7 +76,6 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
   // Current selected question type name (derived once for rendering and validation)
   const selectedTypeName = questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name;
 
-  console.log("editData",editData);
   
   // Update form values when editData changes
   useEffect(() => {
@@ -171,8 +171,6 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
         // Add new file
         return [...filteredFiles, file];
       });
-      console.log(`File uploaded for ${optionName}:`, file.name);
-      console.log("Current uploaded files:", uploadedFiles);
     }
   };
 
@@ -251,7 +249,6 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
     const selectedQuestionType = questionTypeData?.data?.find((item: any) => item.id === data.questionType);
     let answersArray = [];
     let answerFiles = [];
-    console.log(answerFiles);
     
     // Create answers array based on question type
     if (selectedQuestionType?.name === 'Options') {
@@ -411,8 +408,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       console.error("Error saving question:", error);
       toast.error("Failed to save question");
     }
-    
-    console.log('Form data with answers:', formData);
+
   };
 
   return (
@@ -420,21 +416,21 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className='max-w-[95vw] md:w-[650px] lg:max-w-[700px] max-h-[95vh] overflow-y-auto'>
           <div className="w-full ">
-            <h2 className="text-2xl font-semibold text-center mb-6">{editData ? 'Update Question' : 'Create Question'}</h2>
+            <h2 className="text-2xl font-semibold text-center mb-6">{editData ? t('update_questions') : t('create_questions')}</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
 
               {/* Row: Language | Topic */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <div className="mb-4">
-                  <label htmlFor="language" className="block text-sm font-medium text-gray-700">Language</label>
+                  <label htmlFor="language" className="block text-sm font-medium text-gray-700">{t("language")}</label>
                   <Controller
                     name="language"
                     control={control}
-                    rules={{ required: 'Language is required' }}
+                    rules={{ required: t("language_is_required") }}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Language" />
+                          <SelectValue placeholder={t("language")} />
                         </SelectTrigger>
                         <SelectContent>
                           {
@@ -450,15 +446,15 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                 </div>
                {/* Topic (select dropdown) */}
                 <div className="mb-4">
-                  <label htmlFor="topic" className="block text-sm font-medium text-gray-700">Topic</label>
+                  <label htmlFor="topic" className="block text-sm font-medium text-gray-700">{t("topic")}</label>
                   <Controller
                     name="topic"
                     control={control}
-                    rules={{ required: 'Topic is required' }}
+                    rules={{ required: t("topic_is_required") }}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Topic" />
+                          <SelectValue placeholder={t("topic")} />
                         </SelectTrigger>
                         <SelectContent>
                           {
@@ -479,11 +475,11 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
  
                {/* Difficulty (select dropdown) */}
               <div className="mb-4">
-                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Difficulty</label>
+                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">{t("difficulty")}</label>
                 <Controller
                   name="difficulty"
                   control={control}
-                  rules={{ required: 'Difficulty is required' }}
+                  rules={{ required: t("difficulty_is_required") }}
                   render={({ field }) => (
                     <Select 
                       value={field.value} 
@@ -497,7 +493,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Difficulty" />
+                        <SelectValue placeholder={t("difficulty")} />
                       </SelectTrigger>
                       <SelectContent>
                         {
@@ -514,26 +510,26 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               
               {/* Question (text input) */}
               <div className="mb-4">
-                <label htmlFor="question" className="block text-sm font-medium text-gray-700">Question</label>
+                <label htmlFor="question" className="block text-sm font-medium text-gray-700">{t("question")}</label>
                 <input
-                  {...register('question', { required: 'Question is required' })}
+                  {...register('question', { required: t("question_name_is_required") })}
                   type="text"
                   id="question"
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  placeholder="Question"
+                  placeholder={t("question")}
                 />
                 {errors.question && <p className="text-red-500 text-xs mt-1">{errors.question.message as string}</p>}
               </div>
 
               {/* Answer Time (number) */}
               <div className="mb-4">
-                <label htmlFor="answerTime" className="block text-sm font-medium text-gray-700">Answer Time</label>
+                <label htmlFor="answerTime" className="block text-sm font-medium text-gray-700">{t("answer_time")}</label>
                 <input
-                  {...register('answerTime', { required: 'Answer time is required', valueAsNumber: true })}
+                  {...register('answerTime', { required: t("answer_time_is_required"), valueAsNumber: true })}
                   type="number"
                   id="answerTime"
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                  placeholder="60"
+                  placeholder={t("60")}
                   min={1}
                 />
                 {errors.answerTime && <p className="text-red-500 text-xs mt-1">{errors.answerTime.message as string}</p>}
@@ -541,13 +537,13 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
               {/* No. of Points (number) */}
               <div className="mb-6">
-                <label htmlFor="points" className="block text-sm font-medium text-gray-700">No. of Points</label>
+                <label htmlFor="points" className="block text-sm font-medium text-gray-700">{t("no_of_point")}</label>
                 <input
-                  {...register('points', { required: 'Points are required', valueAsNumber: true })}
+                  {...register('points', { required: t("points_are_required"), valueAsNumber: true })}
                   type="number"
                   id="points"
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-                  placeholder="1"
+                  placeholder={t("1")}
                   min={1}
                   disabled
                   readOnly
@@ -557,18 +553,18 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
               {/* Free Bundle (select dropdown) */}
               <div className="mb-4 ">
-                <label htmlFor="freeBundle" className="block text-sm font-medium text-gray-700">Free Bundle</label>
+                <label htmlFor="freeBundle" className="block text-sm font-medium text-gray-700">{t("free_bundle")}</label>
                 <Controller
                   name="freeBundle"
                   control={control}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Option" />
+                        <SelectValue placeholder={t("select_option")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">True</SelectItem>
-                        <SelectItem value="false">False</SelectItem>
+                        <SelectItem value="true">{t("true")}</SelectItem>
+                        <SelectItem value="false">{t("false")}</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -586,7 +582,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                       value="true"
                       className="h-5 w-5"
                     />
-                    <span className="ml-2 text-sm">Yes</span>
+                    <span className="ml-2 text-sm">{t('yes')}</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -595,14 +591,14 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                       value="false"
                       className="h-5 w-5"
                     />
-                    <span className="ml-2 text-sm">No</span>
+                    <span className="ml-2 text-sm">{t('no')}</span>
                   </label>
                 </div>
               </div> */}
 
               {/* File (image/audio/video upload) */}
               <div className="mb-4">
-                <label htmlFor="image" className="block text-sm font-medium text-gray-700">File (Image/Audio/Video)</label>
+                <label htmlFor="image" className="block text-sm font-medium text-gray-700">{t("file_image_audio_video")}</label>
                 <Controller
                   name="image"
                   control={control}
@@ -617,7 +613,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                       />
                       <label htmlFor="image" className="cursor-pointer flex items-center gap-3 select-none">
                         <FaDownload className='text-primaryColor' />
-                        <span className="text-gray-700">{field.value ? (field.value as File).name : 'Upload Image, Audio or Video'}</span>
+                        <span className="text-gray-700">{field.value ? (field.value as File).name : t("upload_image_audio_video")}</span>
                       </label>
                       {(() => {
                         const src = getPreviewSrc('image');
@@ -732,19 +728,19 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
               {/* Question Type */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Question Type</label>
+                <label className="block text-sm font-medium text-gray-700">{t("question_type")}</label>
                 {questionTypeLoading ? (
-                  <div className="text-sm text-gray-500">Loading question types...</div>
+                  <div className="text-sm text-gray-500">{t("loading_question_types")}</div>
                 ) : questionTypeError ? (
-                  <div className="text-sm text-red-500">Error loading question types: {questionTypeError}</div>
+                  <div className="text-sm text-red-500">{t("error_loading_question_types")}: {questionTypeError}</div>
                 ) : !questionTypeData?.data || questionTypeData.data.length === 0 ? (
-                  <div className="text-sm text-gray-500">No question types available</div>
+                  <div className="text-sm text-gray-500">{t("no_question_types_available")}</div>
                 ) : (
                   <div className="flex flex-wrap gap-4">
                     {questionTypeData?.data?.map((item: any) => (
                       <label key={item.id} className="flex items-center">
                         <input
-                          {...register('questionType', { required: 'Question type is required' })}
+                          {...register('questionType', { required: t("question_type_is_required") })}
                           type="radio"
                           value={item.id}
                           className="h-5 w-5"
@@ -761,7 +757,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               {selectedTypeName === 'Options' && (
                 <>
                   <div className="mb-4">
-                    <label htmlFor="optionA" className="block text-sm font-medium text-gray-700">Option A</label>
+                    <label htmlFor="optionA" className="block text-sm font-medium text-gray-700">{t("optionA")}</label>
                     <div className="flex gap-3">
                       <input
                         {...register('optionA')}
@@ -787,7 +783,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                             />
                             <label htmlFor="optionAFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
                               <IoCloudUploadOutline  className='text-primaryColor text-base' />
-                              <span>{field.value ? (field.value as File).name : 'Upload'}</span>
+                              <span>{field.value ? (field.value as File).name : t('upload')}</span>
                             </label>
                           </div>
                         )}
@@ -796,7 +792,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   </div>
 
                   <div className="mb-4">
-                    <label htmlFor="optionB" className="block text-sm font-medium text-gray-700">Option B</label>
+                    <label htmlFor="optionB" className="block text-sm font-medium text-gray-700">{t("optionB")}</label>
                     <div className="flex gap-3">
                       <input
                         {...register('optionB')}
@@ -822,7 +818,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                             />
                             <label htmlFor="optionBFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
                               <IoCloudUploadOutline className='text-primaryColor text-sm' />
-                              <span>{field.value ? (field.value as File).name : 'Upload'}</span>
+                              <span>{field.value ? (field.value as File).name : t('upload')}</span>
                             </label>
                           </div>
                         )}
@@ -831,7 +827,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   </div>
 
                   <div className="mb-4">
-                    <label htmlFor="optionC" className="block text-sm font-medium text-gray-700">Option C</label>
+                    <label htmlFor="optionC" className="block text-sm font-medium text-gray-700">{t("optionC")}</label>
                     <div className="flex gap-3">
                       <input
                         {...register('optionC')}
@@ -857,7 +853,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                             />
                             <label htmlFor="optionCFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
                               <IoCloudUploadOutline className='text-primaryColor text-sm' />
-                              <span>{field.value ? (field.value as File).name : 'Upload'}</span>
+                              <span>{field.value ? (field.value as File).name : t('upload')}</span>
                             </label>
                           </div>
                         )}
@@ -866,7 +862,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   </div>
 
                   <div className="mb-4">
-                    <label htmlFor="optionD" className="block text-sm font-medium text-gray-700">Option D</label>
+                    <label htmlFor="optionD" className="block text-sm font-medium text-gray-700">{t("optionD")}</label>
                     <div className="flex gap-3">
                       <input
                         {...register('optionD')}
@@ -892,7 +888,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                             />
                             <label htmlFor="optionDFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
                               <IoCloudUploadOutline className='text-primaryColor  text-sm' />
-                              <span>{field.value ? (field.value as File).name : 'Upload'}</span>
+                              <span>{field.value ? (field.value as File).name : t('upload')}</span>
                             </label>
                           </div>
                         )}
@@ -902,11 +898,11 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
                   {/* Answer for Options */}
                   <div className="mb-4">
-                    <label htmlFor="answer" className="block text-sm font-medium text-gray-700">Answer</label>
+                    <label htmlFor="answer" className="block text-sm font-medium text-gray-700">{t("answer")}</label>
                     <Controller
                       name="answer"
                       control={control}
-                      rules={{ required: selectedTypeName === 'Options' ? 'Answer is required' : false }}
+                      rules={{ required: selectedTypeName === 'Options' ? t("answer_is_required") : false }}
                       render={({ field }) => (
                         <Select 
                           value={field.value} 
@@ -916,13 +912,13 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                           }}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Correct Option" />
+                            <SelectValue placeholder={t("select_correct_option")} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="0">A</SelectItem>
-                            <SelectItem value="1">B</SelectItem>
-                            <SelectItem value="2">C</SelectItem>
-                            <SelectItem value="3">D</SelectItem>
+                            <SelectItem value="0">{t("a")}</SelectItem>
+                            <SelectItem value="1">{t("b")}</SelectItem>
+                            <SelectItem value="2">{t("c")}</SelectItem>
+                            <SelectItem value="3">{t("d")}</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -935,19 +931,19 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               {/* True/False (only if question type is True/False) */}
               {selectedTypeName === 'True/False' && (
                 <div className="mb-4">
-                  <label htmlFor="answer" className="block text-sm font-medium text-gray-700">Answer</label>
+                  <label htmlFor="answer" className="block text-sm font-medium text-gray-700">{t("answer")}</label>
                   <Controller
                     name="answer"
                     control={control}
-                    rules={{ required: selectedTypeName === 'True/False' ? 'Answer is required' : false }}
+                    rules={{ required: selectedTypeName === 'True/False' ? t("answer_is_required") : false }}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select True / False" />
+                          <SelectValue placeholder={t("select_true_false")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="True">True</SelectItem>
-                          <SelectItem value="False">False</SelectItem>
+                          <SelectItem value="True">{t("true")}</SelectItem>
+                          <SelectItem value="False">{t("false")}</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
@@ -959,13 +955,13 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               {/* Text (only if question type is Text) */}
               {selectedTypeName === 'Text' && (
                 <div className="mb-4">
-                  <label htmlFor="answer" className="block text-sm font-medium text-gray-700">Answer</label>
+                  <label htmlFor="answer" className="block text-sm font-medium text-gray-700">{t("answer")}</label>
                   <input
-                    {...register('answer', { required: selectedTypeName === 'Text' ? 'Answer is required' : false })}
+                    {...register('answer', { required: selectedTypeName === 'Text' ? t("answer_is_required") : false })}
                     type="text"
                     id="answer"
                     className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-                    placeholder="Answer here"
+                    placeholder={t("answer_here")}
                   />
                   {errors.answer && <p className="text-red-500 text-xs mt-1">{errors.answer.message as string}</p>}
                 </div>
@@ -977,7 +973,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                 disabled={isSubmitting}
                 className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {isSubmitting ? (editData ? 'Updating...' : 'Adding...') : (editData ? 'Update Question' : 'Add Question')}
+                {isSubmitting ? (editData ? t("updating") : t("creating")) : (editData ? t("s") : t("add_questions"))}
               </Button>
             </form>
           </div>
