@@ -85,7 +85,7 @@ function DifficultiesPage() {
       },
     },
     {
-      label: t("question_type"),
+      label: t("difficulty_level"),
       accessor: "name",
       width: "200px",
       formatter: (value: any) => {

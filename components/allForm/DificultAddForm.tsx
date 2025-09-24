@@ -88,7 +88,10 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
           toast.success(response?.data?.message);
           const updatedData = difficultiesData.map(item =>
             item.id === editData.id
-              ? { ...item, name: data.name, language: data.language, language_id: data.language, points: data.points }
+              ? { ...item, name: data.name, language: {
+                name: languageData?.data?.find((l: any) => l.id === data.language)?.name,
+                id: data.language
+              }, points: data.points }
               : item
           );
           setDifficultiesData(updatedData);
