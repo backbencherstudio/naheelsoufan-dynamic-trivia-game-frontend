@@ -68,7 +68,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       }, 100);
       if (editData.icon) {
         setSelectedFileName(editData.icon);
-        setSelectedFilePreview(editData.image_url || "");
+        setSelectedFilePreview(editData.image || "");
       }
     } else {
       setSelectedFileName("");
@@ -160,10 +160,12 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       toast.error(t("failed_to_save_topic"));
     }
   };
+  console.log(editData);
+  
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[505px] p-0">
+      <DialogContent className="sm:max-w-[505px] max-h-[95%] overflow-y-auto  p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
             {editData ? t("update_topic"): t("add_new_topic")}
@@ -241,12 +243,13 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                       </svg>
                     </div>
                     
-                    <div className="text-center">
+                    <div className="text-center flex justify-center w-full">
                       {selectedFileName ? (
                         <div>
                           <p className="text-green-600 text-sm font-medium">✓ {t("file_selected")}</p>
 
                           {/* Image Preview */}
+                         
                           {selectedFilePreview && (
                             <div className="mt-3">
                               <Image 
@@ -260,14 +263,14 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                           )}
                         </div>
                       ) : (
-                        <div>
+                        <div className="flex flex-col items-center">
                           <p className="text-blue-600 text-sm font-medium">{t("choose_image_to_upload")}</p>
                           <p className="text-gray-500 text-xs mt-1">{t("PNG_and_JPG_only")}</p>
                           {/* Show existing image if editing */}
-                          {editData?.image_url && !selectedFileName && (
+                          {editData?.image && !selectedFileName && (
                             <div className="mt-3">
                               <Image 
-                                src={editData.image_url} 
+                                src={editData.image} 
                                 alt="Current topic media" 
                                 width={100} 
                                 height={100} 
