@@ -42,10 +42,22 @@ export const DynamicLanguageProvider: React.FC<DynamicLanguageProviderProps> = (
 }) => {
   const [languages, setLanguages] = useState<Language[]>([]);
   
-  // Get initial language from localStorage or props
+  // Get initial language from localStorage, cookies, or props
   const getInitialLanguage = () => {
-    const savedLanguage = LanguageStorage.getLanguage();
-    return savedLanguage || initialLanguage;
+    if (typeof window !== 'undefined') {
+      // First try localStorage
+      const savedLanguage = LanguageStorage.getLanguage();
+      if (savedLanguage) return savedLanguage;
+      
+      // Then try cookies
+      const cookies = document.cookie.split(';');
+      const preferredCookie = cookies.find(cookie => cookie.trim().startsWith('preferred_language='));
+      if (preferredCookie) {
+        const cookieValue = preferredCookie.split('=')[1];
+        if (cookieValue) return cookieValue;
+      }
+    }
+    return initialLanguage;
   };
   
   const [currentLanguage, setCurrentLanguageState] = useState<string>(getInitialLanguage);

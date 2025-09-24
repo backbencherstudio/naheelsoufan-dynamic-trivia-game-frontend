@@ -14,8 +14,11 @@ export const LanguageStorage = {
         // Save to localStorage
         localStorage.setItem(LANGUAGE_STORAGE_KEY, languageCode);
         
-        // Save to cookies for server-side access
-        document.cookie = `preferred_language=${languageCode}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 year
+        // Save to cookies for server-side access with secure settings
+        const cookieString = `preferred_language=${languageCode}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+        document.cookie = cookieString;
+        
+        console.log('Language saved:', languageCode);
       } catch (error) {
         console.warn('Failed to save language preference:', error);
       }

@@ -31,9 +31,13 @@ export function middleware(request: NextRequest) {
   if (pathnameIsMissingLocale) {
     // Check if there's a language preference in cookies
     const preferredLanguage = request.cookies.get('preferred_language')?.value;
+    console.log('Cookie preferred language:', preferredLanguage);
+    
     const locale = preferredLanguage && supportedLocales.includes(preferredLanguage) 
       ? preferredLanguage 
       : getLocale(request);
+    
+    console.log('Selected locale:', locale);
     
     // Ensure we redirect to a valid language URL
     const newUrl = new URL(`/${locale}${pathname}`, request.url);

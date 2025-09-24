@@ -21,16 +21,12 @@ const Header: React.FC<HeaderProps> = ({
   onMenuClick,
   sidebarOpen,
 }: HeaderProps) => {
-  const [isShow, seIsShow] = useState<boolean>(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+
   const [showAllNotifications, setShowAllNotifications] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const [notifications, setNotifications] = useState<null | []>([]);
-  const [error, setError] = useState<string | null>()
-  const [profile, setProfile] = useState<any>()
   const displayedNotifications = showAllNotifications
     ? notifications
     : notifications.slice(0, 5);
@@ -69,6 +65,9 @@ const Header: React.FC<HeaderProps> = ({
       setSelectedCode(firstSegment);
       if (firstSegment !== currentLanguage) {
         setCurrentLanguage(firstSegment);
+        // Also save to cookies when language changes via URL
+        document.cookie = `preferred_language=${firstSegment}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+        localStorage.setItem('preferred_language', firstSegment);
       }
     } else if (supportedCodes.length > 0) {
       // If URL doesn't have valid language, use current language or first available
@@ -76,6 +75,9 @@ const Header: React.FC<HeaderProps> = ({
       setSelectedCode(defaultLang);
       if (defaultLang !== currentLanguage) {
         setCurrentLanguage(defaultLang);
+        // Save to cookies when setting default language
+        document.cookie = `preferred_language=${defaultLang}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+        localStorage.setItem('preferred_language', defaultLang);
       }
     }
   }, [firstSegment, supportedCodes, currentLanguage, setCurrentLanguage]);
@@ -96,6 +98,14 @@ const Header: React.FC<HeaderProps> = ({
     const isRTL = langCode === 'ar'; // Arabic language code
     document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
     document.documentElement.setAttribute('lang', langCode);
+
+    // Save language preference to cookies for server-side access
+    document.cookie = `preferred_language=${langCode}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    
+    // Save to localStorage for client-side persistence
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred_language', langCode);
+    }
 
     // Get current path without language prefix
     const pathWithoutLanguage = getPathWithoutLanguage();
