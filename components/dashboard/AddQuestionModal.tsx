@@ -121,25 +121,25 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
           // Set answer files if they exist
           const existingFilesData: {[key: string]: string} = {};
           
-          if (editData.answers[0]?.file_url) {
-            existingFilesData.optionA = editData.answers[0].file_url;
+          if (editData.answers[0]?.question_file_url) {
+            existingFilesData.optionA = editData.answers[0].question_file_url;
             // Create a mock File object for display purposes
-            const mockFileA = new File([''], editData.answers[0].file_url, { type: 'image/jpeg' });
+            const mockFileA = new File([''], editData.answers[0].question_file_url, { type: 'image/jpeg' });
             setValue("optionAFile", mockFileA);
           }
-          if (editData.answers[1]?.file_url) {
-            existingFilesData.optionB = editData.answers[1].file_url;
-            const mockFileB = new File([''], editData.answers[1].file_url, { type: 'image/jpeg' });
+          if (editData.answers[1]?.question_file_url) {
+            existingFilesData.optionB = editData.answers[1].question_file_url;
+            const mockFileB = new File([''], editData.answers[1].question_file_url, { type: 'image/jpeg' });
             setValue("optionBFile", mockFileB);
           }
-          if (editData.answers[2]?.file_url) {
-            existingFilesData.optionC = editData.answers[2].file_url;
-            const mockFileC = new File([''], editData.answers[2].file_url, { type: 'image/jpeg' });
+          if (editData.answers[2]?.question_file_url) {
+            existingFilesData.optionC = editData.answers[2].question_file_url;
+            const mockFileC = new File([''], editData.answers[2].question_file_url, { type: 'image/jpeg' });
             setValue("optionCFile", mockFileC);
           }
-          if (editData.answers[3]?.file_url) {
-            existingFilesData.optionD = editData.answers[3].file_url;
-            const mockFileD = new File([''], editData.answers[3].file_url, { type: 'image/jpeg' });
+          if (editData.answers[3]?.question_file_url) {
+            existingFilesData.optionD = editData.answers[3].question_file_url;
+            const mockFileD = new File([''], editData.answers[3].question_file_url, { type: 'image/jpeg' });
             setValue("optionDFile", mockFileD);
           }
           
@@ -235,7 +235,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       const possible = [
         (editData && (editData.image as string)) || '',
         (editData && (editData.image_url as string)) || '',
-        (editData && (editData.file_url as string)) || '',
+        (editData && (editData.question_file_url as string)) || '',
         (editData && (editData.question_file as string)) || '',
       ].find((u) => typeof u === 'string' && u.length > 0);
       if (possible) return possible as string;
@@ -365,7 +365,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               ...server,
               id: server.id || item.id,
               text: server.text ?? data.question,
-              file_url: server.file_url ?? item.file_url ?? (typeof imageFile === 'string' ? imageFile : undefined),
+              question_file_url: server.question_file_url ?? item.question_file_url ?? (typeof imageFile === 'string' ? imageFile : undefined),
               time: server.time ?? data.answerTime,
               free_bundle: server.free_bundle ?? (data.freeBundle === 'true'),
               firebase: server.firebase ?? item.firebase ?? null,
@@ -398,7 +398,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
             ...server,
             id: server?.question.id,
             text: server.text ?? data.question,
-            file_url: server?.question?.file_url ?? undefined,
+            question_file_url: server?.question?.question_file_url ?? undefined,
             time: server.time ?? data.answerTime,
             free_bundle: server.free_bundle ?? (data.freeBundle === 'true'),
             firebase: server.firebase ?? null,
@@ -552,7 +552,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   {...register('points', { required: t("points_are_required"), valueAsNumber: true })}
                   type="number"
                   id="points"
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100 dark:bg-black cursor-not-allowed"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100 dark:bg-black
+                   cursor-not-allowed"
                   placeholder={t("1")}
                   min={1}
                   disabled
