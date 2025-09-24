@@ -552,7 +552,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   {...register('points', { required: t("points_are_required"), valueAsNumber: true })}
                   type="number"
                   id="points"
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md bg-gray-100 dark:bg-black cursor-not-allowed"
                   placeholder={t("1")}
                   min={1}
                   disabled

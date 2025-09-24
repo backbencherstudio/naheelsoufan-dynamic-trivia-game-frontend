@@ -134,7 +134,7 @@ export function QuestionAddForm({ isOpen, setIsOpen, editData, questionData, set
                     message: "Question type name must be at least 2 characters"
                   }
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.questionTypeName ? "border-red-500" : ""}  dark:text-whiteColor`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.questionTypeName ? "border-red-500" : ""}  dark:text-whiteColor dark:bg-blackColor`}
               />
               {errors.questionTypeName && (
                 <p className="text-sm text-red-500 mt-1">{errors.questionTypeName.message}</p>
@@ -152,7 +152,7 @@ export function QuestionAddForm({ isOpen, setIsOpen, editData, questionData, set
                 rules={{ required: "Language selection is required" }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className={`w-full !h-10 md:!h-14 ${errors.language ? "border-red-500" : ""}`}>
+                    <SelectTrigger className={`w-full !h-10 md:!h-14 ${errors.language ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}>
                       <SelectValue placeholder="Select Language" />
                     </SelectTrigger>
                     <SelectContent>
@@ -181,7 +181,7 @@ export function QuestionAddForm({ isOpen, setIsOpen, editData, questionData, set
                   reset();
                   setIsOpen(false);
                 }}
-                className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 bg-white dark:text-white text-gray-700 rounded-md hover:bg-gray-50"
               >
                 Cancel
               </Button>

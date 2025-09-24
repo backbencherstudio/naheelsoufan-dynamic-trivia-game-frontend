@@ -138,7 +138,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
                   required: t("subscription_type_is_required"),
                  
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscriptionType ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscriptionType ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
               />
               {errors.subscriptionType && (
                 <p className="text-sm text-red-500 mt-1">{errors.subscriptionType.message}</p>
@@ -188,7 +188,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
                     required: t("number_of_games_is_required"),
                    
                   })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfGames ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfGames ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
                 />
                 {errors.numberOfGames && (
                   <p className="text-sm text-red-500 mt-1">{errors.numberOfGames.message}</p>
@@ -207,7 +207,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
                     required: t("number_of_questions_is_required"),
                    
                   })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfQuestions ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfQuestions ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
                 />
                 {errors.numberOfQuestions && (
                   <p className="text-sm text-red-500 mt-1">{errors.numberOfQuestions.message}</p>
@@ -229,7 +229,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
                     required: t("players_is_required"),
                     
                   })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfPlayers ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor`}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfPlayers ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
                 />
                 {errors.numberOfPlayers && (
                   <p className="text-sm text-red-500 mt-1">{errors.numberOfPlayers.message}</p>
@@ -249,7 +249,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
                     required: t("price_is_required"),
                    
                   })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.price ? "border-red-500" : ""} dark:bg-whiteColor dark:text-blackColor `}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.price ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor `}
                 />
                 {errors.price && (
                   <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>
@@ -268,7 +268,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
                   reset();
                   setIsOpen(false);
                 }}
-                className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 bg-white dark:text-white text-gray-700 rounded-md hover:bg-gray-50"
               >
                 {t("cancel")}
               </Button>

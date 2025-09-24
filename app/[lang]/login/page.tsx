@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CookieHelper } from "@/helper/cookie.helper";
 import { UserService } from "@/service/user/user.service";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,6 +14,7 @@ type LoginFormInputs = {
 };
 export default function LoginPage() {
   const [isDisable, setIsDisable] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -49,16 +51,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="w-full max-w-md p-6 space-y-6 bg-white rounded-lg " style={{
-        boxShadow: "2px 2px 7px 2px rgba(0, 0, 0, 0.1)", // uniform shadow all sides
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-black transition-colors duration-200">
+      <div className="w-full max-w-md p-6 space-y-6 bg-white dark:bg-gray-900 rounded-lg border dark:border-gray-800 transition-colors duration-200" style={{
+        boxShadow: "2px 2px 7px 2px rgba(0, 0, 0, 0.1)",
       }}>
-        <h2 className="text-2xl font-bold text-center text-headerColor">Login</h2>
+        <h2 className="text-2xl font-bold text-center text-headerColor dark:text-white transition-colors duration-200">Login</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
           <div className="space-y-2">
-            <Label className="text-[14px] font-medium text-headerColor">Email</Label>
+            <Label className="text-[14px] font-medium text-headerColor dark:text-white transition-colors duration-200">Email</Label>
             <Input
               {...register("email", {
                 required: "Email is required",
@@ -68,7 +70,7 @@ export default function LoginPage() {
                 },
               })}
               placeholder="example@example.com"
-              className="rounded-md !h-[45px] text-[14px] text-grayColor"
+              className="rounded-md !h-[45px] text-[14px] text-grayColor dark:text-white dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400 border-gray-300 focus:border-blue-500 transition-colors duration-200"
             />
             {errors.email && (
               <span className="text-sm text-red-500">{errors.email.message}</span>
@@ -76,19 +78,32 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[14px] font-medium text-headerColor">Password</Label>
-            <Input
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
-                },
-              })}
-              type="password"
-              placeholder="Your password"
-              className="rounded-md !h-[45px] text-[14px] text-grayColor"
-            />
+            <Label className="text-[14px] font-medium text-headerColor dark:text-white transition-colors duration-200">Password</Label>
+            <div className="relative">
+              <Input
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
+                type={showPassword ? "text" : "password"}
+                placeholder="Your password"
+                className="rounded-md !h-[45px] text-[14px] pr-10 text-grayColor dark:text-white dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400 border-gray-300 focus:border-blue-500 transition-colors duration-200"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none transition-colors duration-200"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             {errors.password && (
               <span className="text-sm text-red-500">{errors.password.message}</span>
             )}
@@ -96,7 +111,11 @@ export default function LoginPage() {
           <div className="w-full gap-3 mt-6">
             <button
               type="submit"
-              className="w-full  disabled:bg-blackColor/50 disabled:cursor-not-allowed cursor-pointer bg-primaryColor text-white py-2 rounded-md  transition-colors"
+              className={`w-full py-2 rounded-md transition-all duration-200 ${
+                isDisable 
+                  ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed text-white' 
+                  : 'bg-primaryColor hover:bg-primaryColor/90 active:bg-primaryColor/80 dark:bg-blue-600 dark:hover:bg-blue-700 dark:active:bg-blue-800 text-white'
+              }`}
               disabled={isDisable}
             >
               {isDisable ? "Sending..." : "Login"}
