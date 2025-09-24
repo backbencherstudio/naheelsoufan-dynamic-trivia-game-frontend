@@ -68,10 +68,20 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
   });
   
   const {token} = useToken();
+  const selectedLanguage = watch('language');
   const { data: languageData } = useDataFetch(`/admin/languages`);
-  const { data: topicData } = useDataFetch(`/admin/categories`);
-  const { data: difficultData } = useDataFetch(`/admin/difficulties`);
-  const { data: questionTypeData, loading: questionTypeLoading, error: questionTypeError } = useDataFetch(`/admin/question-types`);
+  
+  // Get language_id for filtering - use selected language or edit data language
+  const languageId = selectedLanguage || (editData?.language?.id ?? editData?.language_id ?? editData?.language);
+  
+  // Create dynamic endpoints with language_id parameter
+  const topicEndpoint = languageId ? `/admin/categories?language_id=${languageId}` : `/admin/categories`;
+  const difficultyEndpoint = languageId ? `/admin/difficulties?language_id=${languageId}` : `/admin/difficulties`;
+  const questionTypeEndpoint = languageId ? `/admin/question-types` : `/admin/question-types`;
+  
+  const { data: topicData } = useDataFetch(topicEndpoint);
+  const { data: difficultData } = useDataFetch(difficultyEndpoint);
+  const { data: questionTypeData, loading: questionTypeLoading, error: questionTypeError } = useDataFetch(questionTypeEndpoint);
 
   // Current selected question type name (derived once for rendering and validation)
   const selectedTypeName = questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name;

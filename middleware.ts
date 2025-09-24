@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 
 // Default fallback languages - will be extended dynamically
 let defaultLocale = "en";
-let locales = ["en", "bn", "ar"]; // Base supported languages
+let locales = ["en", "bn", "ar", "fr", "es", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ur", "fa", "tr", "nl", "sv", "da", "no", "fi", "pl", "cs", "hu", "ro", "bg", "hr", "sk", "sl", "et", "lv", "lt", "mt", "cy", "ga", "is", "mk", "sq", "sr", "uk", "be", "ka", "hy", "az", "kk", "ky", "uz", "mn", "my", "th", "vi", "id", "ms", "tl", "sw", "am", "ti", "so", "yo", "zu", "xh", "af", "eu", "gl", "ca", "is", "fo", "kl"]; // Extended supported languages
 
 function getLocale(request: NextRequest) {
   const acceptedLanguage = request.headers.get("accept-language") ?? undefined;
@@ -19,7 +19,7 @@ export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   // Extract locale from pathname (e.g., /en/login -> /login, /bn/dashboard -> /dashboard)
-  const supportedLocales = ['en', 'bn', 'ar', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh']; // Extended support
+  const supportedLocales = ['en', 'bn', 'ar', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'ja', 'ko', 'zh', 'hi', 'ur', 'fa', 'tr', 'nl', 'sv', 'da', 'no', 'fi', 'pl', 'cs', 'hu', 'ro', 'bg', 'hr', 'sk', 'sl', 'et', 'lv', 'lt', 'mt', 'cy', 'ga', 'is', 'mk', 'sq', 'sr', 'uk', 'be', 'ka', 'hy', 'az', 'kk', 'ky', 'uz', 'mn', 'my', 'th', 'vi', 'id', 'ms', 'tl', 'sw', 'am', 'ti', 'so', 'yo', 'zu', 'xh', 'af', 'eu', 'gl', 'ca', 'is', 'fo', 'kl']; // Extended support for all languages
   const pathnameHasLocale = supportedLocales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );

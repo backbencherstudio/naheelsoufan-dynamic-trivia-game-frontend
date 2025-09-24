@@ -80,10 +80,22 @@ const Header: React.FC<HeaderProps> = ({
     }
   }, [firstSegment, supportedCodes, currentLanguage, setCurrentLanguage]);
 
+  // Set initial direction based on current language
+  useEffect(() => {
+    const isRTL = selectedCode === 'ar'; // Arabic language code
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    document.documentElement.setAttribute('lang', selectedCode);
+  }, [selectedCode]);
+
   const handleLanguageChange = (langCode: string) => {
     console.log('Language changing to:', langCode);
     setSelectedCode(langCode);
     setCurrentLanguage(langCode);
+
+    // Set document direction based on language
+    const isRTL = langCode === 'ar'; // Arabic language code
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    document.documentElement.setAttribute('lang', langCode);
 
     // Get current path without language prefix
     const pathWithoutLanguage = getPathWithoutLanguage();

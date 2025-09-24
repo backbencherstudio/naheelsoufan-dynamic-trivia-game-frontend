@@ -70,7 +70,6 @@ function TopicsPage() {
   // Fetch language data for the dropdown
   const { data: languageData } = useDataFetch(`/admin/languages`);
 
-
   // Initialize selected language from URL params
   useEffect(() => {
     const languageParam = searchParams.get('language_id');
@@ -97,8 +96,6 @@ function TopicsPage() {
       setDeletingId(null);
     }
   };
-  console.log("topicsData check",topicsData);
-  
 
   const handleAddNew = () => {
     setEditData(null);
