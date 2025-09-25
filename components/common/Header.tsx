@@ -65,7 +65,7 @@ const Header: React.FC<HeaderProps> = ({
       setSelectedCode(firstSegment);
       if (firstSegment !== currentLanguage) {
         setCurrentLanguage(firstSegment);
-        // Also save to cookies when language changes via URL
+        // Save to both cookies and localStorage when language changes via URL
         document.cookie = `preferred_language=${firstSegment}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
         localStorage.setItem('preferred_language', firstSegment);
       }
@@ -75,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({
       setSelectedCode(defaultLang);
       if (defaultLang !== currentLanguage) {
         setCurrentLanguage(defaultLang);
-        // Save to cookies when setting default language
+        // Save to both cookies and localStorage when setting default language
         document.cookie = `preferred_language=${defaultLang}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
         localStorage.setItem('preferred_language', defaultLang);
       }
@@ -89,8 +89,51 @@ const Header: React.FC<HeaderProps> = ({
     document.documentElement.setAttribute('lang', selectedCode);
   }, [selectedCode]);
 
+  // Listen for navigation events to maintain language
+  useEffect(() => {
+    const handleRouteChange = () => {
+      const savedLanguage = localStorage.getItem('preferred_language');
+      if (savedLanguage && savedLanguage !== firstSegment) {
+        console.log('Route changed, maintaining language:', savedLanguage);
+        // Ensure language is maintained during navigation
+        setSelectedCode(savedLanguage);
+        setCurrentLanguage(savedLanguage);
+      }
+    };
+
+    // Listen for popstate events (back/forward navigation)
+    window.addEventListener('popstate', handleRouteChange);
+    
+    // Also listen for pathname changes
+    const interval = setInterval(() => {
+      const currentPath = window.location.pathname;
+      const currentLang = currentPath.split('/')[1];
+      const savedLanguage = localStorage.getItem('preferred_language');
+      
+      if (savedLanguage && savedLanguage !== currentLang && supportedCodes.includes(savedLanguage)) {
+        console.log('Path changed, redirecting to saved language:', savedLanguage);
+        const pathWithoutLanguage = getPathWithoutLanguage();
+        navigateWithSpecificLanguage(pathWithoutLanguage, savedLanguage);
+      }
+    }, 100);
+
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+      clearInterval(interval);
+    };
+  }, [firstSegment, supportedCodes, setCurrentLanguage, getPathWithoutLanguage, navigateWithSpecificLanguage]);
+
   const handleLanguageChange = (langCode: string) => {
     console.log('Language changing to:', langCode);
+    
+    // Immediately save to localStorage and cookies
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred_language', langCode);
+      console.log('Language saved to localStorage:', langCode);
+    }
+    document.cookie = `preferred_language=${langCode}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+    
+    // Update state
     setSelectedCode(langCode);
     setCurrentLanguage(langCode);
 
@@ -99,19 +142,16 @@ const Header: React.FC<HeaderProps> = ({
     document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
     document.documentElement.setAttribute('lang', langCode);
 
-    // Save language preference to cookies for server-side access
-    document.cookie = `preferred_language=${langCode}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-    
-    // Save to localStorage for client-side persistence
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('preferred_language', langCode);
-    }
-
     // Get current path without language prefix
     const pathWithoutLanguage = getPathWithoutLanguage();
     
     // Navigate to the same path with new language
     navigateWithSpecificLanguage(pathWithoutLanguage, langCode);
+    
+    // Force a small delay to ensure state is updated
+    setTimeout(() => {
+      console.log('Language change completed:', langCode);
+    }, 100);
   };
  
   return (

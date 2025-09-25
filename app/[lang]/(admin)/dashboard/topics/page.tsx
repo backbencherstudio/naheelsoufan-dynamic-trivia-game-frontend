@@ -255,7 +255,7 @@ function TopicsPage() {
           const blob = new Blob([text], { type: 'application/json' });
           formData.append('file', blob, file.name || 'topics.json');
 
-          const res = await UserService.addFormData('/admin/categories/export', formData, token);
+          const res = await UserService.addFormData('/admin/categories/import', formData, token);
           if (res?.data?.success) {
             toast.success(res?.data?.message || t("topics_imported_successfully"));
             // Refresh list
