@@ -33,7 +33,7 @@ function TopicsPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<any | null>(null);
   const { token } = useToken();
- const {t}=useTranslation()
+  const { t } = useTranslation()
   // API endpoint with language filtering
   const endpoint = `/admin/categories?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`;
 
@@ -197,7 +197,7 @@ function TopicsPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const {data: questionExportData} = useDataFetch(`/admin/categories/export`);
+  const { data: questionExportData } = useDataFetch(`/admin/categories/export`);
 
   const handleExportQuestions = () => {
     try {
@@ -214,19 +214,19 @@ function TopicsPage() {
       const fileContents = rawArray
         ? payload
         : payload.map((q: any) => ({
-            text: q.name,
-            category_id: q.category?.id ?? q.category,
-            language_id: q.language?.id ?? q.language,
-            points: q.points,
-            answers: q.answers,
-          }));
+          text: q.name,
+          category_id: q.category?.id ?? q.category,
+          language_id: q.language?.id ?? q.language,
+          points: q.points,
+          answers: q.answers,
+        }));
 
       const jsonString = JSON.stringify(fileContents, null, 2);
       const blob = new Blob([jsonString], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `questions_export_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `topic_export_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -294,16 +294,16 @@ function TopicsPage() {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">{t("topic")}</h2>
             </div>
             <div className="flex gap-3">
-             <button
-            onClick={handleExportQuestions}
-            className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700">
-            {t("export_topic")}
-          </button>
-          <button
-            onClick={handleImportQuestions}
-            className="bg-blue-800 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-900">
-            {t("import_topic")}
-          </button>
+              <button
+                onClick={handleExportQuestions}
+                className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700">
+                {t("export_topic")}
+              </button>
+              <button
+                onClick={handleImportQuestions}
+                className="bg-blue-800 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-900">
+                {t("import_topic")}
+              </button>
               <button onClick={handleAddNew} className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <FaPlus />
                 {t("add_topic")}
@@ -316,7 +316,7 @@ function TopicsPage() {
             <div className="w-48">
               <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                      <SelectValue placeholder={t("language")} />
+                  <SelectValue placeholder={t("language")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='all'>{t("language")}</SelectItem>
