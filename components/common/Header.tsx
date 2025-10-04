@@ -100,7 +100,6 @@ const Header: React.FC<HeaderProps> = ({
         setCurrentLanguage(savedLanguage);
       }
     };
-
     // Listen for popstate events (back/forward navigation)
     window.addEventListener('popstate', handleRouteChange);
     
