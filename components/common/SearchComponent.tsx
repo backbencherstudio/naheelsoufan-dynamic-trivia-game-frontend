@@ -6,37 +6,37 @@ import useTranslation from '@/hooks/useTranslation';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
-function SearchComponent({placeholder}: {placeholder: string, }) {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const pathname = usePathname();
-    const [search, setSearch] = useState('');
-    const [selectedLanguage, setSelectedLanguage] = useState('');
+function SearchComponent({ placeholder }: { placeholder: string, }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [search, setSearch] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('');
   const { data: languageData } = useDataFetch(`/admin/languages`);
-    const [loading, setLoading] = useState(false);
-    const {t}=useTranslation()
-    // Get search parameter from URL on component mount
-    useEffect(() => {
-      const searchParam = searchParams.get('search');
-      if (searchParam) {
-        setSearch(searchParam);
-      }
-    }, [searchParams]);
+  const [loading, setLoading] = useState(false);
+  const { t } = useTranslation()
+  // Get search parameter from URL on component mount
+  useEffect(() => {
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearch(searchParam);
+    }
+  }, [searchParams]);
 
-    // Initialize selected language from URL params
-    useEffect(() => {
-      const languageParam = searchParams.get('language');
-      setSelectedLanguage(languageParam || '');
-    }, [searchParams]);
-      
-      const searchFunction = useCallback((searchValue: string) => {
+  // Initialize selected language from URL params
+  useEffect(() => {
+    const languageParam = searchParams.get('language');
+    setSelectedLanguage(languageParam || '');
+  }, [searchParams]);
+
+  const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
       params.delete('search');
     } else {
       params.set('search', searchValue);
     }
-    router.replace(`${pathname}?${params.toString()}`,{scroll: false});
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
   // Debounced search function using the reusable hook
@@ -56,40 +56,40 @@ function SearchComponent({placeholder}: {placeholder: string, }) {
     } else {
       params.set('language', value);
     }
-    router.replace(`${pathname}?${params.toString()}`,{scroll: false});
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
   return (
     <div>
-       <div className="p-5">
-          {/* Filter and Search Section */}
-          <div className="flex gap-4 mb-6">
-            <div className="w-48">
-              <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder={t("language")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>{t("language")}</SelectItem>
-                  {
-                        languageData?.data?.map((item: any) => (
-                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
-                        ))
-                      }
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="relative flex-1">
-              <input
-                value={search}
-                onChange={handleSearch}
-                type="text"
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
-                placeholder={placeholder}
-              />
-              <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            </div>
+      <div className="md:p-5">
+        {/* Filter and Search Section */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="md:w-48 !w-full">
+            <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
+              <SelectTrigger className='md:w-[180px] w-full !h-12.5 focus-visible:ring-0'>
+                <SelectValue placeholder={t("language")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>{t("language")}</SelectItem>
+                {
+                  languageData?.data?.map((item: any) => (
+                    <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                  ))
+                }
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="relative flex-1">
+            <input
+              value={search}
+              onChange={handleSearch}
+              type="text"
+              className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
+              placeholder={placeholder}
+            />
+            <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           </div>
         </div>
+      </div>
     </div>
   )
 }

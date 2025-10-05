@@ -33,10 +33,10 @@ function DifficultiesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {token} = useToken()
-  const {t}=useTranslation()
+  const { token } = useToken()
+  const { t } = useTranslation()
   const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
-  
+
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
     try {
@@ -72,9 +72,9 @@ function DifficultiesPage() {
       debouncedFetchData(endpoint);
     }
   }, [endpoint, token]);
-    
- 
- const columns = [
+
+
+  const columns = [
     {
       label: t("no"),
       accessor: "no",
@@ -107,7 +107,7 @@ function DifficultiesPage() {
       accessor: "points",
       width: "120px",
       formatter: (value: any) => {
-        
+
         return <span className="text-sm">{value || 0}</span>;
       },
     },
@@ -119,13 +119,13 @@ function DifficultiesPage() {
         const isDeleting = deletingId === record.id;
         return (
           <div className="flex gap-2.5">
-            <button 
+            <button
               onClick={() => handleEdit(record)}
               className='text-xl cursor-pointer text-grayColor1 hover:text-blue-600'
             >
               <FaPen />
             </button>
-            <button 
+            <button
               onClick={() => handleDelete(record.id)}
               disabled={isDeleting}
               className='text-xl cursor-pointer text-red-600 hover:text-red-800 disabled:opacity-50'
@@ -142,7 +142,7 @@ function DifficultiesPage() {
   // Handle edit functionality
   const handleEdit = (record: any) => {
     setEditData(record)
-   
+
     setIsOpen(true);
   };
 
@@ -157,7 +157,7 @@ function DifficultiesPage() {
     try {
       setDeletingId(id);
       const response = await UserService.deleteData(`/admin/difficulties/${id}`, token);
-      
+
       if (response?.data?.success) {
         toast.success(response?.data?.message);
         // Remove the deleted item from the local state
@@ -179,21 +179,21 @@ function DifficultiesPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6 dark:bg-blackColor    ">
-        <div className="p-5">
+      <div className="border rounded-lg bg-white pb-6 dark:bg-blackColor   p-2 ">
+        <div className="md:p-5 ">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Difficulties</h2>
-            <button 
+            <button
               onClick={handleAddNew}
               className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor/20 dark:text-whiteColor"
             >
               {t("add_new_difficulty")}
             </button>
           </div>
-          
-          <SearchComponent placeholder={t("search_difficulties_type")}/>
+
+          <SearchComponent placeholder={t("search_difficulties_type")} />
         </div>
-        
+
         <DynamicTableTwo
           columns={columns}
           data={difficultiesData || []}
@@ -207,9 +207,9 @@ function DifficultiesPage() {
       </div>
 
       {/* Difficulty Add Form */}
-      <DifficultyAddForm 
-        isOpen={isOpen} 
-        setIsOpen={setIsOpen} 
+      <DifficultyAddForm
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
         editData={editData}
         difficultiesData={difficultiesData}
         setDifficultiesData={setDifficultiesData}

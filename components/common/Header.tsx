@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({
   const displayedNotifications = showAllNotifications
     ? notifications
     : notifications.slice(0, 5);
-  
+
 
 
   function timeAgo(createdAtString) {
@@ -52,10 +52,10 @@ const Header: React.FC<HeaderProps> = ({
   // Use dynamic language context and navigation
   const { languages, currentLanguage, setCurrentLanguage, t } = useDynamicLanguage();
   const { navigateWithSpecificLanguage, getPathWithoutLanguage } = useLanguageNavigation();
-  
+
   const supportedCodes = useMemo(() => languages.map((l: any) => l.code), [languages]);
   const firstSegment = useMemo(() => pathname?.split("/")[1] || "", [pathname]);
-  
+
   // Sync selected language with URL and context
   const [selectedCode, setSelectedCode] = useState<string>(firstSegment || currentLanguage);
 
@@ -102,13 +102,13 @@ const Header: React.FC<HeaderProps> = ({
     };
     // Listen for popstate events (back/forward navigation)
     window.addEventListener('popstate', handleRouteChange);
-    
+
     // Also listen for pathname changes
     const interval = setInterval(() => {
       const currentPath = window.location.pathname;
       const currentLang = currentPath.split('/')[1];
       const savedLanguage = localStorage.getItem('preferred_language');
-      
+
       if (savedLanguage && savedLanguage !== currentLang && supportedCodes.includes(savedLanguage)) {
         console.log('Path changed, redirecting to saved language:', savedLanguage);
         const pathWithoutLanguage = getPathWithoutLanguage();
@@ -124,14 +124,14 @@ const Header: React.FC<HeaderProps> = ({
 
   const handleLanguageChange = (langCode: string) => {
     console.log('Language changing to:', langCode);
-    
+
     // Immediately save to localStorage and cookies
     if (typeof window !== 'undefined') {
       localStorage.setItem('preferred_language', langCode);
       console.log('Language saved to localStorage:', langCode);
     }
     document.cookie = `preferred_language=${langCode}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-    
+
     // Update state
     setSelectedCode(langCode);
     setCurrentLanguage(langCode);
@@ -143,16 +143,16 @@ const Header: React.FC<HeaderProps> = ({
 
     // Get current path without language prefix
     const pathWithoutLanguage = getPathWithoutLanguage();
-    
+
     // Navigate to the same path with new language
     navigateWithSpecificLanguage(pathWithoutLanguage, langCode);
-    
+
     // Force a small delay to ensure state is updated
     setTimeout(() => {
       console.log('Language change completed:', langCode);
     }, 100);
   };
- 
+
   return (
     <nav className="text-blackColor dark:text-white border-b border-borderColor dark:border-gray-700 bg-white dark:bg-blackColor py-3 transition-colors duration-200">
       <div className=" container px-5   relative flex justify-between mb-1 z-50">
@@ -170,11 +170,11 @@ const Header: React.FC<HeaderProps> = ({
               )}
             </button>
             <Link
-            href={"/"}
-            className="text-headerColor dark:text-white flex justify-center text-xl lg:text-3xl font-semibold tracking-wide"
-          >
-            {t('appName')} <span className="text-primaryColor pl-1" > {t('admin')}</span> 
-          </Link>
+              href={"/"}
+              className="hidden text-headerColor dark:text-white md:flex justify-center text-xl lg:text-3xl font-semibold tracking-wide"
+            >
+              {t('appName')} <span className="text-primaryColor pl-1" > {t('admin')}</span>
+            </Link>
           </div>
         </div>
 
@@ -212,7 +212,7 @@ const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
-         
+
         </div>
       </div>
     </nav>

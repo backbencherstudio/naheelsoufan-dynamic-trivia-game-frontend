@@ -28,7 +28,7 @@ function RecentOrderTable() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token } = useToken();
-  const {t}=useTranslation()
+  const { t } = useTranslation()
   const endpoint = `/admin/subscription-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
 
   // Debounced API call function
@@ -59,12 +59,12 @@ function RecentOrderTable() {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
     }
-  }, [endpoint, token,search ]);
+  }, [endpoint, token, search]);
 
-  
+
   const { data: languageData } = useDataFetch(`/admin/languages`);
 
-  
+
   // Initialize selected language from URL params
   useEffect(() => {
     const languageParam = searchParams.get('language');
@@ -187,12 +187,12 @@ function RecentOrderTable() {
 
   return (
     <section>
-      <div className="border p-5 rounded-md">
+      <div className="border p-2 md:p-5 rounded-md">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("subscription_type")}</h1>
+          <h1 className="md:text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("subscription_type")}</h1>
           <button
             onClick={handleAddNew}
-            className="bg-grayColor1/50 dark:bg-whiteColor text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer"
+            className="bg-grayColor1/50 dark:bg-whiteColor text-headerColor md:text-base text-sm font-medium rounded-md p-2 px-4 cursor-pointer"
           >
             {t("create_subscription_type")}
           </button>
@@ -209,15 +209,15 @@ function RecentOrderTable() {
           loading={loading}
         />
       </div>
-      {isOpen && 
-      <SubscriptionAddForm 
-      isOpen={isOpen}
-      setIsOpen={setIsOpen} 
-      editData={editData} 
-      subscriptionTypesData={subscriptionTypesData} 
-      setSubscriptionTypesData={setSubscriptionTypesData}  
-      languageData={languageData}
-      />}
+      {isOpen &&
+        <SubscriptionAddForm
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          editData={editData}
+          subscriptionTypesData={subscriptionTypesData}
+          setSubscriptionTypesData={setSubscriptionTypesData}
+          languageData={languageData}
+        />}
     </section>
   );
 }

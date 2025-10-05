@@ -26,7 +26,7 @@ function HostsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token } = useToken();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
 
   // Debounced API call function
@@ -160,10 +160,10 @@ function HostsPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg pb-6">
-        <div className="p-5">
+      <div className="border p-2 rounded-lg pb-6">
+        <div className="md:p-5">
           {/* Filter and Search Section */}
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
             {/* <div className="w-48">
               <Select value={filterValue} onValueChange={setFilterValue}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
@@ -177,9 +177,9 @@ function HostsPage() {
                 </SelectContent>
               </Select>
             </div> */}
-            <div className="w-48 flex items-center gap-2">
+            <div className="md:w-48 w-68 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
+                <SelectTrigger className='md:w-[180px] w-full !h-12.5 focus-visible:ring-0'>
                   <SelectValue placeholder={t("sort_name")} />
                 </SelectTrigger>
                 <SelectContent>

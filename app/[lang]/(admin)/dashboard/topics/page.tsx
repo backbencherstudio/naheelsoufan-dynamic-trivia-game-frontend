@@ -286,9 +286,9 @@ function TopicsPage() {
         </div>
       </div>
       {/* Table Section */}
-      <div className="border rounded-lg pb-6">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
+      <div className="border p-2 rounded-lg pb-6">
+        <div className="md:p-6 ">
+          <div className="flex gap-2 flex-wrap justify-between items-center mb-6">
             <div className='flex items-center gap-2.5'>
               <MdCategory className='text-primaryColor' size={24} />
               <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">{t("topic")}</h2>
@@ -296,15 +296,15 @@ function TopicsPage() {
             <div className="flex gap-3">
               <button
                 onClick={handleExportQuestions}
-                className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700">
+                className="bg-blue-600 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-700">
                 {t("export_topic")}
               </button>
               <button
                 onClick={handleImportQuestions}
-                className="bg-blue-800 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-900">
+                className="bg-blue-800 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-900">
                 {t("import_topic")}
               </button>
-              <button onClick={handleAddNew} className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <button onClick={handleAddNew} className="flex cursor-pointer items-center gap-2 px-3 py-2 md:px-4 md:py-2 bg-blue-600 text-white text-sm md:text-base rounded-lg hover:bg-blue-700 transition-colors">
                 <FaPlus />
                 {t("add_topic")}
               </button>
@@ -312,10 +312,10 @@ function TopicsPage() {
           </div>
 
           {/* Filter and Search Section */}
-          <div className="flex gap-4 mb-6">
-            <div className="w-48">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="md:w-48 !w-full">
               <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
+                <SelectTrigger className='md:w-[180px] !w-full !h-12.5 focus-visible:ring-0'>
                   <SelectValue placeholder={t("language")} />
                 </SelectTrigger>
                 <SelectContent>

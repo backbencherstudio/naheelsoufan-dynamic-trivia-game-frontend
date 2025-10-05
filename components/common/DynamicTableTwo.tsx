@@ -44,7 +44,7 @@ export default function DynamicTableTwo({
 
 
   let rowsPerPageOptions = [5, 10, 20, 50];
- const {t}=useTranslation()
+  const { t } = useTranslation()
 
 
   return (
@@ -72,9 +72,9 @@ export default function DynamicTableTwo({
               </tr>
             </thead>
             <tbody className="">
-              { loading ? <tr>
+              {loading ? <tr>
                 <td colSpan={columns.length + 1} className="px-4 py-10 text-center text-[#4a4c56] text-sm dark:text-whiteColor">
-                  <Loader/>
+                  <Loader />
                 </td>
               </tr> : data.length > 0 ? (
                 data.map((row, i) => (
@@ -86,7 +86,7 @@ export default function DynamicTableTwo({
                         className="px-4 py-3 text-sm text-[#4a4c56] dark:text-whiteColor"
                       >
                         {col.formatter
-                          ? col.formatter(row[col.accessor], row,(currentPage - 1) * itemsPerPage + i)
+                          ? col.formatter(row[col.accessor], row, (currentPage - 1) * itemsPerPage + i)
                           : row[col.accessor]}
                       </td>
                     ))}
@@ -130,7 +130,7 @@ export default function DynamicTableTwo({
       </div>
 
       {/* Pagination */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-3 mt-6 pr-6">
+      <div className="flex flex-row md:items-center md:justify-end gap-3 mt-6 md:pr-6">
         <div className="flex items-center gap-2 text-sm text-[#4a4c56]">
           <span>{t("rows_per_page")}:</span>
           <select
@@ -140,11 +140,11 @@ export default function DynamicTableTwo({
             disabled={!onItemsPerPageChange}
           >
             {rowsPerPageOptions.map((opt) => (
-              <option key={opt} value={opt}  className="dark:text-whiteColor dark:bg-blackColor" >{opt}</option>
+              <option key={opt} value={opt} className="dark:text-whiteColor dark:bg-blackColor" >{opt}</option>
             ))}
           </select>
         </div>
-        <div className="flex items-center gap-4 text-sm text-[#4a4c56] dark:text-whiteColor">
+        <div className="flex items-center text-nowrap gap-4 text-sm text-[#4a4c56] dark:text-whiteColor">
           <span>
             {currentPage * itemsPerPage - itemsPerPage + 1}-{itemsPerPage * currentPage} {t("of")} {paginationData?.total}
           </span>
@@ -154,7 +154,7 @@ export default function DynamicTableTwo({
               disabled={!paginationData?.hasPreviousPage}
               className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40 dark:border-gray-700 dark:text-whiteColor"
             >
-              <MdFirstPage className="dark:text-whiteColor"/>
+              <MdFirstPage className="dark:text-whiteColor" />
             </button>
             <button
               onClick={() => onPageChange(currentPage - 1)}
@@ -175,7 +175,7 @@ export default function DynamicTableTwo({
               disabled={!paginationData?.hasNextPage}
               className="p-1 rounded border disabled:cursor-not-allowed border-gray-300 text-[#4a4c56] disabled:opacity-40"
             >
-              <MdLastPage className="dark:text-whiteColor"/>
+              <MdLastPage className="dark:text-whiteColor" />
             </button>
           </div>
         </div>

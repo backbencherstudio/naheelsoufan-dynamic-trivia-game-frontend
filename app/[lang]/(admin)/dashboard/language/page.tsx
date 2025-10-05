@@ -16,20 +16,20 @@ import { toast } from 'react-toastify';
 function page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-   const [search, setSearch] = useState('');
-   const [languageData, setLanguageData] = useState([]);
-   const [totalData, setTotalData] = useState({});
-   const [loading, setLoading] = useState(false);
-   const [error, setError] = useState(null);
-   const searchParams = useSearchParams();
-   const router = useRouter()
-   const pathname = usePathname()
-   const [editData, setEditData] = useState(null);
-     const [isOpen, setIsOpen] = useState(false);
-     const {t}=useTranslation()
-     const [deletingId, setDeletingId] = useState<string | null>(null);
-     const {token} = useToken();
-     const endpoint = `/admin/languages?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
+  const [search, setSearch] = useState('');
+  const [languageData, setLanguageData] = useState([]);
+  const [totalData, setTotalData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const searchParams = useSearchParams();
+  const router = useRouter()
+  const pathname = usePathname()
+  const [editData, setEditData] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation()
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { token } = useToken();
+  const endpoint = `/admin/languages?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
 
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
@@ -73,18 +73,18 @@ function page() {
     { label: t("language"), accessor: "name", width: '200px' },
     {
       accessor: 'actions', label: t("actions"), width: '200px',
-      formatter: (_,value: any) => {
+      formatter: (_, value: any) => {
         const isDeleting = deletingId === value.id;
         return <div className="flex gap-2.5">
-             <button onClick={()=>handleEdit(value)} className='text-2xl  cursor-pointer'><MdEdit /></button>
-             <button onClick={()=>handleDownload(value)} className='text-2xl cursor-pointer text-primaryColor'><MdFileDownload /></button>
-             <button 
-               onClick={()=>handleDelete(value)}  
-               disabled={isDeleting}
-               className='text-xl cursor-pointer disabled:opacity-50'
-             >
-               {isDeleting ? <Loader2 className='animate-spin' /> : <RiDeleteBin6Line color={'red'}/>}
-             </button>
+          <button onClick={() => handleEdit(value)} className='text-2xl  cursor-pointer'><MdEdit /></button>
+          <button onClick={() => handleDownload(value)} className='text-2xl cursor-pointer text-primaryColor'><MdFileDownload /></button>
+          <button
+            onClick={() => handleDelete(value)}
+            disabled={isDeleting}
+            className='text-xl cursor-pointer disabled:opacity-50'
+          >
+            {isDeleting ? <Loader2 className='animate-spin' /> : <RiDeleteBin6Line color={'red'} />}
+          </button>
         </div>;
       },
     },
@@ -121,23 +121,23 @@ function page() {
       if (!response.ok) {
         throw new Error(t("failed_to_fetch_file"));
       }
-      
+
       const blob = await response.blob();
-      
+
       // Create a blob URL and download
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `${value.name || t("language")}_file.json`;
-      
+
       // Append to body, click, and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up the blob URL
       window.URL.revokeObjectURL(url);
-      
+
       toast.success(t("file_downloaded_successfully"));
     } catch (error) {
       console.error('Download error:', error);
@@ -148,7 +148,7 @@ function page() {
     setEditData(value);
     setIsOpen(true);
   }
-  const handleDelete = async(value: any) => {
+  const handleDelete = async (value: any) => {
     setDeletingId(value.id);
     try {
       const response = await UserService.deleteData(`/admin/languages/${value?.id}`, token);
@@ -173,47 +173,47 @@ function page() {
       <div>
         <h2 className='text-2xl font-semibold text-headerColor dark:text-whiteColor pb-4'>{t("language")}</h2>
       </div>
-      <div className='border pb-4  rounded-md'>
-        <div className='p-5'>
+      <div className='border pb-4  p-2 rounded-md'>
+        <div className='md:p-5 pb-4 md:pb-0'>
           <div className=' flex justify-between items-center mt-3 pb-6'>
             <h2 className='text-xl font-semibold text-headerColor dark:text-whiteColor pb-4'> {t("language")}</h2>
-           <button onClick={handleAddNew} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor dark:text-blackColor'>{t("add_new_language")}</button>
+            <button onClick={handleAddNew} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor dark:text-blackColor'>{t("add_new_language")}</button>
 
           </div>
-        <div className='flex gap-4'>
-          <div>
-            <Select>
-               <SelectTrigger   className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                <SelectValue placeholder={t("all")} />
-               </SelectTrigger>
-               <SelectContent>
-                <SelectItem value='language'>{t("language")}</SelectItem>
+          <div className='flex flex-col md:flex-row gap-4'>
+            <div>
+              <Select>
+                <SelectTrigger className='md:w-[180px] !w-full !h-12.5 focus-visible:ring-0'>
+                  <SelectValue placeholder={t("all")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='language'>{t("language")}</SelectItem>
                 </SelectContent>
-            </Select>
+              </Select>
+            </div>
+            <div className='relative w-full'>
+              <input
+                value={search}
+                onChange={handleSearch}
+                type="text"
+                placeholder={t("search_language_type")}
+                className='w-full border border-gray-300 rounded-md px-7 md:px-8 py-3 dark:border-gray-700 dark:text-whiteColor focus:outline-none focus:ring-2 focus:ring-blue-500'
+              />
+              <HiSearch className='absolute left-1.5 top-1/2 -translate-y-1/2 text-grayColor1 text-xl' />
+            </div>
+
           </div>
-          <div className='relative w-full'>
-          <input 
-            value={search}
-            onChange={handleSearch} 
-            type="text" 
-            placeholder={t("search_language_type")} 
-            className='w-full border border-gray-300 rounded-md px-7 md:px-8 py-3 dark:border-gray-700 dark:text-whiteColor focus:outline-none focus:ring-2 focus:ring-blue-500' 
-          />
-             <HiSearch className='absolute left-1.5 top-1/2 -translate-y-1/2 text-grayColor1 text-xl' />
-          </div>
-       
         </div>
-        </div>
-      <DynamicTableTwo
-        columns={columns}
-        data={languageData}
-       currentPage={currentPage}
+        <DynamicTableTwo
+          columns={columns}
+          data={languageData}
+          currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           paginationData={totalData}
           loading={loading}
-      />
+        />
       </div>
 
       {isOpen && <LanguageForm isOpen={isOpen} setIsOpen={setIsOpen} data={editData} languageData={languageData} setLanguageData={setLanguageData} />}

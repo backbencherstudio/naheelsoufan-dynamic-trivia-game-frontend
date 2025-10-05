@@ -20,8 +20,8 @@ function PreviousGamesPage() {
   const [paginationData, setPaginationData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {token} = useToken();
-  const {t}=useTranslation()
+  const { token } = useToken();
+  const { t } = useTranslation()
   const endpoint = `/admin/games?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
 
   // Debounced API call function
@@ -53,7 +53,7 @@ function PreviousGamesPage() {
       debouncedFetchData(endpoint);
     }
   }, [endpoint, token]);
- 
+
 
   const columns = [
     {
@@ -85,7 +85,7 @@ function PreviousGamesPage() {
       label: t("host_name"),
       accessor: "host",
       width: "200px",
-      formatter: (value:{name: string}) => (
+      formatter: (value: { name: string }) => (
         <span className="text-sm">{value?.name}</span>
       ),
     },
@@ -93,7 +93,7 @@ function PreviousGamesPage() {
       label: t("host_email"),
       accessor: "host",
       width: "200px",
-      formatter: (value: {email:string}) => (
+      formatter: (value: { email: string }) => (
         <span className="text-sm">{value?.email}</span>
       ),
     },
@@ -104,7 +104,7 @@ function PreviousGamesPage() {
       formatter: (value: any) => (
         <div className="text-sm">{value?.length > 0 ?
           value?.map((item: any) => item?.user?.name).join(", ")
-          :0}</div>
+          : 0}</div>
       ),
     },
   ];
@@ -137,11 +137,11 @@ function PreviousGamesPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg  pb-6">
-        <div className="p-5">
+      <div className="border p-2 rounded-lg  pb-6">
+        <div className="md:p-5">
           {/* Filter and Search Section */}
           <div className="mb-6">
-             <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-whiteColor">{t("search_games")}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-whiteColor">{t("search_games")}</h2>
             <div className="flex gap-4">
               {/* <div className="w-48">
                 <Select value={topicFilter} onValueChange={setTopicFilter}>
@@ -168,20 +168,20 @@ function PreviousGamesPage() {
                   </SelectContent>
                 </Select>
               </div> */}
-               <div className="relative flex-1">
-                 <input 
-                   value={search}
-                   onChange={handleSearch}
-                   type="text" 
-                   placeholder={t("search_games_placeholder")} 
-                   className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
-                 />
-                 <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-               </div>
+              <div className="relative flex-1">
+                <input
+                  value={search}
+                  onChange={handleSearch}
+                  type="text"
+                  placeholder={t("search_games_placeholder")}
+                  className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
+                />
+                <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              </div>
             </div>
           </div>
         </div>
-        
+
         <DynamicTableTwo
           columns={columns}
           data={gamesHistoryData}

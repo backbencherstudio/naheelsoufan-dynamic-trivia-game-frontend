@@ -24,9 +24,9 @@ function UsersPage() {
   const [totalUsersData, setTotalUsersData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {token} = useToken();
-  const {t} = useTranslation();
- 
+  const { token } = useToken();
+  const { t } = useTranslation();
+
   const endpoint = `/admin/players?page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort_by=${sortBy}&sort_order=${sortOrder}&status=${filterValue}`;
 
   // Debounced API call function
@@ -74,7 +74,7 @@ function UsersPage() {
       label: t("name"),
       accessor: "user",
       width: "150px",
-      formatter: (value: {name: string}) => (
+      formatter: (value: { name: string }) => (
         <span className="text-sm font-medium">{value?.name}</span>
       ),
     },
@@ -144,10 +144,11 @@ function UsersPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg pb-6">
-        <div className="p-5">
+      <div className="border p-2 rounded-lg pb-6">
+        <div className="md:p-5">
           {/* Filter and Search Section */}
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col md:flex-row
+           gap-4 mb-6">
             {/* <div className="w-48">
               <Select value={filterValue} onValueChange={setFilterValue}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
@@ -160,9 +161,9 @@ function UsersPage() {
                 </SelectContent>
               </Select>
             </div> */}
-            <div className="w-48 flex items-center gap-2">
+            <div className="md:w-48 w-68 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
+                <SelectTrigger className='md:w-[180px] w-full !h-12.5 focus-visible:ring-0'>
                   <SelectValue placeholder={t("sort_name")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -170,7 +171,7 @@ function UsersPage() {
                   <SelectItem value='score'>{t("sort_score")}</SelectItem>
                 </SelectContent>
               </Select>
-              <button 
+              <button
                 onClick={toggleSortOrder}
                 className="p-2 hover:bg-gray-100 rounded-md dark:hover:bg-whiteColor/20"
               >
@@ -182,18 +183,18 @@ function UsersPage() {
               </button>
             </div>
             <div className="relative flex-1">
-              <input 
+              <input
                 value={search}
                 onChange={handleSearch}
-                type="text" 
-                  placeholder={t("search_games_placeholder")} 
-                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500" 
+                type="text"
+                placeholder={t("search_games_placeholder")}
+                className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             </div>
           </div>
         </div>
-        
+
         <DynamicTableTwo
           columns={columns}
           data={usersData}

@@ -38,7 +38,7 @@ function QuestionsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token } = useToken();
-  
+
   // map UI sort keys to API sort keys
   const mapSortKey = (key: string) => {
     if (key === 'topic') return 'category';
@@ -50,7 +50,7 @@ function QuestionsPage() {
   const apiSortKey = mapSortKey(sortBy);
   const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ? `&sort=${apiSortKey}&order=${sortOrder}` : ''}`;
 
-  const {t}=useTranslation()
+  const { t } = useTranslation()
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
     try {
@@ -175,7 +175,7 @@ function QuestionsPage() {
       ),
     },
     {
-        label: t("difficulty_points"),
+      label: t("difficulty_points"),
       accessor: "points",
       width: "130px",
       formatter: (value: string) => (
@@ -318,7 +318,7 @@ function QuestionsPage() {
       setDeletingId(null);
     }
   };
-  const {data: questionExportData} = useDataFetch(`/admin/questions/export`);
+  const { data: questionExportData } = useDataFetch(`/admin/questions/export`);
 
   const handleExportQuestions = () => {
     try {
@@ -335,14 +335,14 @@ function QuestionsPage() {
       const fileContents = rawArray
         ? payload
         : payload.map((q: any) => ({
-            text: q.question,
-            category_id: q.topic?.id ?? q.topic,
-            language_id: q.language?.id ?? q.language,
-            difficulty_id: q.difficulty?.id ?? q.difficulty,
-            question_type_id: q.questionType?.id ?? q.questionType,
-            points: q.points,
-            answers: q.answers,
-          }));
+          text: q.question,
+          category_id: q.topic?.id ?? q.topic,
+          language_id: q.language?.id ?? q.language,
+          difficulty_id: q.difficulty?.id ?? q.difficulty,
+          question_type_id: q.questionType?.id ?? q.questionType,
+          points: q.points,
+          answers: q.answers,
+        }));
 
       const jsonString = JSON.stringify(fileContents, null, 2);
       const blob = new Blob([jsonString], { type: 'application/json' });
@@ -407,9 +407,9 @@ function QuestionsPage() {
   return (
     <div>
       {/* Header Section */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between flex-wrap gap-3  items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("questions")}</h1>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <button
             onClick={handleExportQuestions}
             className="bg-blue-600 text-white font-medium rounded-md px-4 py-2 cursor-pointer hover:bg-blue-700">
@@ -429,32 +429,32 @@ function QuestionsPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg  pb-6">
-        <div className="p-5">
+      <div className="border rounded-lg p-2  pb-6">
+        <div className="md:p-5">
           {/* Filter and Search Section */}
-          <div className="flex gap-4 mb-6">
-            <div className="w-48">
-             <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
+          <div className="flex flex-wrap gap-4 mb-6">
+            <div className="md:w-48 w-34">
+              <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
+                <SelectTrigger className='md:w-[180px] w-full  !h-12.5 focus-visible:ring-0'>
                   <SelectValue placeholder={t("language")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='all'>{t("language")}</SelectItem>
                   {
-                        languageData?.data?.map((item: any) => (
-                          <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
-                        ))
-                      }
+                    languageData?.data?.map((item: any) => (
+                      <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
+                    ))
+                  }
                 </SelectContent>
               </Select>
             </div>
-            <div className="w-48 flex items-center gap-2">
+            <div className="md:w-48 w-42 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                   <SelectValue placeholder={t("sort_by")} />
+                <SelectTrigger className='md:w-[180px] w-full !h-12.5 focus-visible:ring-0'>
+                  <SelectValue placeholder={t("sort_by")} />
                 </SelectTrigger>
                 <SelectContent>
-               
+
                   <SelectItem value='topic'>{t("sort_topic")}</SelectItem>
                   <SelectItem value='difficulty'>{t("sort_difficulty")}</SelectItem>
                   <SelectItem value='language'>{t("sort_language")}</SelectItem>
@@ -496,7 +496,7 @@ function QuestionsPage() {
         />
       </div>
 
-      {isOpen && <AddQuestionModal isOpen={isOpen} onClose={() => setIsOpen(false)} editData={editData} questionData={questionData} setQuestionData={setQuestionData}/>}
+      {isOpen && <AddQuestionModal isOpen={isOpen} onClose={() => setIsOpen(false)} editData={editData} questionData={questionData} setQuestionData={setQuestionData} />}
     </div>
   );
 }
