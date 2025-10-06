@@ -60,12 +60,12 @@ function SearchComponent({ placeholder }: { placeholder: string, }) {
   };
   return (
     <div>
-      <div className="md:p-5">
+      <div className="">
         {/* Filter and Search Section */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="md:w-48 !w-full">
+        <div className="flex flex-col md:flex-row gap-4 mb-5">
+          <div className="md:!w-48 !w-full">
             <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
-              <SelectTrigger className='md:w-[180px] w-full !h-12.5 focus-visible:ring-0'>
+              <SelectTrigger className='md:!w-[180px] w-full !h-12.5 focus-visible:ring-0'>
                 <SelectValue placeholder={t("language")} />
               </SelectTrigger>
               <SelectContent>

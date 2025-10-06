@@ -205,10 +205,10 @@ function AdminManagementPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border p-2 rounded-lg shadow-sm">
-        <div className="md:p-5">
+      <div className="border p-2 md:p-0 rounded-lg md:pb-6 pb-6">
+        <div className="">
           {/* Search Section */}
-          <div className="flex justify-between gap-4 items-center mb-6">
+          <div className="flex justify-between gap-4 items-center mb-2 md:p-5">
             <h2 className="text-xl text-nowrap font-semibold text-gray-900 dark:text-whiteColor">{t("admin_list")}</h2>
             <div className="relative w-64">
               <input

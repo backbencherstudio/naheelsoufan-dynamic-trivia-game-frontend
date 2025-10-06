@@ -144,11 +144,11 @@ function UsersPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border p-2 rounded-lg pb-6">
+      <div className="border p-2 md:p-0 rounded-lg md:pb-6 pb-6">
         <div className="md:p-5">
           {/* Filter and Search Section */}
           <div className="flex flex-col md:flex-row
-           gap-4 mb-6">
+           gap-4 my-4">
             {/* <div className="w-48">
               <Select value={filterValue} onValueChange={setFilterValue}>
                 <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>

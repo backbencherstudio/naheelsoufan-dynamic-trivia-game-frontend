@@ -179,7 +179,7 @@ function DifficultiesPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg bg-white pb-6 dark:bg-blackColor   p-2 ">
+      <div className="border rounded-lg bg-white pb-6 dark:bg-blackColor   p-2 md:p-0 md:pb-6 ">
         <div className="md:p-5 ">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Difficulties</h2>

@@ -286,8 +286,8 @@ function TopicsPage() {
         </div>
       </div>
       {/* Table Section */}
-      <div className="border p-2 rounded-lg pb-6">
-        <div className="md:p-6 ">
+      <div className="border p-2 md:p-0 md:pb-6 rounded-lg pb-6">
+        <div className="md:p-5 ">
           <div className="flex gap-2 flex-wrap justify-between items-center mb-6">
             <div className='flex items-center gap-2.5'>
               <MdCategory className='text-primaryColor' size={24} />
@@ -312,10 +312,10 @@ function TopicsPage() {
           </div>
 
           {/* Filter and Search Section */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="md:w-48 !w-full">
+          <div className="flex flex-col md:flex-row gap-4 mb-6 md:mb-3">
+            <div className="md:!w-48 !w-full">
               <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
-                <SelectTrigger className='md:w-[180px] !w-full !h-12.5 focus-visible:ring-0'>
+                <SelectTrigger className='md:!w-[180px] !w-full !h-12.5 focus-visible:ring-0'>
                   <SelectValue placeholder={t("language")} />
                 </SelectTrigger>
                 <SelectContent>

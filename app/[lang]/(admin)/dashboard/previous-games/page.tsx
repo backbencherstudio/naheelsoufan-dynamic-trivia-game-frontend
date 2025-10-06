@@ -137,7 +137,7 @@ function PreviousGamesPage() {
       </div>
 
       {/* Table Section */}
-      <div className="border p-2 rounded-lg  pb-6">
+      <div className="border p-2 md:p-0 rounded-lg md:pb-6 pb-6">
         <div className="md:p-5">
           {/* Filter and Search Section */}
           <div className="mb-6">

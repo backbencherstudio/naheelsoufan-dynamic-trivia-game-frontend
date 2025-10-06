@@ -173,8 +173,8 @@ function page() {
       <div>
         <h2 className='text-2xl font-semibold text-headerColor dark:text-whiteColor pb-4'>{t("language")}</h2>
       </div>
-      <div className='border pb-4  p-2 rounded-md'>
-        <div className='md:p-5 pb-4 md:pb-0'>
+      <div className='border pb-6 md:pb-6  p-2 md:p-0 rounded-md'>
+        <div className='md:p-5 pb-4 '>
           <div className=' flex justify-between items-center mt-3 pb-6'>
             <h2 className='text-xl font-semibold text-headerColor dark:text-whiteColor pb-4'> {t("language")}</h2>
             <button onClick={handleAddNew} className='bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor dark:text-blackColor'>{t("add_new_language")}</button>
@@ -183,7 +183,7 @@ function page() {
           <div className='flex flex-col md:flex-row gap-4'>
             <div>
               <Select>
-                <SelectTrigger className='md:w-[180px] !w-full !h-12.5 focus-visible:ring-0'>
+                <SelectTrigger className='md:!w-[180px] !w-full !h-12.5 focus-visible:ring-0'>
                   <SelectValue placeholder={t("all")} />
                 </SelectTrigger>
                 <SelectContent>
