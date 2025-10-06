@@ -43,6 +43,9 @@ function TopicsPage() {
       setLoading(true);
       const response = await UserService.getData(url, token);
       setTopicsData(response.data?.data);
+
+      console.log(response.data?.data)
+
       setPaginationData(response.data?.pagination);
     } catch (err) {
       setError(err.message || "Something went wrong");
@@ -50,6 +53,9 @@ function TopicsPage() {
       setLoading(false);
     }
   }, 500);
+
+  console.log("data", topicsData[0]?.image)
+
 
   // Get search parameter from URL on component mount
   useEffect(() => {
@@ -133,7 +139,9 @@ function TopicsPage() {
       accessor: "image",
       width: "100px",
       formatter: (value: string) => (
+
         <div className="flex items-center justify-center w-[60px]">
+
           {value ? <Image src={value} alt="icon" width={60} height={60} /> : ""}
         </div>
       ),
