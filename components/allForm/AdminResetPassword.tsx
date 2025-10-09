@@ -151,9 +151,9 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData, adminsDat
                     message: t("password_must_be_at_least_8_characters")
                   },
                   pattern: {
-                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-                    message: t("strong_password_hint")
-                  }
+                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]{8,}$/,
+                      message: t("strong_password_hint")
+                    }
                 })}
                 className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.newPassword ? "border-red-500" : ""}`}
               />
