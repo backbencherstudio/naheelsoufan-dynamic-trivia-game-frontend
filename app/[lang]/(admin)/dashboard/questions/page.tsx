@@ -21,7 +21,7 @@ function QuestionsPage() {
   const [search, setSearch] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [sortBy, setSortBy] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<{
     question: string;
@@ -48,7 +48,7 @@ function QuestionsPage() {
   };
 
   const apiSortKey = mapSortKey(sortBy);
-  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ? `&sort=${apiSortKey}&order=${sortOrder}` : ''}`;
+  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ? `&sort=${apiSortKey}` : ''} ${sortOrder ? `&order=${sortOrder}` : ''}`;
 
   const { t } = useTranslation()
   // Debounced API call function
@@ -99,7 +99,7 @@ function QuestionsPage() {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
     }
-  }, [endpoint, token]);
+  }, [endpoint, token, sortOrder]);
 
   // Fetch language data for dropdown
   const { data: languageData } = useDataFetch(`/admin/languages`);
@@ -282,13 +282,13 @@ function QuestionsPage() {
   }, [sortBy]);
 
   // Handle sort order toggle and sync URL (debounced effect will refetch)
-  const toggleSortOrder = () => {
-    const next = sortOrder === 'asc' ? 'desc' : 'asc';
-    setSortOrder(next);
+  const handleSortOrderToggle = () => {
+    const nextOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortOrder(nextOrder);
     const params = new URLSearchParams(searchParams);
     if (mapSortKey(sortBy)) {
       params.set('sort', mapSortKey(sortBy));
-      params.set('order', next);
+      params.set('order', nextOrder);
     } else {
       params.delete('sort');
       params.delete('order');
@@ -460,16 +460,16 @@ function QuestionsPage() {
                   <SelectItem value='language'>{t("sort_language")}</SelectItem>
                 </SelectContent>
               </Select>
-              <button
-                onClick={toggleSortOrder}
-                className="p-2 hover:bg-gray-100 rounded-md"
-              >
-                {sortOrder === 'asc' ? (
-                  <FaArrowUp className="w-4 h-4 text-gray-600" />
-                ) : (
-                  <FaArrowDown className="w-4 h-4 text-gray-600" />
-                )}
-              </button>
+                <button
+                  onClick={() => handleSortOrderToggle()}
+                  className="p-2 hover:bg-gray-100 rounded-md bg-blue-100"
+                >
+                  {sortOrder === 'asc' ? (
+                    <FaArrowUp className="w-4 h-4 text-gray-600" />
+                  ) : (
+                    <FaArrowDown className="w-4 h-4 text-gray-600" />
+                  )}
+                </button>
             </div>
             <div className="relative flex-1">
               <input
