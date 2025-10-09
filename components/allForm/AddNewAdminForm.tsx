@@ -166,7 +166,7 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
                       message: t("password_must_be_at_least_8_characters")
                     },
                     pattern: {
-                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+                      value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]{8,}$/,
                       message: t("strong_password_hint")
                     }
                   })}

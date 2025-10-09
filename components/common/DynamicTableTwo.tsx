@@ -136,7 +136,14 @@ export default function DynamicTableTwo({
           <select
             className="border border-gray-300 rounded px-2 py-1 text-sm dark:border-gray-700 dark:text-whiteColor"
             value={itemsPerPage}
-            onChange={(e) => onItemsPerPageChange && onItemsPerPageChange(Number(e.target.value))}
+            onChange={(e) => {
+              const newItemsPerPage = Number(e.target.value);
+              if (onItemsPerPageChange) {
+                onItemsPerPageChange(newItemsPerPage);
+              }
+              // Reset to page 1 when items per page changes
+              onPageChange(1);
+            }}
             disabled={!onItemsPerPageChange}
           >
             {rowsPerPageOptions.map((opt) => (
