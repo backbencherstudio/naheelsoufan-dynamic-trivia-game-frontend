@@ -153,7 +153,7 @@ export default function DynamicTableTwo({
         </div>
         <div className="flex items-center text-nowrap gap-4 text-sm text-[#4a4c56] dark:text-whiteColor">
           <span>
-            {currentPage * itemsPerPage - itemsPerPage + 1}-{itemsPerPage * currentPage} {t("of")} {paginationData?.total}
+            {currentPage * itemsPerPage - itemsPerPage + 1}-{(itemsPerPage * currentPage) > paginationData?.total ? paginationData?.total : (itemsPerPage * currentPage)} {t("of")} {paginationData?.total}
           </span>
           <div className="flex items-center gap-1">
             <button
