@@ -24,6 +24,14 @@ const nextConfig: NextConfig = {
         hostname: "nirob.signalsmind.com",
       },
       {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "googleapis.com",
+      },
+      {
         protocol: "http",
         hostname: "nirob.signalsmind.com",
       },
@@ -40,6 +48,8 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
       },
     ],
+    // Allow local file system images
+    unoptimized: true,
   },
 };
 

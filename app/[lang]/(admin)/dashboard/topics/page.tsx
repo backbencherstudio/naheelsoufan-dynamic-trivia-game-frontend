@@ -138,13 +138,43 @@ function TopicsPage() {
       label: t("icon"),
       accessor: "image",
       width: "100px",
-      formatter: (value: string) => (
+      formatter: (value: string) => {
+        // Check if the value is a valid URL or relative path
+        const isValidUrl = value && (
+          value.startsWith('http://') || 
+          value.startsWith('https://') || 
+          value.startsWith('/') ||
+          value.startsWith('./') ||
+          value.startsWith('../')
+        );
+        
+        // Skip rendering if it's a local file system path
+        if (value && !isValidUrl) {
+          return (
+            <div className="flex items-center justify-center w-[60px] h-[60px] bg-gray-100 rounded">
+              <span className="text-xs text-gray-500">Local file</span>
+            </div>
+          );
+        }
 
-        <div className="flex items-center justify-center w-[60px]">
-
-          {value ? <Image src={value} alt="icon" width={60} height={60} /> : ""}
-        </div>
-      ),
+        return (
+          <div className="flex items-center justify-center w-[60px]">
+            {value ? (
+              <Image 
+                src={value} 
+                alt="icon" 
+                width={60} 
+                height={60}
+                className="object-cover rounded"
+              />
+            ) : (
+              <div className="w-[60px] h-[60px] bg-gray-100 rounded flex items-center justify-center">
+                <span className="text-xs text-gray-500">No image</span>
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       label: t("actions"),

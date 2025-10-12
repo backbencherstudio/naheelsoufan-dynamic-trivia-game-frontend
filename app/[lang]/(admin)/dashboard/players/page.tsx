@@ -72,10 +72,10 @@ function UsersPage() {
     },
     {
       label: t("name"),
-      accessor: "user",
+      accessor: "player_name",
       width: "150px",
-      formatter: (value: { name: string }) => (
-        <span className="text-sm font-medium">{value?.name}</span>
+      formatter: (value: string) => (
+        <span className="text-sm font-medium">{value}</span>
       ),
     },
     {
