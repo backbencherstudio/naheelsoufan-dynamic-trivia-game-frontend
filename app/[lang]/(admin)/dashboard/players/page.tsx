@@ -14,7 +14,6 @@ function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
-  const [filterValue, setFilterValue] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const searchParams = useSearchParams();
@@ -27,7 +26,7 @@ function UsersPage() {
   const { token } = useToken();
   const { t } = useTranslation();
 
-  const endpoint = `/admin/players?page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort_by=${sortBy}&sort_order=${sortOrder}&status=${filterValue}`;
+  const endpoint = `/admin/players?page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort=${sortBy}&order=${sortOrder}`;
 
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {

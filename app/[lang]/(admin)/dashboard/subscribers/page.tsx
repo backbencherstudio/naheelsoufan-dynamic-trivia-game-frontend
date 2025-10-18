@@ -27,7 +27,8 @@ function HostsPage() {
   const [error, setError] = useState(null);
   const { token } = useToken();
   const { t } = useTranslation();
-  const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
+
+  const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort=${sortBy}&order=${sortOrder}`;
 
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
