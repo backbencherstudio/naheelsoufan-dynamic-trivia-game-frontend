@@ -48,7 +48,7 @@ function QuestionsPage() {
   };
 
   const apiSortKey = mapSortKey(sortBy);
-  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ? `&sort=${apiSortKey}` : ''} ${sortOrder ? `&order=${sortOrder}` : ''}`;
+  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ?`&sort=${apiSortKey}` : ''}${sortOrder ?`&order=${sortOrder}` : ''}`;
 
   const { t } = useTranslation()
   // Debounced API call function
@@ -460,16 +460,16 @@ function QuestionsPage() {
                   <SelectItem value='language'>{t("sort_language")}</SelectItem>
                 </SelectContent>
               </Select>
-                <button
-                  onClick={() => handleSortOrderToggle()}
-                  className="p-2 hover:bg-gray-100 rounded-md bg-blue-100"
-                >
-                  {sortOrder === 'asc' ? (
-                    <FaArrowUp className="w-4 h-4 text-gray-600" />
-                  ) : (
-                    <FaArrowDown className="w-4 h-4 text-gray-600" />
-                  )}
-                </button>
+              <button
+                onClick={() => handleSortOrderToggle()}
+                className="p-2 hover:bg-gray-100 rounded-md bg-blue-100"
+              >
+                {sortOrder === 'asc' ? (
+                  <FaArrowUp className="w-4 h-4 text-gray-600" />
+                ) : (
+                  <FaArrowDown className="w-4 h-4 text-gray-600" />
+                )}
+              </button>
             </div>
             <div className="relative flex-1">
               <input
