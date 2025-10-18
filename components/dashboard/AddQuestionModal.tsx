@@ -34,12 +34,12 @@ type FormValues = {
 };
 
 function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestionData }: { isOpen: boolean, onClose: () => void, editData?: any, questionData?: any, setQuestionData?: any }) {
- const {t}=useTranslation()
+  const { t } = useTranslation()
   // State for storing uploaded files
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  
+
   // State for storing existing file URLs from edit data
-  const [existingFiles, setExistingFiles] = useState<{[key: string]: string}>({});
+  const [existingFiles, setExistingFiles] = useState<{ [key: string]: string }>({});
   // Object URLs for previews
   const [objectUrls, setObjectUrls] = useState<Record<string, string>>({});
 
@@ -66,19 +66,19 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       optionDFile: null,
     }
   });
-  
-  const {token} = useToken();
+
+  const { token } = useToken();
   const selectedLanguage = watch('language');
   const { data: languageData } = useDataFetch(`/admin/languages`);
-  
+
   // Get language_id for filtering - use selected language or edit data language
   const languageId = selectedLanguage || (editData?.language?.id ?? editData?.language_id ?? editData?.language);
-  
+
   // Create dynamic endpoints with language_id parameter
   const topicEndpoint = languageId ? `/admin/categories?language_id=${languageId}` : `/admin/categories`;
   const difficultyEndpoint = languageId ? `/admin/difficulties?language_id=${languageId}` : `/admin/difficulties`;
   const questionTypeEndpoint = languageId ? `/admin/question-types` : `/admin/question-types`;
-  
+
   const { data: topicData } = useDataFetch(topicEndpoint);
   const { data: difficultData } = useDataFetch(difficultyEndpoint);
   const { data: questionTypeData, loading: questionTypeLoading, error: questionTypeError } = useDataFetch(questionTypeEndpoint);
@@ -86,7 +86,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
   // Current selected question type name (derived once for rendering and validation)
   const selectedTypeName = questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name;
 
-  
+
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
@@ -104,7 +104,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       setValue("answerTime", editData.time);
       setValue("points", editData.points);
       setValue("image", editData.image);
-   
+
       // Handle answers based on question type
       if (editData.answers && editData.answers.length > 0) {
         const selectedQuestionType =
@@ -119,8 +119,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
           setValue("optionD", editData.answers[3]?.text || "");
 
           // Set answer files if they exist
-          const existingFilesData: {[key: string]: string} = {};
-          
+          const existingFilesData: { [key: string]: string } = {};
+
           if (editData.answers[0]?.question_file_url) {
             existingFilesData.optionA = editData.answers[0].question_file_url;
             // Create a mock File object for display purposes
@@ -142,7 +142,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
             const mockFileD = new File([''], editData.answers[3].question_file_url, { type: 'image/jpeg' });
             setValue("optionDFile", mockFileD);
           }
-          
+
           setExistingFiles(existingFilesData);
 
           // Find correct answer index
@@ -150,7 +150,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
           setValue("answer", String(correctIndex));
 
           // No local answers state needed; values are derived on submit
-        } else if (selectedQuestionType === 'True/False') {
+        } else if (selectedQuestionType === 'True/False' || selectedQuestionType == "Bools") {
           // Set True/False answer
           const correctAnswer = editData.answers.find((answer: any) => answer.is_correct);
           setValue("answer", correctAnswer?.text || "True");
@@ -255,11 +255,11 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
     return 'image';
   };
 
-  const onSubmit = async(data: any) => {
+  const onSubmit = async (data: any) => {
     const selectedQuestionType = questionTypeData?.data?.find((item: any) => item.id === data.questionType);
     let answersArray = [];
     let answerFiles = [];
-    
+
     // Create answers array based on question type
     if (selectedQuestionType?.name === 'Options') {
       answersArray = [
@@ -280,7 +280,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
           is_correct: data.answer === "3"
         }
       ];
-      
+
       // Store answer files for Options - format: [optionimage1.jpg, optionimage2.jpg, optionimage3.jpg, optionimage4.jpg]
       if (data.optionAFile) {
         answerFiles.push(data.optionAFile.name || 'optionimage1.jpg');
@@ -294,7 +294,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       if (data.optionDFile) {
         answerFiles.push(data.optionDFile.name || 'optionimage4.jpg');
       }
-    } else if (selectedQuestionType?.name === 'True/False') {
+    } else if (selectedQuestionType?.name === 'True/False' || selectedQuestionType == "Bools") {
       answersArray = [
         {
           text: "True",
@@ -325,12 +325,12 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
     formData.append('time', data.answerTime.toString());
     formData.append('points', data.points.toString());
     formData.append('answers', JSON.stringify(answersArray));
-    
+
     // Add question file
     if (data.image) {
       formData.append('questionFile', data.image);
     }
-    
+
     // Add answer files (only if they are new files, not existing ones)
     if (data.optionAFile && !existingFiles.optionA) {
       formData.append('answerFiles', data.optionAFile);
@@ -345,7 +345,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       formData.append('answerFiles', data.optionDFile);
     }
 
-     try {
+    try {
       if (editData?.id) {
         // Update existing item - use addFormData for FormData
         const endpoint = `/admin/questions/${editData.id}`;
@@ -385,7 +385,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
         // Add new item
         const endpoint = `/admin/questions`;
         const response = await UserService.addFormData(endpoint, formData, token);
-        
+
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           const server = response?.data?.data || {};
@@ -431,7 +431,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
               {/* Row: Language | Topic */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="mb-4">
+                <div className="mb-4">
                   <label htmlFor="language" className="block text-sm font-medium text-gray-700">{t("language")}</label>
                   <Controller
                     name="language"
@@ -454,7 +454,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   />
                   {errors.language && <p className="text-red-500 text-xs mt-1">{errors.language.message as string}</p>}
                 </div>
-               {/* Topic (select dropdown) */}
+                {/* Topic (select dropdown) */}
                 <div className="mb-4">
                   <label htmlFor="topic" className="block text-sm font-medium text-gray-700">{t("topic")}</label>
                   <Controller
@@ -480,10 +480,10 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                 </div>
 
 
-               
+
               </div>
- 
-               {/* Difficulty (select dropdown) */}
+
+              {/* Difficulty (select dropdown) */}
               <div className="mb-4">
                 <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">{t("difficulty")}</label>
                 <Controller
@@ -491,8 +491,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                   control={control}
                   rules={{ required: t("difficulty_is_required") }}
                   render={({ field }) => (
-                    <Select 
-                      value={field.value} 
+                    <Select
+                      value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value);
                         // Auto-populate points from selected difficulty
@@ -517,7 +517,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                 />
                 {errors.difficulty && <p className="text-red-500 text-xs mt-1">{errors.difficulty.message as string}</p>}
               </div>
-              
+
               {/* Question (text input) */}
               <div className="mb-4">
                 <label htmlFor="question" className="block text-sm font-medium text-gray-700">{t("question")}</label>
@@ -643,9 +643,9 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                                 ) : (
                                   // Server audio with CORS handling
                                   <div className="relative">
-                                    <audio 
-                                      controls 
-                                      className="w-full" 
+                                    <audio
+                                      controls
+                                      className="w-full"
                                       preload="none"
                                       crossOrigin="anonymous"
                                       onLoadStart={() => console.log('Audio loading started for:', src)}
@@ -656,7 +656,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                                         console.error('Audio src:', src);
                                         console.error('NetworkState:', e.currentTarget.networkState);
                                         console.error('ReadyState:', e.currentTarget.readyState);
-                                        
+
                                         // Try without CORS
                                         if (e.currentTarget.crossOrigin) {
                                           console.log('Retrying audio without CORS...');
@@ -670,8 +670,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                                       <source src={src} type="audio/ogg" />
                                       Your browser does not support the audio element.
                                     </audio>
-                                    
-                                    
+
+
                                   </div>
                                 )}
                               </div>
@@ -680,11 +680,11 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                               <div className="relative">
                                 {src.startsWith('blob:') ? (
                                   // Local preview video (blob URL)
-                                  <video 
-                                    controls 
+                                  <video
+                                    controls
                                     src={src}
-                                    className="h-28 w-auto object-contain rounded-lg border" 
-                                    width={200} 
+                                    className="h-28 w-auto object-contain rounded-lg border"
+                                    width={200}
                                     height={100}
                                     preload="metadata"
                                     playsInline
@@ -694,10 +694,10 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                                 ) : (
                                   // Server video with CORS handling
                                   <div className="relative">
-                                    <video 
-                                      controls 
-                                      className="h-28 w-auto object-contain rounded-lg border bg-gray-100" 
-                                      width={200} 
+                                    <video
+                                      controls
+                                      className="h-28 w-auto object-contain rounded-lg border bg-gray-100"
+                                      width={200}
                                       height={100}
                                       preload="none"
                                       playsInline
@@ -711,7 +711,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                                         console.error('Video src:', src);
                                         console.error('NetworkState:', e.currentTarget.networkState);
                                         console.error('ReadyState:', e.currentTarget.readyState);
-                                        
+
                                         // Try without CORS
                                         if (e.currentTarget.crossOrigin) {
                                           console.log('Retrying without CORS...');
@@ -793,7 +793,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                               }}
                             />
                             <label htmlFor="optionAFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
-                              <IoCloudUploadOutline  className='text-primaryColor text-base' />
+                              <IoCloudUploadOutline className='text-primaryColor text-base' />
                               <span>{field.value ? (field.value as File).name : t('upload')}</span>
                             </label>
                           </div>
@@ -915,8 +915,8 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
                       control={control}
                       rules={{ required: selectedTypeName === 'Options' ? t("answer_is_required") : false }}
                       render={({ field }) => (
-                        <Select 
-                          value={field.value} 
+                        <Select
+                          value={field.value}
                           onValueChange={(value) => {
                             field.onChange(value);
                             handleAnswerSelect(value);
@@ -940,16 +940,17 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               )}
 
               {/* True/False (only if question type is True/False) */}
-              {selectedTypeName === 'True/False' && (
+              {(selectedTypeName === 'True/False' || selectedTypeName == "Bools") && (
                 <div className="mb-4">
                   <label htmlFor="answer" className="block text-sm font-medium text-gray-700">{t("answer")}</label>
                   <Controller
                     name="answer"
                     control={control}
-                    rules={{ required: selectedTypeName === 'True/False' ? t("answer_is_required") : false }}
+                    rules={{ required: (selectedTypeName === 'True/False' || selectedTypeName == "Bools") ? t("answer_is_required") : false }}
                     render={({ field }) => (
+
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full !text-black">
                           <SelectValue placeholder={t("select_true_false")} />
                         </SelectTrigger>
                         <SelectContent>

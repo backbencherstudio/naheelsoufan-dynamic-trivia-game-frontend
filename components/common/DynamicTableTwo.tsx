@@ -2,6 +2,7 @@
 
 import useTranslation from "@/hooks/useTranslation";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import React from "react";
 import { MdArrowBackIosNew, MdArrowForwardIos, MdFirstPage, MdLastPage } from "react-icons/md";
 import Loader from "../reusable/Loader";
@@ -42,8 +43,10 @@ export default function DynamicTableTwo({
   loading,
 }: DynamicTableProps) {
 
+  const pathname = usePathname()
+  console.log("check pathname question", pathname);
 
-  let rowsPerPageOptions = [5, 10, 20, 50];
+  let rowsPerPageOptions = pathname == "/en/dashboard/questions" ? [5, 10, 20, 50, 100] : [5, 10, 20, 50];
   const { t } = useTranslation()
 
 
