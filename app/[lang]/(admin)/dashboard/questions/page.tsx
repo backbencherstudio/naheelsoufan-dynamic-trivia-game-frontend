@@ -234,7 +234,6 @@ function QuestionsPage() {
     const languageParam = searchParams.get('language');
     setSelectedLanguage(languageParam || '');
   }, [searchParams]);
-
   // Search function
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
