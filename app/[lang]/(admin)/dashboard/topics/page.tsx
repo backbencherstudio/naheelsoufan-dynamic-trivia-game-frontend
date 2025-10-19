@@ -138,18 +138,27 @@ function TopicsPage() {
       label: t("icon"),
       accessor: "image",
       width: "100px",
-      formatter: (value: string) => {
-        // Check if the value is a valid URL or relative path
-        const isValidUrl = value && (
-          value.startsWith('http://') || 
-          value.startsWith('https://') || 
-          value.startsWith('/') ||
-          value.startsWith('./') ||
-          value.startsWith('../')
+      formatter: (value: string, record) => {
+        // If no image_url, show "No image"
+        if (!record?.image_url) {
+          return (
+            <div className="w-[60px] h-[60px] bg-gray-100 rounded flex items-center justify-center">
+              <span className="text-xs text-gray-500">No image</span>
+            </div>
+          );
+        }
+
+        // Check if the image_url is a valid URL or relative path
+        const isValidUrl = (
+          record.image_url.startsWith('http://') ||
+          record.image_url.startsWith('https://') ||
+          record.image_url.startsWith('/') ||
+          record.image_url.startsWith('./') ||
+          record.image_url.startsWith('../')
         );
-        
-        // Skip rendering if it's a local file system path
-        if (value && !isValidUrl) {
+
+        // If it's not a valid URL, show "Local file"
+        if (!isValidUrl) {
           return (
             <div className="flex items-center justify-center w-[60px] h-[60px] bg-gray-100 rounded">
               <span className="text-xs text-gray-500">Local file</span>
@@ -157,21 +166,18 @@ function TopicsPage() {
           );
         }
 
+        // Show the actual image
         return (
           <div className="flex items-center justify-center w-[60px]">
-            {value ? (
-              <Image 
-                src={value} 
-                alt="icon" 
-                width={60} 
+            <div className='w-[60px] h-[60px]'>
+              <Image
+                src={record.image_url}
+                alt="icon"
+                width={60}
                 height={60}
-                className="object-cover rounded"
+                className="object-cover h-full w-full rounded"
               />
-            ) : (
-              <div className="w-[60px] h-[60px] bg-gray-100 rounded flex items-center justify-center">
-                <span className="text-xs text-gray-500">No image</span>
-              </div>
-            )}
+            </div>
           </div>
         );
       },

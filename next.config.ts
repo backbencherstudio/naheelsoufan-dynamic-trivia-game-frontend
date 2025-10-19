@@ -43,6 +43,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "nirob.com",
       },
+       {
+        protocol: 'https',
+        hostname: 'nirob.signalsmind.com',
+       
+      },
       {
         protocol: "http",
         hostname: "localhost",
