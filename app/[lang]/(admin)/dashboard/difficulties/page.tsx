@@ -175,14 +175,14 @@ function DifficultiesPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">Difficulties</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("difficulties")}</h1>
       </div>
 
       {/* Table Section */}
       <div className="border rounded-lg bg-white pb-6 dark:bg-blackColor   p-2 md:p-0 md:pb-6 ">
         <div className="md:p-5 ">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">Difficulties</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">{t("difficulties")}</h2>
             <button
               onClick={handleAddNew}
               className="bg-grayColor1/50 text-headerColor font-medium rounded-md p-2 px-4 cursor-pointer dark:bg-whiteColor/20 dark:text-whiteColor"

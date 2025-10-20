@@ -157,7 +157,7 @@ function HostsPage() {
     <div>
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("subscribers")}</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("subscription")}</h1>
       </div>
 
       {/* Table Section */}
@@ -165,7 +165,7 @@ function HostsPage() {
         <div className="md:p-5">
           {/* Filter and Search Section */}
           <div className="flex flex-col md:flex-row gap-4 mb-4">
-         
+
             <div className="md:w-48 w-68 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='md:w-[180px] w-full !h-12.5 focus-visible:ring-0'>
