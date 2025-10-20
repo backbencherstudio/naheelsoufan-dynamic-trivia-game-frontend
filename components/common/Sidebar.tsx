@@ -9,6 +9,7 @@ import React from "react";
 import {
   BiWorld
 } from 'react-icons/bi';
+import { FaUserGraduate } from "react-icons/fa6";
 import {
   HiOutlineUserGroup
 } from 'react-icons/hi2';
@@ -41,73 +42,73 @@ interface SidebarProps {
 
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-    const { t, currentLanguage, isLoading, error } = useTranslation();
-    const navItems: NavItem[] = [
-  {
-    icon: <MdOutlineDashboard />,
-    label: t("dashboard"),
-    href: "/",
-  },
-  {
-    icon: <MdOutlineSubscriptions />,
-    label: t("subscription_type"),
-    href: "/dashboard/subscription-types",
-  },
-  {
-    icon: <BiWorld />,
-    label: t("language"),
-    href: "/dashboard/language",
-  },
-  {
-    icon: <MdOutlineTopic />,
-    label: t("topic"),
-    href: "/dashboard/topics",
-  },
-  // {
-  //   icon: <MdOutlineQuestionAnswer />,
-  //   label: "Question Types",
-  //   href: "/dashboard/question-types",
-  // },
-  {
-    icon: <IoIosSwitch />,
-    label: t("difficulties"),
-    href: "/dashboard/difficulties",
-  },
-  {
-    icon: <RiGamepadLine />,
-    label: t("previous_game"),
-    href: "/dashboard/previous-games",
-  },
-  {
-    icon: <RiQuestionnaireLine />,
-    label: t("questions"),
-    href: "/dashboard/questions",
-  },
-  {
-    icon: <LuUsers />,
-    label: t("players"),
-    href: "/dashboard/players",
-  },
-  {
-    icon: <RiAdminLine />,
-    label: t("admin"),
-    href: "/dashboard/admins",
-  },
-  {
-    icon: <HiOutlineUserGroup />,
-    label: t("subscription"),
-    href: "/dashboard/subscribers",
-  },
-  {
-    icon: <HiOutlineUserGroup />,
-    label: t("subscribers"),
-    href: "/dashboard/all-host",
-  },
+  const { t, currentLanguage, isLoading, error } = useTranslation();
+  const navItems: NavItem[] = [
+    {
+      icon: <MdOutlineDashboard />,
+      label: t("dashboard"),
+      href: "/",
+    },
+    {
+      icon: <MdOutlineSubscriptions />,
+      label: t("subscription_type"),
+      href: "/dashboard/subscription-types",
+    },
+    {
+      icon: <BiWorld />,
+      label: t("language"),
+      href: "/dashboard/language",
+    },
+    {
+      icon: <MdOutlineTopic />,
+      label: t("topic"),
+      href: "/dashboard/topics",
+    },
+    // {
+    //   icon: <MdOutlineQuestionAnswer />,
+    //   label: "Question Types",
+    //   href: "/dashboard/question-types",
+    // },
+    {
+      icon: <IoIosSwitch />,
+      label: t("difficulties"),
+      href: "/dashboard/difficulties",
+    },
+    {
+      icon: <RiGamepadLine />,
+      label: t("previous_game"),
+      href: "/dashboard/previous-games",
+    },
+    {
+      icon: <RiQuestionnaireLine />,
+      label: t("questions"),
+      href: "/dashboard/questions",
+    },
+    {
+      icon: <LuUsers />,
+      label: t("players"),
+      href: "/dashboard/players",
+    },
+    {
+      icon: <RiAdminLine />,
+      label: t("admin"),
+      href: "/dashboard/admins",
+    },
+    {
+      icon: <FaUserGraduate />,
+      label: t("subscription"),
+      href: "/dashboard/subscribers",
+    },
+    {
+      icon: <HiOutlineUserGroup />,
+      label: t("subscribers"),
+      href: "/dashboard/all-host",
+    },
 
-];
+  ];
   const pathname = usePathname();
   const router = useRouter()
- const isActive = (href: string): boolean => {
+  const isActive = (href: string): boolean => {
     // Remove locale prefix like /en, /bn, /ar from pathname
     const pathWithoutLocale = (pathname?.replace(/^\/[a-z]{2}(?=\/|$)/, "") || "/");
     if (href === "/") {
@@ -157,7 +158,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             href={"/"}
             className="text-headerColor flex justify-center dark:text-whiteColor/80 pb-5 text-xl lg:text-3xl font-semibold tracking-wide"
           >
-            {t("appName")}<span className="text-primaryColor pl-1" >{t("admin")}</span> 
+            {t("appName")}<span className="text-primaryColor pl-1" >{t("admin")}</span>
           </Link>
           <div className=" space-y-2">
 
@@ -212,7 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             className="flex items-center cursor-pointer gap-3 px-3 py-3  transition-colors duration-200 "
           >
             <div className="w-[30px] h-[30px] flex justify-center items-center flex-shrink-0 ">
-             <LuLogOut size={20} /> 
+              <LuLogOut size={20} />
             </div>
             <span className="text-base font-normal text-[#111111] dark:text-whiteColor/80">
               {t("logout")}
