@@ -95,8 +95,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   },
   {
     icon: <HiOutlineUserGroup />,
-    label: t("subscribers"),
+    label: t("subscription"),
     href: "/dashboard/subscribers",
+  },
+  {
+    icon: <HiOutlineUserGroup />,
+    label: t("subscribers"),
+    href: "/dashboard/all-host",
   },
 
 ];

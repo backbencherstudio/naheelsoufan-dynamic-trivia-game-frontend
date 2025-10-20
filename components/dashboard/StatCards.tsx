@@ -12,8 +12,8 @@ export default function StatCards() {
   const statCards = [
     {
       title: t("total_host"),
-      value: totalHost?.data?.overview?.totalSubscriptions || 0,
-      link: "/dashboard/subscribers",
+      value: totalHost?.data?.overview?.totalHosts || 0,
+      link: "/dashboard/all-host",
       icon: <RxBarChart className="text-greenColor" />,
       timeFrame: t("last_month"),
     },

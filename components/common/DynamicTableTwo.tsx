@@ -76,13 +76,13 @@ export default function DynamicTableTwo({
             </thead>
             <tbody className="">
               {loading ? <tr>
-                <td colSpan={columns.length + 1} className="px-4 py-10 text-center text-[#4a4c56] text-sm dark:text-whiteColor">
+                <td colSpan={columns?.length + 1} className="px-4 py-10 text-center text-[#4a4c56] text-sm dark:text-whiteColor">
                   <Loader />
                 </td>
-              </tr> : data.length > 0 ? (
-                data.map((row, i) => (
+              </tr> : data?.length > 0 ? (
+                data?.map((row, i) => (
                   <tr key={i} className={`border-t border-gray-100 ${i % 2 === 1 ? "bg-neutral-50" : "bg-white"} dark:bg-blackColor dark:border-gray-900`}>
-                    {columns.map((col, idx) => (
+                    {columns?.map((col, idx) => (
                       <td
                         key={idx}
                         style={{ width: col.width || "auto" }}

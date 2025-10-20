@@ -47,6 +47,8 @@ export default function LoginPage() {
     } catch (error) {
       toast.error("Wrong Email or Password");
       setIsDisable(false);
+    }finally{
+      setIsDisable(false);
     }
   };
 

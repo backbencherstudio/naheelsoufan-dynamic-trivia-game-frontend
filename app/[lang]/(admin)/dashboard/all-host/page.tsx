@@ -28,7 +28,7 @@ function HostsPage() {
   const { token } = useToken();
   const { t } = useTranslation();
 
-  const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
+  const endpoint = `/admin/user?type=host&page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort=${sortBy}&order=${sortOrder}`;
 
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
@@ -73,60 +73,45 @@ function HostsPage() {
     },
     {
       label: t("full_name"),
-      accessor: "user",
+      accessor: "name",
       width: "150px",
-      formatter: (value: { name: string }) => (
-        <span className="text-sm font-medium">{value?.name}</span>
+      formatter: (value: string) => (
+        <span className="text-sm font-medium">{value}</span>
       ),
     },
     {
       label: t("email"),
-      accessor: "user",
+      accessor: "email",
       width: "200px",
-      formatter: (value: { email: string }) => (
-        <span className="text-sm">{value?.email}</span>
+      formatter: (value: string) => (
+        <span className="text-sm">{value}</span>
       ),
     },
     {
-      label: t("games"),
-      accessor: "subscription_type",
+      label: t("phone_number"),
+      accessor: "phone_number",
       width: "100px",
-      formatter: (value: { games: number }) => (
-        <span className="text-sm">{value?.games}</span>
+      formatter: (value: string) => (
+        <span className="text-sm">{value}</span>
       ),
     },
     {
-      label: t("questions"),
-      accessor: "subscription_type",
+      label: t("type"),
+      accessor: "type",
       width: "100px",
-      formatter: (value: { questions: number }) => (
-        <span className="text-sm">{value?.questions}</span>
+      formatter: (value: string) => (
+        <span className="text-sm">{value}</span>
       ),
     },
     {
-      label: t("players"),
-      accessor: "subscription_type",
+      label: t("address"),
+      accessor: "address",
       width: "100px",
-      formatter: (value: { players: number }) => (
-        <span className="text-sm">{value?.players}</span>
+      formatter: (value: string) => (
+        <span className="text-sm">{value}</span>
       ),
     },
-    {
-      label: t("price"),
-      accessor: "subscription_type",
-      width: "100px",
-      formatter: (value: { price: number }) => (
-        <span className="text-sm">{value?.price}</span>
-      ),
-    },
-    {
-      label: t("free_trial"),
-      accessor: "games_played_count",
-      width: "100px",
-      formatter: (value: number) => (
-        <span className="text-sm">{value > 1 ? t("no") : t("yes")}</span>
-      ),
-    },
+    
   ];
 
   // Search function
@@ -165,7 +150,19 @@ function HostsPage() {
         <div className="md:p-5">
           {/* Filter and Search Section */}
           <div className="flex flex-col md:flex-row gap-4 mb-4">
-         
+            {/* <div className="w-48">
+              <Select value={filterValue} onValueChange={setFilterValue}>
+                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
+                  <SelectValue placeholder='All' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All</SelectItem>
+                  <SelectItem value='active'>Active</SelectItem>
+                  <SelectItem value='inactive'>Inactive</SelectItem>
+                  <SelectItem value='free-trial'>Free Trial</SelectItem>
+                </SelectContent>
+              </Select>
+            </div> */}
             <div className="md:w-48 w-68 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='md:w-[180px] w-full !h-12.5 focus-visible:ring-0'>
@@ -193,7 +190,7 @@ function HostsPage() {
                 value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder={t("search_subscribers")}
+                placeholder={t("search_Subscribers")}
                 className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

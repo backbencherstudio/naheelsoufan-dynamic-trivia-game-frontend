@@ -48,6 +48,11 @@ const nextConfig: NextConfig = {
         hostname: 'nirob.signalsmind.com',
        
       },
+       {
+        protocol: 'https',
+        hostname: 'caroll-perihelial-nonnecessitously.ngrok-free.dev',
+       
+      },
       {
         protocol: "http",
         hostname: "localhost",
