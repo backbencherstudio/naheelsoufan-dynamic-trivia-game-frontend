@@ -14,7 +14,7 @@ function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState('name');
+  const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -68,6 +68,14 @@ function UsersPage() {
         const serial = index + 1;
         return <span className="text-sm font-medium">{serial}</span>;
       },
+    },
+    {
+      label: t("host_email"),
+      accessor: "user",
+      width: "150px",
+      formatter: (value: { email: string }) => (
+        <span className="text-sm font-medium">{value?.email}</span>
+      ),
     },
     {
       label: t("name"),
