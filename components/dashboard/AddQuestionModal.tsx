@@ -75,7 +75,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
   const languageId = selectedLanguage || (editData?.language?.id ?? editData?.language_id ?? editData?.language);
 
   // Create dynamic endpoints with language_id parameter
-  const topicEndpoint = languageId ? `/admin/categories?language_id=${languageId}` : `/admin/categories`;
+  const topicEndpoint = languageId ? `/admin/categories/topics?language_id=${languageId}` : `/admin/categories`;
   const difficultyEndpoint = languageId ? `/admin/difficulties?language_id=${languageId}` : `/admin/difficulties`;
   const questionTypeEndpoint = languageId ? `/admin/question-types` : `/admin/question-types`;
 

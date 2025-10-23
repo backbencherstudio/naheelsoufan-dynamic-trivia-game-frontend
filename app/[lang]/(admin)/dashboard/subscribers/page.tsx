@@ -28,7 +28,7 @@ function HostsPage() {
   const { token } = useToken();
   const { t } = useTranslation();
 
-  const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
+  const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort=${sortBy}&order=${sortOrder}`;
 
   // Debounced API call function
   const debouncedFetchData = useDebounce(async (url: string) => {
@@ -174,7 +174,7 @@ function HostsPage() {
                 <SelectContent>
                   <SelectItem value='name'>{t("sort_name")}</SelectItem>
                   <SelectItem value='email'>{t("sort_email")}</SelectItem>
-                  <SelectItem value='create'>{t("sort_creatat")}</SelectItem>
+                  <SelectItem value='created_at'>{t("sort_creatat")}</SelectItem>
                 </SelectContent>
               </Select>
               <button

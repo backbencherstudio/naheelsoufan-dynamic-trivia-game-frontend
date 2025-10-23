@@ -171,8 +171,8 @@ function HostsPage() {
                 <SelectContent>
                   <SelectItem value='name'>{t("sort_name")}</SelectItem>
                   <SelectItem value='email'>{t("sort_email")}</SelectItem>
-                  <SelectItem value='create'>{t("sort_creatat")}</SelectItem>
-                </SelectContent>
+                  <SelectItem value='created_at'>{t("sort_creatat")}</SelectItem>
+                </SelectContent> 
               </Select>
               <button
                 onClick={toggleSortOrder}

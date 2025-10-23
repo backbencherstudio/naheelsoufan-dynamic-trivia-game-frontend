@@ -103,7 +103,7 @@ function PreviousGamesPage() {
       width: "150px",
       formatter: (value: any) => (
         <div className="text-sm">{value?.length > 0 ?
-          value?.map((item: any) => item?.user?.name).join(", ")
+          value?.map((item: any) => item?.player_name).join(", ")
           : 0}</div>
       ),
     },
