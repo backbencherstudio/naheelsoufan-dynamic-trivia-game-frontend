@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { CookieHelper } from "@/helper/cookie.helper";
 import { UserService } from "@/service/user/user.service";
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -47,7 +48,7 @@ export default function LoginPage() {
     } catch (error) {
       toast.error("Wrong Email or Password");
       setIsDisable(false);
-    }finally{
+    } finally {
       setIsDisable(false);
     }
   };
@@ -110,14 +111,16 @@ export default function LoginPage() {
               <span className="text-sm text-red-500">{errors.password.message}</span>
             )}
           </div>
+          <div className="text-right">
+            <Link href="/forget-password" className="text-sm  text-blue-600 hover:underline dark:text-blue-400 transition-colors duration-200"> Forgot Password </Link>
+          </div>
           <div className="w-full gap-3 mt-6">
             <button
               type="submit"
-              className={`w-full py-2 rounded-md transition-all duration-200 ${
-                isDisable 
-                  ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed text-white' 
-                  : 'bg-primaryColor hover:bg-primaryColor/90 active:bg-primaryColor/80 dark:bg-blue-600 dark:hover:bg-blue-700 dark:active:bg-blue-800 text-white'
-              }`}
+              className={`w-full py-2 rounded-md transition-all duration-200 ${isDisable
+                ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed text-white'
+                : 'bg-primaryColor hover:bg-primaryColor/90 active:bg-primaryColor/80 dark:bg-blue-600 dark:hover:bg-blue-700 dark:active:bg-blue-800 text-white'
+                }`}
               disabled={isDisable}
             >
               {isDisable ? "Sending..." : "Login"}

@@ -31,6 +31,35 @@ export const UserService = {
     };
     return await Fetch.post("/auth/register", data, config);
   },
+  forgotPassword: async (email: string) => {
+    const data = {
+      email: email,
+    };
+    return await Fetch.post("/auth/reset-password", data, config);
+  },
+  verifyEmail: async ({ email, token }: { email: string; token: string }) => {
+    const data = {
+      email: email,
+      token: token,
+    };
+    return await Fetch.post("/auth/verify-email", data, config);
+  },
+  newPasswordSet: async ({
+    email,
+    token,
+    password,
+  }: {
+    email: string;
+    token: string;
+    password: string;
+  }) => {
+    const data = {
+      email: email,
+      token: token,
+      password: password,
+    };
+    return await Fetch.post("/auth/reset-password", data, config);
+  },
   logout: (context = null) => {
     CookieHelper.destroy({ key: "token", context });
   },
@@ -60,11 +89,7 @@ export const UserService = {
         Authorization: "Bearer " + token,
       },
     };
-    return await Fetch.patch(
-      `${endpoint}`,
-      data,
-      _config
-    );
+    return await Fetch.patch(`${endpoint}`, data, _config);
   },
 
   // delete request ===============
@@ -83,25 +108,20 @@ export const UserService = {
     const _config = {
       headers: {
         "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
+        Authorization: "Bearer " + token,
       },
     };
     return await Fetch.get(`${endpoint}`, _config);
   },
 
-
   updateQuestion: async (endpoint, data, token) => {
     const _config = {
       headers: {
-       "content-type": "multipart/form-data",
+        "content-type": "multipart/form-data",
         Authorization: "Bearer " + token,
       },
     };
-    return await Fetch.patch(
-      `${endpoint}`,
-      data,
-      _config
-    );
+    return await Fetch.patch(`${endpoint}`, data, _config);
   },
 
   updateFormData: async (endpoint, data, token) => {
@@ -115,6 +135,4 @@ export const UserService = {
   },
 
   //
-
-  
 };

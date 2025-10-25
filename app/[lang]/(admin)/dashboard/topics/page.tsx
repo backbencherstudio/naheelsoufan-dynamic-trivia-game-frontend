@@ -54,8 +54,6 @@ function TopicsPage() {
     }
   }, 500);
 
-  console.log("data", topicsData[0]?.image)
-
 
   // Get search parameter from URL on component mount
   useEffect(() => {
@@ -75,7 +73,6 @@ function TopicsPage() {
 
   // Fetch language data for the dropdown
   const { data: languageData } = useDataFetch(`/admin/languages`);
-
   // Initialize selected language from URL params
   useEffect(() => {
     const languageParam = searchParams.get('language_id');

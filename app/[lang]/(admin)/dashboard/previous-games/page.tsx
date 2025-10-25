@@ -5,6 +5,7 @@ import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
+import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { HiSearch } from 'react-icons/hi';
@@ -107,6 +108,14 @@ function PreviousGamesPage() {
           : 0}</div>
       ),
     },
+    {
+          label: t("created_at"),
+          accessor: "created_at",
+          width: "100px",
+          formatter: (value: string) => (
+            <span className="text-sm">{dayjs(value).format("DD MMMM YYYY") }</span>
+          ),
+        },
   ];
 
   // Search function

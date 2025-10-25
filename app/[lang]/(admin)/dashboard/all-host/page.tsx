@@ -6,6 +6,7 @@ import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
+import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
@@ -87,14 +88,7 @@ function HostsPage() {
         <span className="text-sm">{value}</span>
       ),
     },
-    {
-      label: t("phone_number"),
-      accessor: "phone_number",
-      width: "100px",
-      formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
-      ),
-    },
+
     {
       label: t("type"),
       accessor: "type",
@@ -104,14 +98,13 @@ function HostsPage() {
       ),
     },
     {
-      label: t("address"),
-      accessor: "address",
+      label: t("created_at"),
+      accessor: "created_at",
       width: "100px",
       formatter: (value: string) => (
-        <span className="text-sm">{value}</span>
+        <span className="text-sm">{dayjs(value).format("DD MMMM YYYY") }</span>
       ),
     },
-    
   ];
 
   // Search function
@@ -172,7 +165,7 @@ function HostsPage() {
                   <SelectItem value='name'>{t("sort_name")}</SelectItem>
                   <SelectItem value='email'>{t("sort_email")}</SelectItem>
                   <SelectItem value='created_at'>{t("sort_creatat")}</SelectItem>
-                </SelectContent> 
+                </SelectContent>
               </Select>
               <button
                 onClick={toggleSortOrder}
@@ -190,7 +183,7 @@ function HostsPage() {
                 value={search}
                 onChange={handleSearch}
                 type="text"
-                placeholder={t("search_Subscribers")}
+                placeholder={t("search_host")}
                 className="w-full h-12 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:focus:ring-blue-500"
               />
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

@@ -78,6 +78,14 @@ function UsersPage() {
       ),
     },
     {
+      label: t("game_id"),
+      accessor: "game",
+      width: "150px",
+      formatter: (value: { id: string }) => (
+        <span className="text-sm font-medium">{value?.id}</span>
+      ),
+    },
+    {
       label: t("name"),
       accessor: "player_name",
       width: "150px",
