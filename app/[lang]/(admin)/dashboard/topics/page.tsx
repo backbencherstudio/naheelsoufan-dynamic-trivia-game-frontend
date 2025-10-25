@@ -32,6 +32,8 @@ function TopicsPage() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<any | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const { token } = useToken();
   const { t } = useTranslation()
   // API endpoint with language filtering
@@ -240,7 +242,8 @@ function TopicsPage() {
 
   const { data: questionExportData } = useDataFetch(`/admin/categories/export`);
 
-  const handleExportQuestions = () => {
+  const handleExportQuestions = async () => {
+    setIsExporting(true);
     try {
       // Prefer backend-provided export array if available
       const rawArray = Array.isArray(questionExportData?.data)
@@ -272,8 +275,13 @@ function TopicsPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      
+      toast.success(t("topics_exported_successfully") || "Topics exported successfully");
     } catch (error) {
       console.error('Error exporting questions:', error);
+      toast.error(t("failed_to_export_topics") || "Failed to export topics");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -285,6 +293,8 @@ function TopicsPage() {
       input.onchange = async (e: any) => {
         const file: File | undefined = e?.target?.files?.[0];
         if (!file) return;
+        
+        setIsImporting(true);
         try {
           // Read file to validate JSON quickly (optional)
           const text = await file.text();
@@ -309,6 +319,8 @@ function TopicsPage() {
         } catch (err: any) {
           console.error('Import error:', err);
           toast.error(err?.message || t("import_failed"));
+        } finally {
+          setIsImporting(false);
         }
       };
       input.click();
@@ -337,13 +349,29 @@ function TopicsPage() {
             <div className="flex gap-3">
               <button
                 onClick={handleExportQuestions}
-                className="bg-blue-600 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-700">
-                {t("export_topic")}
+                disabled={isExporting}
+                className="bg-blue-600 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                {isExporting ? (
+                  <>
+                    <Loader2 className="animate-spin w-4 h-4" />
+                    {t("exporting") || "Exporting..."}
+                  </>
+                ) : (
+                  t("export_topic")
+                )}
               </button>
               <button
                 onClick={handleImportQuestions}
-                className="bg-blue-800 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-900">
-                {t("import_topic")}
+                disabled={isImporting}
+                className="bg-blue-800 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                {isImporting ? (
+                  <>
+                    <Loader2 className="animate-spin w-4 h-4" />
+                    {t("importing") || "Importing..."}
+                  </>
+                ) : (
+                  t("import_topic")
+                )}
               </button>
               <button onClick={handleAddNew} className="flex cursor-pointer items-center gap-2 px-3 py-2 md:px-4 md:py-2 bg-blue-600 text-white text-sm md:text-base rounded-lg hover:bg-blue-700 transition-colors">
                 <FaPlus />
