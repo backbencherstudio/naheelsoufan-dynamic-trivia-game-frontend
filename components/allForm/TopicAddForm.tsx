@@ -68,7 +68,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
       }, 100);
       if (editData.icon) {
         setSelectedFileName(editData.icon);
-        setSelectedFilePreview(editData.image || "");
+        setSelectedFilePreview(editData.image_url || "");
       }
     } else {
       setSelectedFileName("");
@@ -267,10 +267,10 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
                           <p className="text-blue-600 text-sm font-medium">{t("choose_image_to_upload")}</p>
                           <p className="text-gray-500 text-xs mt-1">{t("PNG_and_JPG_only")}</p>
                           {/* Show existing image if editing */}
-                          {editData?.image && !selectedFileName && (
+                          {editData?.image_url && !selectedFileName && (
                             <div className="mt-3">
                               <Image 
-                                src={editData.image} 
+                                src={editData?.image_url} 
                                 alt="Current topic media" 
                                 width={100} 
                                 height={100} 
