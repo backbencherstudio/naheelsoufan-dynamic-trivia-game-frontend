@@ -17,8 +17,8 @@ function HostsPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
   const [filterValue, setFilterValue] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortBy, setSortBy] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | "">("");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();

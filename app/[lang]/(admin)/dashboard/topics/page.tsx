@@ -71,7 +71,7 @@ function TopicsPage() {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
     }
-  }, [endpoint, token]);
+  }, [endpoint, token, isOpen ]);
 
   // Fetch language data for the dropdown
   const { data: languageData } = useDataFetch(`/admin/languages`);
@@ -93,9 +93,9 @@ function TopicsPage() {
       if (response?.data?.success) {
         toast.success(response?.data?.message);
         setTopicsData(prevData => prevData.filter(item => item.id !== id));
+
       }
     } catch (error) {
-      console.error("Error deleting topic:", error);
       toast.error(t("failed_to_delete_topic"));
     } finally {
       setDeletingId(null);
