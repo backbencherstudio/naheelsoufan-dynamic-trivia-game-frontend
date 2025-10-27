@@ -57,8 +57,9 @@ function HostsPage() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
+      setCurrentPage(1);
     }
-  }, [endpoint, token]);
+  }, [endpoint, token , sortOrder, currentPage]);
 
 
   const columns = [

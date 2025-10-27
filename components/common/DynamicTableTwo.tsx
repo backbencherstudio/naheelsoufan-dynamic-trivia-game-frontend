@@ -44,7 +44,6 @@ export default function DynamicTableTwo({
 }: DynamicTableProps) {
 
   const pathname = usePathname()
-  console.log("check pathname question", pathname);
 
   let rowsPerPageOptions = pathname == "/en/dashboard/questions" ? [5, 10, 20, 50, 100] : [5, 10, 20, 50];
   const { t } = useTranslation()

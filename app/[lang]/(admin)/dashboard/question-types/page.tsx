@@ -59,6 +59,7 @@ function QuestionTypesPage() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
+      setCurrentPage(1);
     }
   }, [endpoint, token]);
 

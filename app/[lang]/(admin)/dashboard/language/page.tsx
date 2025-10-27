@@ -56,8 +56,9 @@ function page() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
+      setCurrentPage(1);
     }
-  }, [endpoint, token]);
+  }, [endpoint, token, currentPage]);
 
 
   const columns = [

@@ -58,8 +58,9 @@ function RecentOrderTable() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
+      setCurrentPage(1);
     }
-  }, [endpoint, token, search]);
+  }, [endpoint, token, search, currentPage]);
 
 
   const { data: languageData } = useDataFetch(`/admin/languages`);

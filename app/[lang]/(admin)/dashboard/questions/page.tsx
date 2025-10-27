@@ -48,7 +48,7 @@ function QuestionsPage() {
   };
 
   const apiSortKey = mapSortKey(sortBy);
-  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ?`&sort=${apiSortKey}` : ''}${sortOrder ?`&order=${sortOrder}` : ''}`;
+  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ? `&sort=${apiSortKey}` : ''}${sortOrder ? `&order=${sortOrder}` : ''}`;
 
   const { t } = useTranslation()
   // Debounced API call function
@@ -98,8 +98,9 @@ function QuestionsPage() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
+      setCurrentPage(1); // Reset to first page on filter/sort change
     }
-  }, [endpoint, token, sortOrder]);
+  }, [endpoint, token, sortOrder,currentPage]);
 
   // Fetch language data for dropdown
   const { data: languageData } = useDataFetch(`/admin/languages`);

@@ -45,9 +45,6 @@ function TopicsPage() {
       setLoading(true);
       const response = await UserService.getData(url, token);
       setTopicsData(response.data?.data);
-
-      console.log(response.data?.data)
-
       setPaginationData(response.data?.pagination);
     } catch (err) {
       setError(err.message || "Something went wrong");
@@ -70,8 +67,9 @@ function TopicsPage() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
+      setCurrentPage(1);
     }
-  }, [endpoint, token, isOpen ]);
+  }, [endpoint, token, isOpen, currentPage]);
 
   // Fetch language data for the dropdown
   const { data: languageData } = useDataFetch(`/admin/languages`);
