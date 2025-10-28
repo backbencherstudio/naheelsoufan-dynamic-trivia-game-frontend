@@ -56,6 +56,7 @@ function DifficultiesPage() {
     const searchParam = searchParams.get('search');
     if (searchParam) {
       setSearch(searchParam);
+      setCurrentPage(1);
     } else {
       setSearch(''); // Clear search if no URL parameter
     }
@@ -70,7 +71,6 @@ function DifficultiesPage() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
-      setCurrentPage(1);
     }
   }, [endpoint, token, currentPage]);
 

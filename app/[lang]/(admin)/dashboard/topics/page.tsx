@@ -59,6 +59,7 @@ function TopicsPage() {
     const searchParam = searchParams.get('search');
     if (searchParam) {
       setSearch(searchParam);
+      setCurrentPage(1);
     } else {
       setSearch(''); // Clear search if no URL parameter
     }
@@ -67,7 +68,7 @@ function TopicsPage() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
-      setCurrentPage(1);
+  
     }
   }, [endpoint, token, isOpen, currentPage]);
 
@@ -91,7 +92,7 @@ function TopicsPage() {
       if (response?.data?.success) {
         toast.success(response?.data?.message);
         setTopicsData(prevData => prevData.filter(item => item.id !== id));
-
+        debouncedFetchData(endpoint)
       }
     } catch (error) {
       toast.error(t("failed_to_delete_topic"));
@@ -273,7 +274,7 @@ function TopicsPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       toast.success(t("topics_exported_successfully") || "Topics exported successfully");
     } catch (error) {
       console.error('Error exporting questions:', error);
@@ -291,7 +292,7 @@ function TopicsPage() {
       input.onchange = async (e: any) => {
         const file: File | undefined = e?.target?.files?.[0];
         if (!file) return;
-        
+
         setIsImporting(true);
         try {
           // Read file to validate JSON quickly (optional)

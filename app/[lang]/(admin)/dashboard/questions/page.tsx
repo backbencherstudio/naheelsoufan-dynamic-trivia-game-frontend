@@ -70,6 +70,7 @@ function QuestionsPage() {
     const searchParam = searchParams.get('search');
     if (searchParam) {
       setSearch(searchParam);
+      setCurrentPage(1);
     } else {
       setSearch(''); // Clear search if no URL parameter
     }
@@ -98,9 +99,8 @@ function QuestionsPage() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
-      setCurrentPage(1); // Reset to first page on filter/sort change
     }
-  }, [endpoint, token, sortOrder,currentPage]);
+  }, [endpoint, token, sortOrder, currentPage]);
 
   // Fetch language data for dropdown
   const { data: languageData } = useDataFetch(`/admin/languages`);

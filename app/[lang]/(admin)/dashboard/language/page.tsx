@@ -50,13 +50,13 @@ function page() {
     const languageParam = searchParams.get('language');
     if (languageParam) {
       setSearch(languageParam);
+      setCurrentPage(1);
     }
   }, [searchParams]);
 
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
-      setCurrentPage(1);
     }
   }, [endpoint, token, currentPage]);
 

@@ -57,6 +57,7 @@ function AdminManagementPage() {
     const adminParam = searchParams.get('admin');
     if (adminParam) {
       setSearch(adminParam);
+      setCurrentPage(1);
     }
   }, [searchParams]);
 

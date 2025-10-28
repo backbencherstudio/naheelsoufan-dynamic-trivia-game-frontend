@@ -47,6 +47,7 @@ function UsersPage() {
     const searchParam = searchParams.get('search');
     if (searchParam) {
       setSearch(searchParam);
+      setCurrentPage(1);
     } else {
       setSearch('');
     }
@@ -55,7 +56,6 @@ function UsersPage() {
   useEffect(() => {
     if (endpoint && token) {
       debouncedFetchData(endpoint);
-      setCurrentPage(1);
     }
   }, [endpoint, token, sortOrder, currentPage]);
 
