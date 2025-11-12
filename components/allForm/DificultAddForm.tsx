@@ -7,10 +7,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useGetLanguagesQuery } from "@/feature/api/apiSlice";
+import { useAddDificultiesMutation, useGetLanguagesQuery, useUpdateDificultiesMutation } from "@/feature/api/apiSlice";
 import { useToken } from "@/hooks/useToken";
 import useTranslation from "@/hooks/useTranslation";
-import { UserService } from "@/service/user/user.service";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -27,11 +26,12 @@ interface DifficultyAddFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   editData?:any| {};
-  difficultiesData?: any[];
-  setDifficultiesData?: (difficultiesData: any[]) => void;
   }
 
-export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesData, setDifficultiesData }: DifficultyAddFormProps) {
+export function DifficultyAddForm({ isOpen, setIsOpen, editData,  }: DifficultyAddFormProps) {
+  const [addDificulties ,{ isLoading: isAdding }] = useAddDificultiesMutation()
+  const [updateDificulties,{ isLoading: isUpdating }] = useUpdateDificultiesMutation()
+  const {data: languagesData} = useGetLanguagesQuery({params: {limit: 1000, page: 1}})
   const {
     register,
     handleSubmit,
@@ -48,8 +48,7 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
     }
   });
   const {t}=useTranslation()
-  const { token } = useToken();
-  // Update form values when editData changes
+
   useEffect(() => {
     if (editData && editData.id) {
       // Edit mode - populate form with existing data
@@ -71,8 +70,6 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
     }
   }, [editData, setValue, reset]);
 
-const {data: languagesData} = useGetLanguagesQuery({params: {limit: 1000, page: 1}})
-console.log("check languagesData ========",languagesData);
   const onSubmit = async (data: DifficultyFormData) => {
 
     const formData ={
@@ -82,20 +79,9 @@ console.log("check languagesData ========",languagesData);
     }
     try {
       if (editData?.id) {
-        // Update existing item
-        const endpoint = `/admin/difficulties/${editData.id}`;
-        const response = await UserService.updateData(endpoint, formData, token);
+        const response = await updateDificulties({id:editData?.id, data: formData});
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          const updatedData = difficultiesData.map(item =>
-            item.id === editData.id
-              ? { ...item, name: data.name, language: {
-                name: languagesData?.data?.find((l: any) => l.id === data.language)?.name,
-                id: data.language
-              }, points: data.points }
-              : item
-          );
-          setDifficultiesData(updatedData);
           reset({
             name: "",
             language: "",
@@ -105,11 +91,9 @@ console.log("check languagesData ========",languagesData);
         }
       } else {
         // Add new item
-        const endpoint = `/admin/difficulties`;
-        const response = await UserService.createData(endpoint, formData, token);
+        const response = await addDificulties({data:formData});
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          difficultiesData.unshift(response?.data?.data);
           reset({
             name: "",
             language: "",
@@ -120,7 +104,6 @@ console.log("check languagesData ========",languagesData);
       }
 
     } catch (error) {
-      console.error("Error saving difficulty:", error);
       toast.error("Failed to save difficulty");
     }
   };

@@ -25,13 +25,9 @@ function DifficultiesPage() {
     language: string;
   } | null>(null);
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const [difficultiesData, setDifficultiesData] = useState<any[]>([])
   const [totalData, setTotalData] = useState<any>(0)
   const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [error, setError] = useState(null);
-  const { token } = useToken()
   const { t } = useTranslation()
 
 // 2. Build query params
@@ -44,13 +40,13 @@ const buildQueryParams = (searchValue = '') => {
   return params.toString();
 };
 const {data, isError, isLoading} = useGetDificultiesQuery({params: buildQueryParams(search || '') as any})
-const [deleteDificulties, {isLoading: isDeleting ,isError: isDeleteError, isSuccess}] = useDeleteDificultiesMutation()
+const [deleteDificulties] = useDeleteDificultiesMutation()
 useEffect(() => {
-  if(data && !isLoading && !isError){
+  if(data){
     setDifficultiesData(data?.data || []);
     setTotalData(data?.pagination || {});
   }
-}, [data, isLoading, isError]);
+}, [data]);
 
 
   useEffect(() => {
@@ -184,17 +180,19 @@ useEffect(() => {
 
           <SearchComponent placeholder={t("search_difficulties_type")} />
         </div>
-
-        <DynamicTableTwo
-          columns={columns}
-          data={difficultiesData || []}
-          currentPage={currentPage}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={setItemsPerPage}
-          paginationData={totalData}
-          loading={isLoading}
-        />
+        {
+          isError ? <p className='text-center text-red-500'>{t("something_went_wrong")}</p> :
+          <DynamicTableTwo
+            columns={columns}
+            data={difficultiesData || []}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+            paginationData={totalData}
+            loading={isLoading}
+          />
+        }
       </div>
 
       {/* Difficulty Add Form */}
@@ -202,8 +200,6 @@ useEffect(() => {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         editData={editData}
-        difficultiesData={difficultiesData}
-        setDifficultiesData={setDifficultiesData}
       />
     </div>
   );

@@ -20,20 +20,40 @@ export const apiSlice = createApi({
         getDificulties: builder.query({
             query: ({ params }) => ({
                 url: `/admin/difficulties?${params}`,
-
             }),
             providesTags: ["difficulties"]
         }),
         addDificulties: builder.mutation({
-            query: ({ id, data }) => ({
-                url: `/admin/difficulties/${id}`,
+            query: ({ data }) => ({
+                url: `/admin/difficulties`,
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-
                 },
                 body: data
-            })
+            }),
+            invalidatesTags:["difficulties"]
+        }),
+         updateDificulties: builder.mutation({
+            query: ({ id, data }) => ({
+                url: `/admin/difficulties/${id}`,
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: data
+            }),
+            invalidatesTags: ["difficulties"]
+        }),
+        deleteDificulties: builder.mutation({
+            query: ({ id }) => ({
+                url: `/admin/difficulties/${id}`,
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }),
+            invalidatesTags: ["difficulties"]
         }),
         getLanguages: builder.query({
             query: () => ({
@@ -73,37 +93,45 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ["languages"]
         }),
-        updateDificulties: builder.mutation({
-            query: ({ id, data }) => ({
-                url: `/admin/difficulties/${id}`,
-                method: "PATCH",
+       
+        getTopics: builder.query({
+            query: ({ params }) => ({
+                url: `/admin/categories?${params}`,
+            }),
+            providesTags: ["topics"]
+        }),
+        getTopicsExport: builder.query({
+            query: () => ({
+                url: `/admin/categories/export`,
+            }),
+            providesTags: ["topics"]
+        }),
+        addTopicsImport: builder.mutation({
+            query: ({ data }) => ({
+                url: `/admin/categories/import`,
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: data
             }),
-            invalidatesTags: ["difficulties"]
+            invalidatesTags: ["topics"]
         }),
-        deleteDificulties: builder.mutation({
-            query: ({ id }) => ({
-                url: `/admin/difficulties/${id}`,
-                method: "DELETE",
+        addTopics: builder.mutation({
+            query: ({ data }) => ({
+                url: `/admin/categories`,
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                body: data
             }),
-            invalidatesTags: ["difficulties"]
+            invalidatesTags: ["topics"]
         }),
-        getTopics: builder.query({
-            query: ({ params }) => ({
-                url: `/admin/topics?${params}`,
-            }),
-            providesTags: ["topics"]
-        }),
-        addTopics: builder.mutation({
-            query: ({ id, data }) => ({
-                url: `/admin/topics/${id}`,
-                method: "POST",
+        updateTopic: builder.mutation({
+            query: ({ id,data }) => ({
+                url: `/admin/categories/${id}`,
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -113,7 +141,7 @@ export const apiSlice = createApi({
         }),
         deleteTopics: builder.mutation({
             query: ({ id }) => ({
-                url: `/admin/topics/${id}`,
+                url: `/admin/categories/${id}`,
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -124,4 +152,19 @@ export const apiSlice = createApi({
     }),
 })
 
-export const { useGetDificultiesQuery, useAddDificultiesMutation, useDeleteDificultiesMutation, useGetTopicsQuery, useAddTopicsMutation, useDeleteTopicsMutation , useGetLanguagesQuery, useAddLanguagesMutation, useUpdateLanguagesMutation, useDeleteLanguagesMutation } = apiSlice
+export const {
+    useGetDificultiesQuery, 
+    useAddDificultiesMutation, 
+    useUpdateDificultiesMutation,
+    useDeleteDificultiesMutation, 
+    useGetTopicsQuery, 
+    useAddTopicsMutation, 
+    useDeleteTopicsMutation ,
+    useUpdateTopicMutation, 
+    useGetLanguagesQuery, 
+    useAddLanguagesMutation, 
+    useAddTopicsImportMutation,
+    useUpdateLanguagesMutation, 
+    useDeleteLanguagesMutation,
+    useGetTopicsExportQuery
+     } = apiSlice

@@ -2,11 +2,10 @@
 import { TopicAddForm } from '@/components/allForm/TopicAddForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAddTopicsImportMutation, useDeleteTopicsMutation, useGetLanguagesQuery, useGetTopicsExportQuery, useGetTopicsQuery } from '@/feature/api/apiSlice';
 import { useDebounce } from '@/helper/debounce.helper';
-import useDataFetch from '@/hooks/useDataFetch';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
-import { UserService } from '@/service/user/user.service';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -37,21 +36,27 @@ function TopicsPage() {
   const { token } = useToken();
   const { t } = useTranslation()
   // API endpoint with language filtering
-  const endpoint = `/admin/categories?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`;
-
+ const buildQueryParams = (searchValue = '') => {
+  const params = new URLSearchParams();
+  params.append('limit', itemsPerPage.toString());
+  params.append('page', currentPage.toString());
+  if (searchValue) params.append('q', searchValue);
+  if (selectedLanguage) params.append('language_id', selectedLanguage);
+  return params.toString();
+};
+  
+  const {data, isLoading, isError} = useGetTopicsQuery({params: buildQueryParams(search)})
+  const [deleteTopics] = useDeleteTopicsMutation()
+  const { data: languageData } = useGetLanguagesQuery({params:{limit:1000, page:1}});
+  const [addTopicsImport] = useAddTopicsImportMutation()
+  const { data: questionExportData } = useGetTopicsExportQuery({});
   // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setTopicsData(response.data?.data);
-      setPaginationData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }, 500);
+ useEffect(()=>{
+       if(data){
+        setTopicsData(data?.data || [])
+        setPaginationData(data?.pagination || {})
+       }
+ },[data])
 
 
   // Get search parameter from URL on component mount
@@ -63,22 +68,13 @@ function TopicsPage() {
     } else {
       setSearch(''); // Clear search if no URL parameter
     }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
-  
-    }
-  }, [endpoint, token, currentPage]);
-
-  // Fetch language data for the dropdown
-  const { data: languageData } = useDataFetch(`/admin/languages`);
-  // Initialize selected language from URL params
-  useEffect(() => {
-    const languageParam = searchParams.get('language_id');
+     const languageParam = searchParams.get('language_id');
     setSelectedLanguage(languageParam || '');
   }, [searchParams]);
+
+  // Fetch language data for the dropdown
+
+
   const handleEdit = (record: any) => {
     setEditData(record);
     setIsOpen(true);
@@ -87,12 +83,10 @@ function TopicsPage() {
   const handleDelete = async (id: any) => {
     setDeletingId(id);
     try {
-      const response = await UserService.deleteData(`/admin/categories/${id}`, token);
+      const response = await deleteTopics({id});
 
       if (response?.data?.success) {
         toast.success(response?.data?.message);
-        setTopicsData(prevData => prevData.filter(item => item.id !== id));
-        debouncedFetchData(endpoint)
       }
     } catch (error) {
       toast.error(t("failed_to_delete_topic"));
@@ -239,7 +233,7 @@ function TopicsPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const { data: questionExportData } = useDataFetch(`/admin/categories/export`);
+
 
   const handleExportQuestions = async () => {
     setIsExporting(true);
@@ -305,13 +299,11 @@ function TopicsPage() {
           const blob = new Blob([text], { type: 'application/json' });
           formData.append('file', blob, file.name || 'topics.json');
 
-          const res = await UserService.addFormData('/admin/categories/import', formData, token);
+          const res = await addTopicsImport({data:formData});
           if (res?.data?.success) {
             toast.success(res?.data?.message || t("topics_imported_successfully"));
             // Refresh list
-            if (endpoint && token) {
-              debouncedFetchData(endpoint);
-            }
+           
           } else {
             toast.error(res?.data?.message || t("failed_to_import_topics"));
           }
@@ -417,10 +409,10 @@ function TopicsPage() {
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           paginationData={paginationData}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
-      {isOpen && <TopicAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} topicsData={topicsData} setTopicsData={setTopicsData} languageData={languageData} debouncedFetchData={debouncedFetchData} />}
+      {isOpen && <TopicAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} />}
     </div>
   );
 }

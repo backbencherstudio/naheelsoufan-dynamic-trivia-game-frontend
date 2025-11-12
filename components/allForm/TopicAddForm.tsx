@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAddTopicsMutation, useGetLanguagesQuery, useUpdateTopicMutation } from "@/feature/api/apiSlice";
 import { useToken } from "@/hooks/useToken";
 import useTranslation from "@/hooks/useTranslation";
 import { UserService } from "@/service/user/user.service";
@@ -26,13 +27,10 @@ interface TopicAddFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   editData?: any | null;
-  topicsData?: any[];
-  setTopicsData?: (topicsData: any[]) => void;
-  languageData?: any;
-  debouncedFetchData?: (url: string) => void;
+ 
 }
 
-export function TopicAddForm({ isOpen, setIsOpen, editData, topicsData, setTopicsData, languageData, debouncedFetchData }: TopicAddFormProps) {
+export function TopicAddForm({ isOpen, setIsOpen, editData}: TopicAddFormProps) {
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [selectedFilePreview, setSelectedFilePreview] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -58,7 +56,9 @@ export function TopicAddForm({ isOpen, setIsOpen, editData, topicsData, setTopic
         : "",
     }
   });
-
+ const {data:languageData} = useGetLanguagesQuery({params:{limit:1000, page:1}})
+ const [addTopics] = useAddTopicsMutation()
+ const [updateTopic] = useUpdateTopicMutation()
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
@@ -128,12 +128,9 @@ export function TopicAddForm({ isOpen, setIsOpen, editData, topicsData, setTopic
     try {
       if (editData?.id) {
         // Update existing item
-        const endpoint = `/admin/categories/${editData.id}`;
-        const response = await UserService.updateQuestion(endpoint, formData, token);
+              const response = await updateTopic({id:editData?.id, data:formData});
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-            const updatedData = topicsData.map(item => item.id === editData?.id ? {...response.data.data, image: response.data.data.image || editData.image } : item)
-          setTopicsData?.(updatedData);
           reset();
           setSelectedFile(null);
           setSelectedFileName("");
@@ -142,27 +139,19 @@ export function TopicAddForm({ isOpen, setIsOpen, editData, topicsData, setTopic
         }
       } else {
         // Add new item
-        const endpoint = `/admin/categories`;
-        const response = await UserService.addFormData(endpoint, formData, token);
+        const response = await addTopics({data:formData});
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          const newList = [response?.data?.data, ...((topicsData as any[]) || [])];
-          setTopicsData?.(newList);
-          reset();
-          setSelectedFile(null);
-          debouncedFetchData("/admin/categories?page=1&limit=10");
           setSelectedFileName("");
           setSelectedFilePreview("");
           setIsOpen(false);
         }
       }
     } catch (error) {
-      console.error("Error saving topic:", error);
       toast.error(t("failed_to_save_topic"));
     }
   };
-  console.log(editData);
-  
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

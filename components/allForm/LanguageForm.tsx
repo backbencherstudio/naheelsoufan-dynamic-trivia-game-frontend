@@ -52,7 +52,6 @@ export function LanguageForm({
 
     try {
       const file = data.file && data.file[0] ? data.file[0] : "";
-
       // Prepare the data for submission, including the file
       const formData = new FormData();
       formData.append('name', data?.name);
