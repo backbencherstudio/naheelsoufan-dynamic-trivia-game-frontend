@@ -13,13 +13,13 @@ import { HiSearch } from 'react-icons/hi';
 import { MdEdit, MdFileDownload } from 'react-icons/md';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { toast } from 'react-toastify';
+import { useDeleteLanguagesMutation, useGetLanguagesQuery } from '@/feature/api/apiSlice';
 function page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [search, setSearch] = useState('');
   const [languageData, setLanguageData] = useState([]);
   const [totalData, setTotalData] = useState({});
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const searchParams = useSearchParams();
   const router = useRouter()
@@ -29,36 +29,23 @@ function page() {
   const { t } = useTranslation()
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { token } = useToken();
-  const endpoint = `/admin/languages?page=${currentPage}&limit=${itemsPerPage}&q=${search}`
-
-  // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setLanguageData(response.data?.data);
-      setTotalData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }, 500);
-
-  // Get search parameter from URL on component mount
-  useEffect(() => {
-    const languageParam = searchParams.get('language');
-    if (languageParam) {
-      setSearch(languageParam);
-      setCurrentPage(1);
-    }
-  }, [searchParams]);
+  const buildQueryParams = (searchValue = '') => {
+    const params = new URLSearchParams();
+    params.append('limit', itemsPerPage.toString());
+    params.append('page', currentPage.toString());
+    if (searchValue) params.append('q', searchValue);
+    return params.toString();
+  } 
+ const [deleteLanguages, {isLoading: isDeleting ,isError: isDeleteError, isSuccess}] = useDeleteLanguagesMutation()
+  const { data: languageDataList, isLoading: languageLoading } = useGetLanguagesQuery({params: buildQueryParams(search || '') as any});
+  console.log("check languageDataList ========",languageDataList);
 
   useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
+    if (languageDataList) {
+      setLanguageData(languageDataList?.data || []);
+      setTotalData(languageDataList?.pagination || {});
     }
-  }, [endpoint, token, currentPage]);
+  }, [languageDataList]);
 
 
   const columns = [
@@ -152,14 +139,11 @@ function page() {
   const handleDelete = async (value: any) => {
     setDeletingId(value.id);
     try {
-      const response = await UserService.deleteData(`/admin/languages/${value?.id}`, token);
+        const response = await deleteLanguages({id: value?.id});
       if (response?.data?.success) {
         toast.success(response?.data?.message)
-        const updatedData = languageData.filter(item => item?.id !== value?.id);
-        setLanguageData(updatedData)
       }
     } catch (error) {
-      console.log(error?.message);
       toast.error(error?.message)
     } finally {
       setDeletingId(null);
@@ -213,11 +197,11 @@ function page() {
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           paginationData={totalData}
-          loading={loading}
+          loading={languageLoading}
         />
       </div>
 
-      {isOpen && <LanguageForm isOpen={isOpen} setIsOpen={setIsOpen} data={editData} languageData={languageData} setLanguageData={setLanguageData} />}
+      {isOpen && <LanguageForm isOpen={isOpen} setIsOpen={setIsOpen} data={editData} />}
     </div>
   )
 }

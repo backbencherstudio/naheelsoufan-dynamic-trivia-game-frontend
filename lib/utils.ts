@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -63,3 +64,14 @@ export const INITIAL_EVENTS = [
 
   // (Other events for the week...)
 ];
+
+export  const getCookieToken = () => {
+    if (typeof document === "undefined") return null;
+
+    const cookieString = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.startsWith("gametoken="));
+    
+    return cookieString?.split("=")[1] || null;
+  };
+

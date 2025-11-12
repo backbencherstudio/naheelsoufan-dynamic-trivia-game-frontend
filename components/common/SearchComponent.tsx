@@ -1,19 +1,18 @@
 "use client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDebounce } from '@/helper/debounce.helper';
-import useDataFetch from '@/hooks/useDataFetch';
 import useTranslation from '@/hooks/useTranslation';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { HiSearch } from 'react-icons/hi';
+import { useGetLanguagesQuery } from '@/feature/api/apiSlice';
 function SearchComponent({ placeholder }: { placeholder: string, }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const [search, setSearch] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
-  const { data: languageData } = useDataFetch(`/admin/languages`);
-  const [loading, setLoading] = useState(false);
+  const { data: languageData, isLoading: languageLoading } = useGetLanguagesQuery({params: {limit: 1000, page: 1}});
   const { t } = useTranslation()
   // Get search parameter from URL on component mount
   useEffect(() => {

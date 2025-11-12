@@ -3,10 +3,9 @@
 import { DifficultyAddForm } from '@/components/allForm/DificultAddForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import SearchComponent from '@/components/common/SearchComponent';
-import { useDebounce } from '@/helper/debounce.helper';
+import { useDeleteDificultiesMutation, useGetDificultiesQuery } from '@/feature/api/apiSlice';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
-import { UserService } from '@/service/user/user.service';
 import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -17,7 +16,7 @@ import { toast } from 'react-toastify';
 function DifficultiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<{
@@ -31,27 +30,29 @@ function DifficultiesPage() {
   const [difficultiesData, setDifficultiesData] = useState<any[]>([])
   const [totalData, setTotalData] = useState<any>(0)
   const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { token } = useToken()
   const { t } = useTranslation()
-  const endpoint = `/admin/difficulties?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
 
-  // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setDifficultiesData(response.data?.data);
-      setTotalData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }, 500);
+// 2. Build query params
+const buildQueryParams = (searchValue = '') => {
+  const params = new URLSearchParams();
+  params.append('limit', itemsPerPage.toString());
+  params.append('page', currentPage.toString());
+  if (searchValue) params.append('q', searchValue);
+  if (selectedLanguage) params.append('language_id', selectedLanguage);
+  return params.toString();
+};
+const {data, isError, isLoading} = useGetDificultiesQuery({params: buildQueryParams(search || '') as any})
+const [deleteDificulties, {isLoading: isDeleting ,isError: isDeleteError, isSuccess}] = useDeleteDificultiesMutation()
+useEffect(() => {
+  if(data && !isLoading && !isError){
+    setDifficultiesData(data?.data || []);
+    setTotalData(data?.pagination || {});
+  }
+}, [data, isLoading, isError]);
 
-  // Get search parameter from URL on component mount
+
   useEffect(() => {
     const searchParam = searchParams.get('search');
     if (searchParam) {
@@ -67,13 +68,6 @@ function DifficultiesPage() {
     const languageParam = searchParams.get('language');
     setSelectedLanguage(languageParam || '');
   }, [searchParams]);
-
-  useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
-    }
-  }, [endpoint, token, currentPage]);
-
 
   const columns = [
     {
@@ -143,7 +137,6 @@ function DifficultiesPage() {
   // Handle edit functionality
   const handleEdit = (record: any) => {
     setEditData(record)
-
     setIsOpen(true);
   };
 
@@ -157,15 +150,12 @@ function DifficultiesPage() {
   const handleDelete = async (id: string) => {
     try {
       setDeletingId(id);
-      const response = await UserService.deleteData(`/admin/difficulties/${id}`, token);
+      const response = await deleteDificulties({id: id});
 
       if (response?.data?.success) {
         toast.success(response?.data?.message);
-        // Remove the deleted item from the local state
-        setDifficultiesData(prevData => prevData.filter(item => item.id !== id));
       }
     } catch (error) {
-      console.error("Error deleting difficulty:", error);
       toast.error(t("failed_to_delete_difficulty"));
     } finally {
       setDeletingId(null);
@@ -203,7 +193,7 @@ function DifficultiesPage() {
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           paginationData={totalData}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
 

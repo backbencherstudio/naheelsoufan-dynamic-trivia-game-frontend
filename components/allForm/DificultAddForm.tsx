@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useDataFetch from "@/hooks/useDataFetch";
+import { useGetLanguagesQuery } from "@/feature/api/apiSlice";
 import { useToken } from "@/hooks/useToken";
 import useTranslation from "@/hooks/useTranslation";
 import { UserService } from "@/service/user/user.service";
@@ -70,8 +70,9 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
       });
     }
   }, [editData, setValue, reset]);
-  const { data: languageData } = useDataFetch(`/admin/languages`);
 
+const {data: languagesData} = useGetLanguagesQuery({params: {limit: 1000, page: 1}})
+console.log("check languagesData ========",languagesData);
   const onSubmit = async (data: DifficultyFormData) => {
 
     const formData ={
@@ -89,7 +90,7 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
           const updatedData = difficultiesData.map(item =>
             item.id === editData.id
               ? { ...item, name: data.name, language: {
-                name: languageData?.data?.find((l: any) => l.id === data.language)?.name,
+                name: languagesData?.data?.find((l: any) => l.id === data.language)?.name,
                 id: data.language
               }, points: data.points }
               : item
@@ -193,7 +194,7 @@ export function DifficultyAddForm({ isOpen, setIsOpen, editData, difficultiesDat
                     </SelectTrigger>
                     <SelectContent>
                       {
-                        languageData?.data?.map((item: any) => (
+                        languagesData?.data?.map((item: any) => (
                           <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
                         ))
                       }

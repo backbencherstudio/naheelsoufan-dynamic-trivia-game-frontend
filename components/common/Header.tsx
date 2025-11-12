@@ -22,33 +22,9 @@ const Header: React.FC<HeaderProps> = ({
   sidebarOpen,
 }: HeaderProps) => {
 
-  const [showAllNotifications, setShowAllNotifications] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
-  const router = useRouter();
   const pathname = usePathname();
-  const [notifications, setNotifications] = useState<null | []>([]);
-  const displayedNotifications = showAllNotifications
-    ? notifications
-    : notifications.slice(0, 5);
 
-
-
-  function timeAgo(createdAtString) {
-    const createdAt: any = new Date(createdAtString);
-    const now: any = new Date();
-
-    const diffInMs = now - createdAt;
-    const diffInMinutes = Math.floor(diffInMs / 60000);
-
-    if (diffInMinutes < 1) return 'just now';
-    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
-
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-  }
   // Use dynamic language context and navigation
   const { languages, currentLanguage, setCurrentLanguage, t } = useDynamicLanguage();
   const { navigateWithSpecificLanguage, getPathWithoutLanguage } = useLanguageNavigation();
@@ -123,8 +99,6 @@ const Header: React.FC<HeaderProps> = ({
   }, [firstSegment, supportedCodes, setCurrentLanguage, getPathWithoutLanguage, navigateWithSpecificLanguage]);
 
   const handleLanguageChange = (langCode: string) => {
-    console.log('Language changing to:', langCode);
-
     // Immediately save to localStorage and cookies
     if (typeof window !== 'undefined') {
       localStorage.setItem('preferred_language', langCode);

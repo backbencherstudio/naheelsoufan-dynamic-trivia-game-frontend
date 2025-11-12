@@ -70,7 +70,7 @@ function TopicsPage() {
       debouncedFetchData(endpoint);
   
     }
-  }, [endpoint, token, isOpen, currentPage]);
+  }, [endpoint, token, currentPage]);
 
   // Fetch language data for the dropdown
   const { data: languageData } = useDataFetch(`/admin/languages`);
@@ -420,7 +420,7 @@ function TopicsPage() {
           loading={loading}
         />
       </div>
-      {isOpen && <TopicAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} topicsData={topicsData} setTopicsData={setTopicsData} languageData={languageData} />}
+      {isOpen && <TopicAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} topicsData={topicsData} setTopicsData={setTopicsData} languageData={languageData} debouncedFetchData={debouncedFetchData} />}
     </div>
   );
 }

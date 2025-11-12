@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToken } from "@/hooks/useToken";
+import { useAddLanguagesMutation, useUpdateLanguagesMutation } from "@/feature/api/apiSlice";
 import useTranslation from "@/hooks/useTranslation";
-import { UserService } from "@/service/user/user.service";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -21,14 +21,10 @@ export function LanguageForm({
   isOpen,
   setIsOpen,
   data,
-  languageData,
-  setLanguageData,
 }: {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   data?: any;
-  languageData?: any;
-  setLanguageData?: (languageData: any) => void;
 }) {
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<LanguageFormData>({
     defaultValues: {
@@ -38,12 +34,11 @@ export function LanguageForm({
     },
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(data?.file_url || null); // Initialize with existing file name
-  const {t}=useTranslation()
-  const id = data?.id;
-  const { token } = useToken();
-
+  const { t } = useTranslation()
+  const id = data?.id
+  const [addLanguages, { isLoading: isAdding }] = useAddLanguagesMutation()
+  const [updateLanguages, { isLoading: isUpdating }] = useUpdateLanguagesMutation()
   // Update selectedFileName when data changes (for edit mode)
   useEffect(() => {
     if (data?.file_url) {
@@ -54,7 +49,6 @@ export function LanguageForm({
   }, [data]);
 
   const onSubmit = async (data: LanguageFormData) => {
-    setIsSubmitting(true);
 
     try {
       const file = data.file && data.file[0] ? data.file[0] : "";
@@ -68,40 +62,25 @@ export function LanguageForm({
       }
 
       if (id) {
-        const endpoint = `/admin/languages/${id}`;
-        const response = await UserService.updateFormData(endpoint, formData, token);
- 
-        if (response?.data?.success) {
-          toast.success(response?.data?.message);
-          setIsOpen(false);
-          setIsSubmitting(false);
-          const updatedData = languageData.map((item) =>
-            item.id === response?.data?.data.id
-              ? { ...item, name: data.name, code: data.code, file: data.file }
-              : item
-          );
-          setLanguageData(updatedData);
-          reset();
-        }
-      } else {
-        const endpoint = `/admin/languages`;
-        const response = await UserService.addFormData(endpoint, formData, token);
+        const response = await updateLanguages({ id: id, data: formData });
 
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           setIsOpen(false);
-          setIsSubmitting(false);
-          languageData.unshift(response?.data?.data);
           reset();
         }
-        console.log("============", response?.data?.data);
+      } else {
+        const response = await addLanguages({ data: formData });
+
+        if (response?.data?.success) {
+          toast.success(response?.data?.message);
+          setIsOpen(false);
+          reset();
+        }
       }
 
       reset();
       setIsOpen(false);
-
-      // Show success message
-      console.log("Language added successfully!");
     } catch (error) {
       console.error("Error adding language:", error);
     }
@@ -143,9 +122,8 @@ export function LanguageForm({
                     message: t("language_name_must_be_at_least_2_characters"),
                   },
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${
-                  errors.name ? "border-red-500" : ""
-                } dark:text-whiteColor`}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.name ? "border-red-500" : ""
+                  } dark:text-whiteColor`}
               />
               {errors.name && (
                 <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
@@ -170,9 +148,8 @@ export function LanguageForm({
                     message: t("language_code_must_be_2_3_lowercase_letters"),
                   },
                 })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${
-                  errors.code ? "border-red-500" : ""
-                } dark:text-whiteColor `}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.code ? "border-red-500" : ""
+                  } dark:text-whiteColor `}
               />
               {errors.code && (
                 <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>
@@ -207,9 +184,9 @@ export function LanguageForm({
                       <p className="text-blue-600 text-sm font-medium">
                         {id ? t("choose_new_file_to_replace_current_file") : t("choose_file_upload")}
                       </p>
-                     {selectedFileName ? (
-                <p className="text-sm text-primaryColor mt-2 break-all w-full"> {selectedFileName}</p>
-              ) : <p className="text-gray-500 text-xs mt-1">{t("JSON")}</p>} 
+                      {selectedFileName ? (
+                        <p className="text-sm text-primaryColor mt-2 break-all w-full"> {selectedFileName}</p>
+                      ) : <p className="text-gray-500 text-xs mt-1">{t("JSON")}</p>}
                     </div>
                   </div>
                 </div>
@@ -225,7 +202,7 @@ export function LanguageForm({
                         if (file.type !== "application/json") {
                           return t("please_upload_a_JSON_file");
                         }
-                        
+
                       }
                       return true;
                     },
@@ -239,7 +216,7 @@ export function LanguageForm({
               )}
 
               {/* Display file name */}
-             
+
             </div>
           </div>
 
@@ -259,10 +236,14 @@ export function LanguageForm({
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isAdding || isUpdating}
                 className="px-4 py-2 bg-blue-600 cursor-pointer text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {isSubmitting ? t("creating") : data ? t("update_language") : t("add_language")}
+                {isAdding ? <div className="flex items-center gap-2">
+                  <Loader2 className="animate-spin" /> {t("creating")}
+                </div> : data ? isUpdating ? <div className="flex items-center gap-2">
+                  <Loader2 className="animate-spin" /> {t("updating")}
+                </div> : t("update_language") : t("add_language")}
               </Button>
             </div>
           </div>

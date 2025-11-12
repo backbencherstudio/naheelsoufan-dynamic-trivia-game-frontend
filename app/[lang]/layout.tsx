@@ -1,13 +1,10 @@
-import CustomToastContainer from "@/components/CustomToast/CustomToastContainer";
+import ClientLayout from "@/components/reusable/ClientLayout";
 import { AppConfig } from "@/config/app.config";
-import { DynamicLanguageProvider } from "@/contexts/DynamicLanguageContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TokenProvider } from "@/hooks/useToken";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
-
 
 const roboto = Roboto({ subsets: ['latin'] })
 export const metadata: Metadata = {
@@ -27,12 +24,9 @@ export default async function RootLayout({
     <html   suppressHydrationWarning>
       <body className={`${roboto.className}`}>
         <TokenProvider>
-          <DynamicLanguageProvider initialLanguage={lang}>
-            <ThemeProvider>
-              <CustomToastContainer/>       
-              {children}
-            </ThemeProvider>
-          </DynamicLanguageProvider>
+          <ClientLayout lang={lang as any}>
+            {children}
+          </ClientLayout>
         </TokenProvider>
       </body>
     </html>

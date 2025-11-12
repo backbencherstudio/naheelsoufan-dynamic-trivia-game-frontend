@@ -29,9 +29,10 @@ interface TopicAddFormProps {
   topicsData?: any[];
   setTopicsData?: (topicsData: any[]) => void;
   languageData?: any;
+  debouncedFetchData?: (url: string) => void;
 }
 
-export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopicsData, languageData}: TopicAddFormProps) {
+export function TopicAddForm({ isOpen, setIsOpen, editData, topicsData, setTopicsData, languageData, debouncedFetchData }: TopicAddFormProps) {
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [selectedFilePreview, setSelectedFilePreview] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -124,7 +125,6 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
     if (selectedFile) {
       formData.append("file", selectedFile);
     }
-
     try {
       if (editData?.id) {
         // Update existing item
@@ -150,6 +150,7 @@ export function TopicAddForm({isOpen, setIsOpen, editData, topicsData, setTopics
           setTopicsData?.(newList);
           reset();
           setSelectedFile(null);
+          debouncedFetchData("/admin/categories?page=1&limit=10");
           setSelectedFileName("");
           setSelectedFilePreview("");
           setIsOpen(false);

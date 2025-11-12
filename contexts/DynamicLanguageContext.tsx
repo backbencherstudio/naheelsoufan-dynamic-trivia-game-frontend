@@ -1,4 +1,5 @@
 "use client";
+import { useGetLanguagesQuery } from '@/feature/api/apiSlice';
 import useDataFetch from '@/hooks/useDataFetch';
 import { LanguageStorage } from '@/lib/languageStorage';
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
@@ -66,7 +67,7 @@ export const DynamicLanguageProvider: React.FC<DynamicLanguageProviderProps> = (
   const [error, setError] = useState<string | null>(null);
 
   // Fetch languages from backend
-  const { data: languageData, error: languageError } = useDataFetch('/admin/languages');
+  const { data: languageData, isError: languageError, isLoading: languageLoading } = useGetLanguagesQuery({params: {limit: 1000, page: 1}});
 
   useEffect(() => {
     if (languageData?.data) {
@@ -77,7 +78,7 @@ export const DynamicLanguageProvider: React.FC<DynamicLanguageProviderProps> = (
       setError('Failed to fetch languages');
       setIsLoading(false);
     }
-  }, [languageData, languageError]);
+  }, [languageData, languageLoading]);
 
   // Fetch translation file for current language
   useEffect(() => {
