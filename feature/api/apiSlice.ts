@@ -14,7 +14,7 @@ export const apiSlice = createApi({
             return headers
         },
     }),
-    tagTypes: ["difficulties", "topics", "languages"],
+    tagTypes: ["difficulties", "topics", "languages","serviceType"],
     endpoints: (builder) => ({
         // Define endpoints here
         getDificulties: builder.query({
@@ -148,7 +148,45 @@ export const apiSlice = createApi({
                 },
             }),
             invalidatesTags: ["topics"]
-        })
+        }),
+           getServiceType: builder.query({
+            query: ({ params }) => ({
+                url: `/admin/subscription-types?${params}`,
+            }),
+            providesTags: ["serviceType"]
+        }),
+         addServiceType: builder.mutation({
+            query: ({ data }) => ({
+                url: `/admin/subscription-types`,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: data
+            }),
+            invalidatesTags: ["serviceType"]
+        }),
+        updateServiceType: builder.mutation({
+            query: ({ id,data }) => ({
+                url: `/admin/subscription-types/${id}`,
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: data
+            }),
+            invalidatesTags: ["serviceType"]
+        }),
+        deleteServiceType: builder.mutation({
+            query: ({ id }) => ({
+                url: `/admin/subscription-types/${id}`,
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }),
+            invalidatesTags: ["serviceType"]
+        }),
     }),
 })
 
@@ -166,5 +204,9 @@ export const {
     useAddTopicsImportMutation,
     useUpdateLanguagesMutation, 
     useDeleteLanguagesMutation,
-    useGetTopicsExportQuery
+    useGetTopicsExportQuery,
+    useGetServiceTypeQuery,
+    useAddServiceTypeMutation,
+    useDeleteServiceTypeMutation,
+    useUpdateServiceTypeMutation
      } = apiSlice

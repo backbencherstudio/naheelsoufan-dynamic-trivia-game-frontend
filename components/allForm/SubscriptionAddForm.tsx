@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAddServiceTypeMutation, useGetLanguagesQuery, useUpdateServiceTypeMutation } from "@/feature/api/apiSlice";
 import { useToken } from "@/hooks/useToken";
 import useTranslation from "@/hooks/useTranslation";
-import { UserService } from "@/service/user/user.service";
 import { SubscriptionType } from "@/types";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -30,12 +30,10 @@ interface SubscriptionAddFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   editData?: SubscriptionType;
-  subscriptionTypesData?: SubscriptionType[];
-  setSubscriptionTypesData?: (subscriptionTypesData: SubscriptionType[]) => void;
-  languageData?: any;
+ 
 }
 
-export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionTypesData, setSubscriptionTypesData , languageData }: SubscriptionAddFormProps) {
+export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: SubscriptionAddFormProps) {
   const {
     register,
     handleSubmit,
@@ -56,6 +54,9 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
   });
   const { token } = useToken()
  const {t}=useTranslation()
+ const {data:languageData} = useGetLanguagesQuery({params:{limit:1000, page:1}})
+ const [addServiceType]= useAddServiceTypeMutation()
+ const [updateServiceType]= useUpdateServiceTypeMutation()
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
@@ -70,8 +71,6 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
 
   const onSubmit = async (data: SubscriptionFormData) => {
     const formData = new FormData()
-    console.log(data.language);
-
     formData.append("type", data.subscriptionType)
     formData.append("language_id", data.language)
     formData.append("games", data.numberOfGames.toString())
@@ -79,30 +78,19 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData, subscriptionT
     formData.append("players", data.numberOfPlayers.toString())
     formData.append("price", data.price.toString())
     try {
-
       if (editData?.id) {
         // Update existing item
-        const endpoint = `/admin/subscription-types/${editData.id}`;
-        const response = await UserService.updateData(endpoint, formData, token);
+        const response = await updateServiceType({id:editData.id ,data:formData});
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          const updatedData: any[] = subscriptionTypesData?.map(item =>
-            item.id === editData.id
-              ? { ...item, type: data.subscriptionType, language: { name: languageData?.data?.find((item: any) => item.id === data.language)?.name, id: data.language }, games: data.numberOfGames, questions: data.numberOfQuestions, players: data.numberOfPlayers, price: data.price }
-              : item
-          );
-          setSubscriptionTypesData(updatedData);
           reset();
           setIsOpen(false);
         }
       } else {
         // Add new item
-        const endpoint = `/admin/subscription-types`;
-        const response = await UserService.createData(endpoint, formData, token);
+        const response = await addServiceType({data : formData});
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          console.log(response?.data?.data);
-          subscriptionTypesData?.unshift(response?.data?.data);
           reset();
           setIsOpen(false);
         }

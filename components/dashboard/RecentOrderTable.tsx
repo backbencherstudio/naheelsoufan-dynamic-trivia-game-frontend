@@ -1,6 +1,5 @@
 "use client";
-import { useDebounce } from "@/helper/debounce.helper";
-import useDataFetch from '@/hooks/useDataFetch';
+import { useDeleteServiceTypeMutation, useGetServiceTypeQuery } from "@/feature/api/apiSlice";
 import { useToken } from '@/hooks/useToken';
 import useTranslation from "@/hooks/useTranslation";
 import { UserService } from '@/service/user/user.service';
@@ -17,7 +16,7 @@ import SearchComponent from '../common/SearchComponent';
 function RecentOrderTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState<string>('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
@@ -25,25 +24,26 @@ function RecentOrderTable() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [subscriptionTypesData, setSubscriptionTypesData] = useState([]);
   const [paginationData, setPaginationData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { token } = useToken();
   const { t } = useTranslation()
-  const endpoint = `/admin/subscription-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
+   const buildQueryParams = (searchValue = '') => {
+  const params = new URLSearchParams();
+  params.append('limit', itemsPerPage.toString());
+  params.append('page', currentPage.toString());
+  if (searchValue) params.append('q', searchValue);
+  if (selectedLanguage) params.append('language_id', selectedLanguage);
+  return params.toString();
+};
+  
+const {data , isLoading} = useGetServiceTypeQuery({params: buildQueryParams(search)})
+const [deleteServiceType] = useDeleteServiceTypeMutation()
 
-  // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setSubscriptionTypesData(response.data?.data);
-      setPaginationData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }, 500);
+useEffect(()=>{
+ if(data){
+  setSubscriptionTypesData(data?.data || [])
+  setPaginationData(data?.pagination || {})
+ }
+},[data])
 
   // Get search parameter from URL on component mount
   useEffect(() => {
@@ -55,15 +55,6 @@ function RecentOrderTable() {
       setSearch(''); // Clear search if no URL parameter
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
-    }
-  }, [endpoint, token, search, currentPage]);
-
-
-  const { data: languageData } = useDataFetch(`/admin/languages`);
 
 
   // Initialize selected language from URL params
@@ -166,15 +157,12 @@ function RecentOrderTable() {
   const handleDelete = async (id: any) => {
     setDeletingId(id);
     try {
-      const response = await UserService.deleteData(`/admin/subscription-types/${id}`, token);
+      const response = await deleteServiceType({id});
 
       if (response?.data?.success) {
         toast.success(response?.data?.message);
-        // Remove the deleted item from the local state
-        setSubscriptionTypesData(prevData => prevData.filter(item => item.id !== id));
       }
     } catch (error) {
-      console.error("Error deleting difficulty:", error);
       toast.error("Failed to delete subscription type");
     } finally {
       setDeletingId(null);
@@ -207,7 +195,7 @@ function RecentOrderTable() {
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           paginationData={paginationData}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
       {isOpen &&
@@ -215,9 +203,7 @@ function RecentOrderTable() {
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           editData={editData}
-          subscriptionTypesData={subscriptionTypesData}
-          setSubscriptionTypesData={setSubscriptionTypesData}
-          languageData={languageData}
+         
         />}
     </section>
   );
