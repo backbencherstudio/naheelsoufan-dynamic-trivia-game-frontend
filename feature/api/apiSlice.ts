@@ -203,6 +203,18 @@ export const apiSlice = createApi({
             }),
             providesTags:["admin"]
         }),
+        getSubscription: builder.query({
+            query: ({ params }) => ({
+                url: `/admin/subscription/users?${params}`,
+            }),
+            providesTags:["admin"]
+        }),
+        getHost: builder.query({
+            query: ({ params }) => ({
+                url: `/admin/user?${params}`,
+            }),
+            providesTags:["admin"]
+        }),
          addAdmin: builder.mutation({
             query: ({ data }) => ({
                 url: `/admin/user`,
@@ -262,5 +274,7 @@ export const {
     useGetAdminQuery,
     useAddAdminMutation,
     useDeleteAdminMutation,
-    useUpdateAdminMutation
+    useUpdateAdminMutation,
+    useGetSubscriptionQuery,
+    useGetHostQuery
 } = apiSlice

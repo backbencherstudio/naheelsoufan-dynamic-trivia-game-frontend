@@ -24,14 +24,11 @@ function AdminManagementPage() {
   const [adminsData, setAdminsData] = useState<any[]>([]);
   const [paginationData, setPaginationData] = useState({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [selectedAdmin, setSelectedAdmin] = useState<{
     id: string;
     name: string;
     email: string;
   } | null>(null);
-  const { token } = useToken();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -80,8 +77,6 @@ function AdminManagementPage() {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   };
-
-
   const columns = [
     {
       label: t("no"),

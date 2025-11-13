@@ -2,10 +2,9 @@
 "use client";
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useDebounce } from '@/helper/debounce.helper';
-import { useToken } from '@/hooks/useToken';
+import { useGetHostQuery } from '@/feature/api/apiSlice';
+import useDely from '@/hooks/useDely';
 import useTranslation from '@/hooks/useTranslation';
-import { UserService } from '@/service/user/user.service';
 import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
@@ -24,27 +23,22 @@ function HostsPage() {
   const pathname = usePathname();
   const [subscriptionData, setSubscriptionData] = useState([])
   const [paginationData, setPaginationData] = useState({})
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { token } = useToken();
+
   const { t } = useTranslation();
 
-  const endpoint = `/admin/user?type=host&page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort=${sortBy}&order=${sortOrder}`;
+     const debouncedSearch = useDely(search, 500);
 
-  // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setSubscriptionData(response.data?.data);
-      setPaginationData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || t("something_went_wrong"));
-    } finally {
-      setLoading(false);
-    }
-  }, 500);
-
+  const buildQueryParams = (searchValue = '') => {
+    const params = new URLSearchParams();
+    params.append('type',"host")
+    params.append('limit', itemsPerPage.toString());
+    params.append('page', currentPage.toString());
+    if (searchValue) params.append('q', searchValue);
+    if (sortBy) params.append('sort', sortBy);
+    if (sortOrder) params.append('order', sortOrder);
+    return params.toString();
+  };
+  const {data, isError, isLoading} = useGetHostQuery({params:buildQueryParams(debouncedSearch)})
   // Get search parameter from URL on component mount
   useEffect(() => {
     const searchParam = searchParams.get('search');
@@ -55,12 +49,12 @@ function HostsPage() {
       setSearch(''); // Clear search if no URL parameter
     }
   }, [searchParams]);
-
   useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
+    if (data) {
+      setSubscriptionData(data?.data || []);
+      setPaginationData(data?.pagination)
     }
-  }, [endpoint, token , currentPage]);
+  }, [data]);
 
 
   const columns = [
@@ -108,7 +102,6 @@ function HostsPage() {
     },
   ];
 
-  // Search function
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
@@ -119,13 +112,12 @@ function HostsPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
-  // Debounced search function using the reusable hook
-  const debouncedSearch = useDebounce(searchFunction, 500);
+  useEffect(() => {
+    searchFunction(debouncedSearch);
+  }, [debouncedSearch, searchFunction]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    debouncedSearch(value);
+    setSearch(e.target.value);
   };
 
   const toggleSortOrder = () => {
@@ -144,19 +136,7 @@ function HostsPage() {
         <div className="md:p-5">
           {/* Filter and Search Section */}
           <div className="flex flex-col md:flex-row gap-4 mb-4">
-            {/* <div className="w-48">
-              <Select value={filterValue} onValueChange={setFilterValue}>
-                <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                  <SelectValue placeholder='All' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='all'>All</SelectItem>
-                  <SelectItem value='active'>Active</SelectItem>
-                  <SelectItem value='inactive'>Inactive</SelectItem>
-                  <SelectItem value='free-trial'>Free Trial</SelectItem>
-                </SelectContent>
-              </Select>
-            </div> */}
+           
             <div className="md:w-48 w-68 flex items-center gap-2">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className='md:w-[180px] w-full !h-12.5 focus-visible:ring-0'>
@@ -200,7 +180,7 @@ function HostsPage() {
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           paginationData={paginationData}
-          loading={loading}
+          loading={isLoading}
 
         />
       </div>

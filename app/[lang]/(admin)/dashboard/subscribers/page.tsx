@@ -2,10 +2,9 @@
 "use client";
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useDebounce } from '@/helper/debounce.helper';
-import { useToken } from '@/hooks/useToken';
+import { useGetSubscriptionQuery } from '@/feature/api/apiSlice';
+import useDely from '@/hooks/useDely';
 import useTranslation from '@/hooks/useTranslation';
-import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
@@ -15,35 +14,28 @@ function HostsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState('');
-  const [filterValue, setFilterValue] = useState('all');
   const [sortBy, setSortBy] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'| ''>('desc');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'| ''>('');
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const [subscriptionData, setSubscriptionData] = useState([])
   const [paginationData, setPaginationData] = useState({})
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { token } = useToken();
+
   const { t } = useTranslation();
 
-  const endpoint = `/admin/subscription/users?page=${currentPage}&limit=${itemsPerPage}&q=${search}&sort=${sortBy}&order=${sortOrder}`;
+   const debouncedSearch = useDely(search, 500);
 
-  // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setSubscriptionData(response.data?.data);
-      setPaginationData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || t("something_went_wrong"));
-    } finally {
-      setLoading(false);
-    }
-  }, 500);
-
+  const buildQueryParams = (searchValue = '') => {
+    const params = new URLSearchParams();
+    params.append('limit', itemsPerPage.toString());
+    params.append('page', currentPage.toString());
+    if (searchValue) params.append('q', searchValue);
+    if (sortBy) params.append('sort', sortBy);
+    if (sortOrder) params.append('order', sortOrder);
+    return params.toString();
+  };
+  const {data, isError, isLoading} = useGetSubscriptionQuery({params:buildQueryParams(debouncedSearch)})
   // Get search parameter from URL on component mount
   useEffect(() => {
     const searchParam = searchParams.get('search');
@@ -54,13 +46,12 @@ function HostsPage() {
       setSearch(''); // Clear search if no URL parameter
     }
   }, [searchParams]);
-
   useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
-
+    if (data) {
+      setSubscriptionData(data?.data || []);
+      setPaginationData(data?.pagination)
     }
-  }, [endpoint, token , sortOrder, currentPage]);
+  }, [data]);
 
 
   const columns = [
@@ -130,8 +121,7 @@ function HostsPage() {
       ),
     },
   ];
-
-  // Search function
+// search===========
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
@@ -142,13 +132,12 @@ function HostsPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
-  // Debounced search function using the reusable hook
-  const debouncedSearch = useDebounce(searchFunction, 500);
+  useEffect(() => {
+    searchFunction(debouncedSearch);
+  }, [debouncedSearch, searchFunction]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    debouncedSearch(value);
+    setSearch(e.target.value);
   };
 
   const toggleSortOrder = () => {
@@ -211,7 +200,7 @@ function HostsPage() {
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           paginationData={paginationData}
-          loading={loading}
+          loading={isLoading}
 
         />
       </div>
