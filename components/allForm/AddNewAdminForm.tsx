@@ -7,9 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToken } from "@/hooks/useToken";
+import { useAddAdminMutation } from "@/feature/api/apiSlice";
 import useTranslation from "@/hooks/useTranslation";
-import { UserService } from "@/service/user/user.service";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa6";
@@ -26,10 +25,10 @@ interface AddNewAdminFormData {
 interface AddNewAdminFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  adminsData: any[];
+  adminsData?: any[];
 }
 
-export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFormProps) {
+export function AddNewAdminForm({ isOpen, setIsOpen }: AddNewAdminFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const {
@@ -38,8 +37,8 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
     formState: { errors, isSubmitting },
     reset
   } = useForm<AddNewAdminFormData>();
-  const { token } = useToken();
   const {t} = useTranslation();
+  const [addAdmin]=useAddAdminMutation()
   const onSubmit = async (data: AddNewAdminFormData) => {
     setLoading(true);
     try {
@@ -48,20 +47,17 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
         name: data.displayName,
         password: data.password,
       }
-      const response = await UserService.createData(`/admin/user`, formdata, token);
+      const response = await addAdmin({data:formdata});
       
       if(response.data.success){
         toast.success(response.data.message);
-        adminsData?.unshift(response?.data?.data);
         reset();
         setIsOpen(false);
       }else{
         toast.error(response.data.message);
       }
     } catch (error) {
-        console.error("Error creating admin:", error);
       toast.error(error.message || t("something_went_wrong"));
-      toast.error(error.message);
       reset();
       setIsOpen(false);
     } finally {
@@ -71,7 +67,7 @@ export function AddNewAdminForm({ isOpen, setIsOpen, adminsData }: AddNewAdminFo
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="md:max-w-[505px] p-0">
+      <DialogContent className="md:max-w-[505px] max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="md:px-6 px-3 pt-3 md:pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="md:text-xl text-lg font-semibold text-gray-900 flex gap-2 items-center">
             <div className=" rounded-full flex items-center justify-center">

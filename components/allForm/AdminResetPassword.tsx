@@ -7,9 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToken } from "@/hooks/useToken";
+import { useUpdateAdminMutation } from "@/feature/api/apiSlice";
 import useTranslation from "@/hooks/useTranslation";
-import { UserService } from "@/service/user/user.service";
 import { useForm } from "react-hook-form";
 import { RiRotateLockLine } from "react-icons/ri";
 import { toast } from "react-toastify";
@@ -31,10 +30,9 @@ interface AdminResetPasswordFormProps {
     email: string;
   } | null;
   adminsData: any[];
-  setAdminsData: (data: any[]) => void;
 }
 
-export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData, adminsData, setAdminsData }: AdminResetPasswordFormProps) {
+export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData }: AdminResetPasswordFormProps) {
 
   const {
     register,
@@ -50,32 +48,28 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData, adminsDat
       confirmPassword: ""
     }
   });
- const {token} = useToken();
   const newPassword = watch("newPassword");
   const {t} = useTranslation();
-
+ const [updateAdmin]=useUpdateAdminMutation()
   const onSubmit = async (data: AdminResetPasswordFormData) => {
     const formdata = {
       name: data.name,
       email: data.email,
-      password: data.confirmPassword
+      password: data.confirmPassword,
+      type: "admin"
     }
     try {
-      const response = await UserService.updateData(`/admin/user/${adminData?.id}`, formdata, token);
+      const response = await updateAdmin({id:adminData?.id, data:formdata});
       if(response.data.success){
         toast.success(response.data.message);
         reset();
         setIsOpen(false);
-        const updatedData = adminsData.map(item => item.id === adminData?.id ? response.data.data : item);
-        setAdminsData(updatedData);
       }else{
         toast.error(response.data.message);
       }
 
     } catch (error) {
-      console.error("Error resetting password:", error);
       toast.error(error.message || t("something_went_wrong"));
-      toast.error(error.message);
       reset();
       setIsOpen(false);
     }
@@ -83,7 +77,7 @@ export function AdminResetPasswordForm({ isOpen, setIsOpen, adminData, adminsDat
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[505px] p-0">
+      <DialogContent className="sm:max-w-[505px] p-0 max-h-[90vh] overflow-y-auto">
         <DialogHeader className="md:px-6 px-3 pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="text-lg md:text-xl flex gap-2 items-center font-semibold text-gray-900 dark:text-whiteColor">
             <RiRotateLockLine size={24} className="text-primaryColor" />  {t("update_admin_information")}

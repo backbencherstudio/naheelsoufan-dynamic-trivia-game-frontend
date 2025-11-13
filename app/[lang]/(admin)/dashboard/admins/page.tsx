@@ -3,7 +3,8 @@
 import { AddNewAdminForm } from '@/components/allForm/AddNewAdminForm';
 import { AdminResetPasswordForm } from '@/components/allForm/AdminResetPassword';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
-import { useDebounce } from '@/helper/debounce.helper';
+import { useDeleteAdminMutation, useGetAdminQuery } from '@/feature/api/apiSlice';
+import useDely from '@/hooks/useDely';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
 import { UserService } from '@/service/user/user.service';
@@ -35,23 +36,24 @@ function AdminManagementPage() {
   const router = useRouter();
   const pathname = usePathname();
   const { t } = useTranslation();
-  // API endpoint with search
-  const endpoint = `/admin/user?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
+ const debouncedSearch = useDely(search, 500);
 
-  // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setAdminsData(response.data?.data);
-      setPaginationData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || t("something_went_wrong"));
-    } finally {
-      setLoading(false);
+ const buildQueryParams = (searchValue = '') => {
+  const params = new URLSearchParams();
+  params.append('limit', itemsPerPage.toString());
+  params.append('page', currentPage.toString());
+  if (searchValue) params.append('q', searchValue);
+  return params.toString();
+};
+
+ const {data, isError,isLoading}=useGetAdminQuery({params: buildQueryParams(debouncedSearch)})
+ const [deleteAdmin] = useDeleteAdminMutation()
+ useEffect(() => {
+    if (data) {
+       setAdminsData(data?.data)
+       setPaginationData(data?.pagination)
     }
-  }, 500);
-
+  }, [data]);
   // Get search parameter from URL on component mount
   useEffect(() => {
     const adminParam = searchParams.get('admin');
@@ -61,30 +63,22 @@ function AdminManagementPage() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
-    }
-  }, [endpoint, token]);
-
-  // Search function
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
-      params.delete('admin');
+      params.delete('search');
     } else {
-      params.set('admin', searchValue);
+      params.set('search', searchValue);
     }
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
-  // Debounced search function using the reusable hook
-  const debouncedSearch = useDebounce(searchFunction, 500);
+  useEffect(() => {
+    searchFunction(debouncedSearch);
+  }, [debouncedSearch, searchFunction]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    debouncedSearch(value);
+    setSearch(e.target.value);
   };
 
 
@@ -166,14 +160,11 @@ function AdminManagementPage() {
   const handleDelete = async (record: any) => {
     setDeletingId(record.id);
     try {
-      const response = await UserService.deleteData(`/admin/user/${record.id}`, token);
+      const response = await deleteAdmin({id:record?.id});
       if (response?.data?.success) {
         toast.success(response?.data?.message);
-        const updatedData = adminsData.filter(item => item?.id !== record?.id);
-        setAdminsData(updatedData);
       }
     } catch (error) {
-      console.log(error?.message);
       toast.error(error?.message);
     } finally {
       setDeletingId(null);
@@ -231,7 +222,7 @@ function AdminManagementPage() {
             onPageChange={setCurrentPage}
             onItemsPerPageChange={setItemsPerPage}
             paginationData={paginationData}
-            loading={loading}
+            loading={isLoading}
           />
         </div>
       </div>
@@ -240,7 +231,6 @@ function AdminManagementPage() {
       {isResetPasswordOpen && (
         <AdminResetPasswordForm
           adminsData={adminsData}
-          setAdminsData={setAdminsData}
           isOpen={isResetPasswordOpen}
           setIsOpen={setIsResetPasswordOpen}
           adminData={selectedAdmin}
@@ -252,7 +242,6 @@ function AdminManagementPage() {
         <AddNewAdminForm
           isOpen={isAddAdminOpen}
           setIsOpen={setIsAddAdminOpen}
-          adminsData={adminsData}
         />
       )}
     </div>

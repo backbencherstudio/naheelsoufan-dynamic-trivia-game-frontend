@@ -1,10 +1,10 @@
 
 "use client";
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
+import { useGetPreviousGameQuery } from '@/feature/api/apiSlice';
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
-import { UserService } from '@/service/user/user.service';
 import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
@@ -19,25 +19,22 @@ function PreviousGamesPage() {
   const pathname = usePathname();
   const [gamesHistoryData, setGamesHistoryData] = useState([]);
   const [paginationData, setPaginationData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { token } = useToken();
   const { t } = useTranslation()
-  const endpoint = `/admin/games?page=${currentPage}&limit=${itemsPerPage}&q=${search}`;
 
-  // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setGamesHistoryData(response.data?.data);
-      setPaginationData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+ const buildQueryParams = (searchValue = '') => {
+  const params = new URLSearchParams();
+  params.append('limit', itemsPerPage.toString());
+  params.append('page', currentPage.toString());
+  if (searchValue) params.append('q', searchValue);
+  return params.toString();
+}; 
+const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(search)})
+  useEffect(() => {
+    if (data) {
+      setGamesHistoryData(data?.data)
+      setPaginationData(data?.pagination)
     }
-  }, 500);
+  }, [data]);
 
   // Get search parameter from URL on component mount
   useEffect(() => {
@@ -49,14 +46,6 @@ function PreviousGamesPage() {
       setSearch(''); // Clear search if no URL parameter
     }
   }, [searchParams]);
-
-  useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
-  
-    }
-  }, [endpoint, token , currentPage]);
-
 
   const columns = [
     {
@@ -119,7 +108,6 @@ function PreviousGamesPage() {
           ),
         },
   ];
-
   // Search function
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
@@ -201,7 +189,7 @@ function PreviousGamesPage() {
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
           paginationData={paginationData}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
     </div>

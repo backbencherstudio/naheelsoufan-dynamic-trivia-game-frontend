@@ -14,7 +14,7 @@ export const apiSlice = createApi({
             return headers
         },
     }),
-    tagTypes: ["difficulties", "topics", "languages","serviceType"],
+    tagTypes: ["difficulties", "topics", "languages", "serviceType","admin"],
     endpoints: (builder) => ({
         // Define endpoints here
         getDificulties: builder.query({
@@ -32,9 +32,9 @@ export const apiSlice = createApi({
                 },
                 body: data
             }),
-            invalidatesTags:["difficulties"]
+            invalidatesTags: ["difficulties"]
         }),
-         updateDificulties: builder.mutation({
+        updateDificulties: builder.mutation({
             query: ({ id, data }) => ({
                 url: `/admin/difficulties/${id}`,
                 method: "PATCH",
@@ -60,7 +60,7 @@ export const apiSlice = createApi({
                 url: `/admin/languages`,
             }),
             providesTags: ["languages"]
-        }), 
+        }),
         addLanguages: builder.mutation({
             query: ({ data }) => ({
                 url: `/admin/languages`,
@@ -93,7 +93,7 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ["languages"]
         }),
-       
+
         getTopics: builder.query({
             query: ({ params }) => ({
                 url: `/admin/categories?${params}`,
@@ -129,7 +129,7 @@ export const apiSlice = createApi({
             invalidatesTags: ["topics"]
         }),
         updateTopic: builder.mutation({
-            query: ({ id,data }) => ({
+            query: ({ id, data }) => ({
                 url: `/admin/categories/${id}`,
                 method: "PATCH",
                 headers: {
@@ -149,13 +149,13 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ["topics"]
         }),
-           getServiceType: builder.query({
+        getServiceType: builder.query({
             query: ({ params }) => ({
                 url: `/admin/subscription-types?${params}`,
             }),
             providesTags: ["serviceType"]
         }),
-         addServiceType: builder.mutation({
+        addServiceType: builder.mutation({
             query: ({ data }) => ({
                 url: `/admin/subscription-types`,
                 method: "POST",
@@ -167,7 +167,7 @@ export const apiSlice = createApi({
             invalidatesTags: ["serviceType"]
         }),
         updateServiceType: builder.mutation({
-            query: ({ id,data }) => ({
+            query: ({ id, data }) => ({
                 url: `/admin/subscription-types/${id}`,
                 method: "PATCH",
                 headers: {
@@ -187,26 +187,80 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ["serviceType"]
         }),
+        getPreviousGame: builder.query({
+            query: ({ params }) => ({
+                url: `/admin/games?${params}`,
+            }),
+        }),
+        getPlayers: builder.query({
+            query: ({ params }) => ({
+                url: `/admin/players?${params}`,
+            }),
+        }),
+        getAdmin: builder.query({
+            query: ({ params }) => ({
+                url: `/admin/user?${params}`,
+            }),
+            providesTags:["admin"]
+        }),
+         addAdmin: builder.mutation({
+            query: ({ data }) => ({
+                url: `/admin/user`,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: data
+            }),
+            invalidatesTags: ["admin"]
+        }),
+        updateAdmin: builder.mutation({
+            query: ({ id,data }) => ({
+                url: `/admin/user/${id}`,
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: data
+            }),
+            invalidatesTags: ["admin"]
+        }),
+        deleteAdmin: builder.mutation({
+            query: ({ id }) => ({
+                url: `/admin/user/${id}`,
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }),
+            invalidatesTags: ["admin"]
+        }),
     }),
 })
 
 export const {
-    useGetDificultiesQuery, 
-    useAddDificultiesMutation, 
+    useGetDificultiesQuery,
+    useAddDificultiesMutation,
     useUpdateDificultiesMutation,
-    useDeleteDificultiesMutation, 
-    useGetTopicsQuery, 
-    useAddTopicsMutation, 
-    useDeleteTopicsMutation ,
-    useUpdateTopicMutation, 
-    useGetLanguagesQuery, 
-    useAddLanguagesMutation, 
+    useDeleteDificultiesMutation,
+    useGetTopicsQuery,
+    useAddTopicsMutation,
+    useDeleteTopicsMutation,
+    useUpdateTopicMutation,
+    useGetLanguagesQuery,
+    useAddLanguagesMutation,
     useAddTopicsImportMutation,
-    useUpdateLanguagesMutation, 
+    useUpdateLanguagesMutation,
     useDeleteLanguagesMutation,
     useGetTopicsExportQuery,
     useGetServiceTypeQuery,
     useAddServiceTypeMutation,
     useDeleteServiceTypeMutation,
-    useUpdateServiceTypeMutation
-     } = apiSlice
+    useUpdateServiceTypeMutation,
+    useGetPreviousGameQuery,
+    useGetPlayersQuery,
+    useGetAdminQuery,
+    useAddAdminMutation,
+    useDeleteAdminMutation,
+    useUpdateAdminMutation
+} = apiSlice
