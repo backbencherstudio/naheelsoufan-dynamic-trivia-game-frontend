@@ -56,7 +56,7 @@ export function TopicAddForm({ isOpen, setIsOpen, editData}: TopicAddFormProps) 
         : "",
     }
   });
- const {data:languageData} = useGetLanguagesQuery({params:{limit:1000, page:1}})
+ const {data:languageData} = useGetLanguagesQuery({params:`limit=1000&page=1`})
  const [addTopics] = useAddTopicsMutation()
  const [updateTopic] = useUpdateTopicMutation()
   // Update form values when editData changes

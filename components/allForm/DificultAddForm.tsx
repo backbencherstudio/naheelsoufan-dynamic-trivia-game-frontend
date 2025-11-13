@@ -31,7 +31,7 @@ interface DifficultyAddFormProps {
 export function DifficultyAddForm({ isOpen, setIsOpen, editData,  }: DifficultyAddFormProps) {
   const [addDificulties ,{ isLoading: isAdding }] = useAddDificultiesMutation()
   const [updateDificulties,{ isLoading: isUpdating }] = useUpdateDificultiesMutation()
-  const {data: languagesData} = useGetLanguagesQuery({params: {limit: 1000, page: 1}})
+  const {data: languagesData} = useGetLanguagesQuery({params:`limit=1000&page=1`})
   const {
     register,
     handleSubmit,

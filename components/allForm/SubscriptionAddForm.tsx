@@ -54,7 +54,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
   });
   const { token } = useToken()
  const {t}=useTranslation()
- const {data:languageData} = useGetLanguagesQuery({params:{limit:1000, page:1}})
+ const {data:languageData} = useGetLanguagesQuery({params:`limit=1000&page=1`})
  const [addServiceType]= useAddServiceTypeMutation()
  const [updateServiceType]= useUpdateServiceTypeMutation()
   // Update form values when editData changes

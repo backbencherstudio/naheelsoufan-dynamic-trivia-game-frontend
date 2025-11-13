@@ -47,7 +47,7 @@ function TopicsPage() {
   
   const {data, isLoading, isError} = useGetTopicsQuery({params: buildQueryParams(search)})
   const [deleteTopics] = useDeleteTopicsMutation()
-  const { data: languageData } = useGetLanguagesQuery({params:{limit:1000, page:1}});
+  const { data: languageData } = useGetLanguagesQuery({params:`limit=1000&page=1`});
   const [addTopicsImport] = useAddTopicsImportMutation()
   const { data: questionExportData } = useGetTopicsExportQuery({});
   // Debounced API call function

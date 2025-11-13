@@ -12,7 +12,7 @@ function SearchComponent({ placeholder }: { placeholder: string, }) {
   const pathname = usePathname();
   const [search, setSearch] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
-  const { data: languageData, isLoading: languageLoading } = useGetLanguagesQuery({params: {limit: 1000, page: 1}});
+  const { data: languageData } = useGetLanguagesQuery({params:`limit=1000&page=1`});
   const { t } = useTranslation()
   // Get search parameter from URL on component mount
   useEffect(() => {

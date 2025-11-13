@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
-import useDataFetch from '@/hooks/useDataFetch';
+import { useAddQuestionMutation, useGetDificultiesQuery, useGetLanguagesQuery, useGetQuestionTypeQuery, useGetTopicsQuery, useUpdateQuestionMutation } from '@/feature/api/apiSlice';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
-import { UserService } from '@/service/user/user.service';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -33,11 +32,12 @@ type FormValues = {
   optionDFile?: File | null;
 };
 
-function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestionData }: { isOpen: boolean, onClose: () => void, editData?: any, questionData?: any, setQuestionData?: any }) {
+function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onClose: () => void, editData?: any, }) {
   const { t } = useTranslation()
   // State for storing uploaded files
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-
+  const [updateQuestion]= useUpdateQuestionMutation()
+  const [addQuestion]= useAddQuestionMutation()
   // State for storing existing file URLs from edit data
   const [existingFiles, setExistingFiles] = useState<{ [key: string]: string }>({});
   // Object URLs for previews
@@ -69,23 +69,18 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
   const { token } = useToken();
   const selectedLanguage = watch('language');
-  const { data: languageData } = useDataFetch(`/admin/languages`);
+  const { data: languageData } = useGetLanguagesQuery({params:`limit=1000&page=1`});
+
 
   // Get language_id for filtering - use selected language or edit data language
   const languageId = selectedLanguage || (editData?.language?.id ?? editData?.language_id ?? editData?.language);
 
-  // Create dynamic endpoints with language_id parameter
-  const topicEndpoint = languageId ? `/admin/categories/topics?language_id=${languageId}` : `/admin/categories`;
-  const difficultyEndpoint = languageId ? `/admin/difficulties?language_id=${languageId}` : `/admin/difficulties`;
-  const questionTypeEndpoint = languageId ? `/admin/question-types` : `/admin/question-types`;
-
-  const { data: topicData } = useDataFetch(topicEndpoint);
-  const { data: difficultData } = useDataFetch(difficultyEndpoint);
-  const { data: questionTypeData, loading: questionTypeLoading, error: questionTypeError } = useDataFetch(questionTypeEndpoint);
+  const { data: topicData } = useGetTopicsQuery({params:languageId ? `language_id=${languageId}` : ""});
+  const { data: difficultData } = useGetDificultiesQuery({params:languageId ? `language_id=${languageId}` : ""});
+  const { data: questionTypeData, isLoading: questionTypeLoading, isError: questionTypeError } = useGetQuestionTypeQuery({});
 
   // Current selected question type name (derived once for rendering and validation)
   const selectedTypeName = questionTypeData?.data?.find((item: any) => item.id === watch('questionType'))?.name;
-
 
   // Update form values when editData changes
   useEffect(() => {
@@ -150,7 +145,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
           setValue("answer", String(correctIndex));
 
           // No local answers state needed; values are derived on submit
-        } else if (selectedQuestionType === 'True/False' || selectedQuestionType == "Bools") {
+        } else if (selectedQuestionType === 'True/False' || selectedQuestionType == "Boolean") {
           // Set True/False answer
           const correctAnswer = editData.answers.find((answer: any) => answer.is_correct);
           setValue("answer", correctAnswer?.text || "True");
@@ -294,7 +289,7 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
       if (data.optionDFile) {
         answerFiles.push(data.optionDFile.name || 'optionimage4.jpg');
       }
-    } else if (selectedQuestionType?.name === 'True/False' || selectedQuestionType == "Bools") {
+    } else if (selectedQuestionType?.name === 'True/False' || selectedQuestionType == "Boolean") {
       answersArray = [
         {
           text: "True",
@@ -347,75 +342,25 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
 
     try {
       if (editData?.id) {
-        // Update existing item - use addFormData for FormData
-        const endpoint = `/admin/questions/${editData.id}`;
-        const response = await UserService.updateQuestion(endpoint, formData, token);
+
+        const response = await updateQuestion({id:editData?.id, data:formData});
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          const categoryObj = topicData?.data?.find((t: any) => String(t.id) === String(data.topic));
-          const languageObj = languageData?.data?.find((l: any) => String(l.id) === String(data.language));
-          const difficultyObj = difficultData?.data?.find((d: any) => String(d.id) === String(data.difficulty));
-          const questionTypeObj = questionTypeData?.data?.find((q: any) => String(q.id) === String(data.questionType));
-
-          const updatedData = questionData?.map((item: any) => {
-            if (item.id !== editData.id) return item;
-            const server = response?.data?.data || {};
-            return {
-              ...item,
-              ...server,
-              id: server.id || item.id,
-              text: server.text ?? data.question,
-              question_file_url: server.question_file_url ?? item.question_file_url ?? (typeof imageFile === 'string' ? imageFile : undefined),
-              time: server.time ?? data.answerTime,
-              free_bundle: server.free_bundle ?? (data.freeBundle === 'true'),
-              firebase: server.firebase ?? item.firebase ?? null,
-              points: server.points ?? data.points,
-              category: server.category || (categoryObj ? { id: categoryObj.id, name: categoryObj.name } : item.category),
-              language: server.language || (languageObj ? { id: languageObj.id, name: languageObj.name } : item.language),
-              difficulty: server.difficulty || (difficultyObj ? { id: difficultyObj.id, name: difficultyObj.name } : item.difficulty),
-              question_type: server.question_type || (questionTypeObj ? { id: questionTypeObj.id, name: questionTypeObj.name } : item.question_type),
-              answers: server.answers || answersArray,
-            };
-          });
-          setQuestionData(updatedData);
+         
           reset();
           onClose();
         }
       } else {
-        // Add new item
-        const endpoint = `/admin/questions`;
-        const response = await UserService.addFormData(endpoint, formData, token);
+
+        const response = await addQuestion({data:formData});
 
         if (response?.data?.success) {
           toast.success(response?.data?.message);
-          const server = response?.data?.data || {};
-          const categoryObj = topicData?.data?.find((t: any) => String(t.id) === String(data.topic));
-          const languageObj = languageData?.data?.find((l: any) => String(l.id) === String(data.language));
-          const difficultyObj = difficultData?.data?.find((d: any) => String(d.id) === String(data.difficulty));
-          const questionTypeObj = questionTypeData?.data?.find((q: any) => String(q.id) === String(data.questionType));
-
-          const created = {
-            ...server,
-            id: server?.question.id,
-            text: server.text ?? data.question,
-            question_file_url: server?.question?.question_file_url ?? undefined,
-            time: server.time ?? data.answerTime,
-            free_bundle: server.free_bundle ?? (data.freeBundle === 'true'),
-            firebase: server.firebase ?? null,
-            points: server.points ?? data.points,
-            category: server.category || (categoryObj ? { id: categoryObj.id, name: categoryObj.name } : undefined),
-            language: server.language || (languageObj ? { id: languageObj.id, name: languageObj.name } : undefined),
-            difficulty: server.difficulty || (difficultyObj ? { id: difficultyObj.id, name: difficultyObj.name } : undefined),
-            question_type: server.question_type || (questionTypeObj ? { id: questionTypeObj.id, name: questionTypeObj.name } : undefined),
-            answers: server.answers || answersArray,
-          };
-          questionData?.unshift(created);
           reset();
           onClose();
         }
       }
     } catch (error) {
-      console.error("Error saving question:", error);
       toast.error("Failed to save question");
     }
 
@@ -940,13 +885,13 @@ function AddQuestionModal({ isOpen, onClose, editData, questionData, setQuestion
               )}
 
               {/* True/False (only if question type is True/False) */}
-              {(selectedTypeName === 'True/False' || selectedTypeName == "Bools") && (
+              {(selectedTypeName === 'True/False' || selectedTypeName == "Boolean") && (
                 <div className="mb-4">
                   <label htmlFor="answer" className="block text-sm font-medium text-gray-700">{t("answer")}</label>
                   <Controller
                     name="answer"
                     control={control}
-                    rules={{ required: (selectedTypeName === 'True/False' || selectedTypeName == "Bools") ? t("answer_is_required") : false }}
+                    rules={{ required: (selectedTypeName === 'True/False' || selectedTypeName == "Boolean") ? t("answer_is_required") : false }}
                     render={({ field }) => (
 
                       <Select value={field.value} onValueChange={field.onChange}>

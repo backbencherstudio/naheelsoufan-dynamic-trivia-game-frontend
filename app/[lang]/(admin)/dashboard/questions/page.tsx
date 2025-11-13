@@ -2,16 +2,17 @@
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import AddQuestionModal from '@/components/dashboard/AddQuestionModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useDebounce } from '@/helper/debounce.helper';
-import useDataFetch from '@/hooks/useDataFetch';
+import { useAddQuestionImportMutation, useDeleteQuestionMutation, useGetLanguagesQuery, useGetQuestionExportQuery, useGetQuestionQuery } from '@/feature/api/apiSlice';
+import useDely from '@/hooks/useDely';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
-import { UserService } from '@/service/user/user.service';
+import Image from 'next/image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 import { FaPen } from 'react-icons/fa6';
 import { HiSearch } from 'react-icons/hi';
+import { IoEyeSharp } from 'react-icons/io5';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 
@@ -46,39 +47,35 @@ function QuestionsPage() {
     if (key === 'language') return 'language';
     return '';
   };
-
+   const debouncedSearch = useDely(search, 500);
   const apiSortKey = mapSortKey(sortBy);
-  const endpoint = `/admin/questions?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}${apiSortKey ? `&sort=${apiSortKey}` : ''}${sortOrder ? `&order=${sortOrder}` : ''}`;
+  const buildQueryParams = (searchValue = '') => {
+    const params = new URLSearchParams();
+    params.append('limit', itemsPerPage.toString());
+    params.append('page', currentPage.toString());
+    if (searchValue) params.append('q', searchValue);
+    if (apiSortKey) params.append('sort', apiSortKey);
+    if (sortOrder) params.append('order', sortOrder);
+    if (selectedLanguage) params.append('language_id', selectedLanguage);
+    return params.toString();
+  };
 
+const {data , isLoading, isError}=useGetQuestionQuery({params:buildQueryParams(debouncedSearch)})
+const [AddQuestionImport] = useAddQuestionImportMutation()
+const [DeleteQuestion] = useDeleteQuestionMutation()
   const { t } = useTranslation()
   // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setQuestionData(response.data?.data);
-      setPaginationData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || t("something_went_wrong"));
-    } finally {
-      setLoading(false);
+  useEffect(()=>{
+    if(data){
+      setQuestionData(data?.data)
+      setPaginationData(data?.pagination)
     }
-  }, 500);
+  },[data])
 
   // Get search parameter from URL on component mount
   useEffect(() => {
     const searchParam = searchParams.get('search');
-    if (searchParam) {
-      setSearch(searchParam);
-      setCurrentPage(1);
-    } else {
-      setSearch(''); // Clear search if no URL parameter
-    }
-  }, [searchParams]);
-
-  // Initialize sort and order from URL params
-  useEffect(() => {
-    const sortParam = searchParams.get('sort');
+      const sortParam = searchParams.get('sort');
     const orderParam = searchParams.get('order') as 'asc' | 'desc' | null;
     if (sortParam) {
       // reverse map for UI
@@ -88,6 +85,12 @@ function QuestionsPage() {
     if ((orderParam === 'asc' || orderParam === 'desc') && orderParam !== sortOrder) {
       setSortOrder(orderParam);
     }
+    if (searchParam) {
+      setSearch(searchParam);
+      setCurrentPage(1);
+    } else {
+      setSearch(''); // Clear search if no URL parameter
+    }
   }, [searchParams]);
 
   // Initialize selected language from URL params
@@ -96,14 +99,8 @@ function QuestionsPage() {
     setSelectedLanguage(languageParam || '');
   }, [searchParams]);
 
-  useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
-    }
-  }, [endpoint, token, sortOrder, currentPage]);
-
   // Fetch language data for dropdown
-  const { data: languageData } = useDataFetch(`/admin/languages`);
+  const { data: languageData } = useGetLanguagesQuery({params:`limit=1000&page=1`});
 
 
   const columns = [
@@ -191,14 +188,16 @@ function QuestionsPage() {
         <span className="text-sm">{value ? "Yes" : "No"}</span>
       ),
     },
-    // {
-    //   label: "Firebase",
-    //   accessor: "firebase",
-    //   width: "100px",
-    //   formatter: (value: string) => (
-    //     <span className="text-sm">{value ? "Yes" : "No"}</span>
-    //   ),
-    // },
+    {
+      label: "Media",
+      accessor: "question_file_url",
+      width: "100px",
+      formatter: (value: string) => (
+        <div>
+          <Image src={value || "/public/image/profile.jpg"} alt='image' width={80} height={80} />
+        </div>
+      ),
+    },
     {
       label: t("options"),
       accessor: "options",
@@ -207,6 +206,13 @@ function QuestionsPage() {
         const isDeleting = deletingId === record.id;
         return (
           <div className="flex gap-2.5">
+
+            <button
+              onClick={() => handleEdit(record)}
+              className='text-2xl cursor-pointer text-blueColor hover:text-blue-600'
+            >
+              <IoEyeSharp />
+            </button>
             <button
               onClick={() => handleEdit(record)}
               className='text-xl cursor-pointer text-grayColor1 hover:text-blue-600'
@@ -230,13 +236,8 @@ function QuestionsPage() {
     },
   ];
 
-  // Initialize selected language from URL params
-  useEffect(() => {
-    const languageParam = searchParams.get('language');
-    setSelectedLanguage(languageParam || '');
-  }, [searchParams]);
-  // Search function
-  const searchFunction = useCallback((searchValue: string) => {
+
+ const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
       params.delete('search');
@@ -246,13 +247,12 @@ function QuestionsPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
-  // Debounced search function using the reusable hook
-  const debouncedSearch = useDebounce(searchFunction, 500);
+  useEffect(() => {
+    searchFunction(debouncedSearch);
+  }, [debouncedSearch, searchFunction]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    debouncedSearch(value);
+    setSearch(e.target.value);
   };
 
   // Handle language selection
@@ -305,20 +305,17 @@ function QuestionsPage() {
   const handleDelete = async (value: any) => {
     setDeletingId(value.id);
     try {
-      const response = await UserService.deleteData(`/admin/questions/${value?.id}`, token);
+      const response = await DeleteQuestion({id:value?.id });
       if (response?.data?.success) {
         toast.success(response?.data?.message);
-        const updatedData = questionData.filter(item => item?.id !== value?.id);
-        setQuestionData(updatedData);
       }
     } catch (error) {
-      console.log(error?.message);
       toast.error(error?.message);
     } finally {
       setDeletingId(null);
     }
   };
-  const { data: questionExportData } = useDataFetch(`/admin/questions/export`);
+  const { data: questionExportData } = useGetQuestionExportQuery({});
 
   const handleExportQuestions = () => {
     try {
@@ -378,13 +375,10 @@ function QuestionsPage() {
           const blob = new Blob([text], { type: 'application/json' });
           formData.append('file', blob, file.name || 'questions.json');
 
-          const res = await UserService.addFormData('/admin/questions/import', formData, token);
+          const res = await AddQuestionImport({data:formData });
           if (res?.data?.success) {
             toast.success(res?.data?.message || 'Questions imported successfully');
-            // Refresh list
-            if (endpoint && token) {
-              debouncedFetchData(endpoint);
-            }
+           
           } else {
             toast.error(res?.data?.message || 'Failed to import questions');
           }
@@ -491,12 +485,12 @@ function QuestionsPage() {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-          loading={loading}
+          loading={isLoading}
           paginationData={paginationData}
         />
       </div>
 
-      {isOpen && <AddQuestionModal isOpen={isOpen} onClose={() => setIsOpen(false)} editData={editData} questionData={questionData} setQuestionData={setQuestionData} />}
+      {isOpen && <AddQuestionModal isOpen={isOpen} onClose={() => setIsOpen(false)} editData={editData} />}
     </div>
   );
 }

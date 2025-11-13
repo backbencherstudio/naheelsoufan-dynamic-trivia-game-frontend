@@ -14,7 +14,7 @@ export const apiSlice = createApi({
             return headers
         },
     }),
-    tagTypes: ["difficulties", "topics", "languages", "serviceType","admin"],
+    tagTypes: ["difficulties", "topics", "languages", "serviceType","admin","question"],
     endpoints: (builder) => ({
         // Define endpoints here
         getDificulties: builder.query({
@@ -56,10 +56,15 @@ export const apiSlice = createApi({
             invalidatesTags: ["difficulties"]
         }),
         getLanguages: builder.query({
-            query: () => ({
-                url: `/admin/languages`,
+            query: ({params}) => ({
+                url: `/admin/languages?${params}`,
             }),
             providesTags: ["languages"]
+        }),
+        getQuestionType: builder.query({
+            query: () => ({
+                url: `/admin/question-types`,
+            }),
         }),
         addLanguages: builder.mutation({
             query: ({ data }) => ({
@@ -247,6 +252,61 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ["admin"]
         }),
+         getQuestion: builder.query({
+            query: ({ params }) => ({
+                url: `/admin/questions?${params}`,
+            }),
+            providesTags:["question"]
+        }),
+         addQuestion: builder.mutation({
+            query: ({ data }) => ({
+                url: `/admin/questions`,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: data
+            }),
+            invalidatesTags: ["question"]
+        }),
+        updateQuestion: builder.mutation({
+            query: ({ id ,data }:any) => ({
+                url: `/admin/questions/${id}`,
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: data
+            }),
+            invalidatesTags: ["question"]
+        }),
+        deleteQuestion: builder.mutation({
+            query: ({ id }) => ({
+                url: `/admin/questions/${id}`,
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }),
+            invalidatesTags: ["question"]
+        }),
+          getQuestionExport: builder.query({
+            query: () => ({
+                url: `/admin/questions/export`,
+            }),
+            providesTags: ["question"]
+        }),
+        addQuestionImport: builder.mutation({
+            query: ({ data }) => ({
+                url: `/admin/questions/import`,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: data
+            }),
+            invalidatesTags: ["question"]
+        }),
     }),
 })
 
@@ -276,5 +336,13 @@ export const {
     useDeleteAdminMutation,
     useUpdateAdminMutation,
     useGetSubscriptionQuery,
-    useGetHostQuery
+    useGetHostQuery,
+    useAddQuestionImportMutation,
+    useDeleteQuestionMutation,
+    useGetQuestionQuery,
+    useGetQuestionExportQuery,
+    useGetQuestionTypeQuery,
+    useUpdateQuestionMutation,
+    useAddQuestionMutation
+
 } = apiSlice
