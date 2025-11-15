@@ -116,25 +116,25 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
           // Set answer files if they exist
           const existingFilesData: { [key: string]: string } = {};
 
-          if (editData.answers[0]?.question_file_url) {
-            existingFilesData.optionA = editData.answers[0].question_file_url;
+          if (editData.answers[0]?.answer_file_url) {
+            existingFilesData.optionA = editData.answers[0].answer_file_url;
             // Create a mock File object for display purposes
-            const mockFileA = new File([''], editData.answers[0].question_file_url, { type: 'image/jpeg' });
+            const mockFileA = new File([''], editData.answers[0].answer_file_url, { type: 'image/jpeg' });
             setValue("optionAFile", mockFileA);
           }
-          if (editData.answers[1]?.question_file_url) {
-            existingFilesData.optionB = editData.answers[1].question_file_url;
-            const mockFileB = new File([''], editData.answers[1].question_file_url, { type: 'image/jpeg' });
+          if (editData.answers[1]?.answer_file_url) {
+            existingFilesData.optionB = editData.answers[1].answer_file_url;
+            const mockFileB = new File([''], editData.answers[1].answer_file_url, { type: 'image/jpeg' });
             setValue("optionBFile", mockFileB);
           }
-          if (editData.answers[2]?.question_file_url) {
-            existingFilesData.optionC = editData.answers[2].question_file_url;
-            const mockFileC = new File([''], editData.answers[2].question_file_url, { type: 'image/jpeg' });
+          if (editData.answers[2]?.answer_file_url) {
+            existingFilesData.optionC = editData.answers[2].answer_file_url;
+            const mockFileC = new File([''], editData.answers[2].answer_file_url, { type: 'image/jpeg' });
             setValue("optionCFile", mockFileC);
           }
-          if (editData.answers[3]?.question_file_url) {
-            existingFilesData.optionD = editData.answers[3].question_file_url;
-            const mockFileD = new File([''], editData.answers[3].question_file_url, { type: 'image/jpeg' });
+          if (editData.answers[3]?.answer_file_url) {
+            existingFilesData.optionD = editData.answers[3].answer_file_url;
+            const mockFileD = new File([''], editData.answers[3].answer_file_url, { type: 'image/jpeg' });
             setValue("optionDFile", mockFileD);
           }
 
@@ -163,9 +163,7 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
     }
   }, [editData, setValue, questionTypeData, reset]);
   // Handle answer selection (no extra state needed)
-  const handleAnswerSelect = (selectedAnswer: string) => {
-    setValue('answer', selectedAnswer);
-  };
+
 
   // Handle file upload and store in state array
   const handleFileUpload = (file: File | null, optionName: string) => {
@@ -364,6 +362,57 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
       toast.error("Failed to save question");
     }
 
+  };
+
+  // Create a reusable component for option input
+  const OptionInput = ({ 
+    label, 
+    optionKey, 
+    register, 
+    control, 
+    watch, 
+    t 
+  }: any) => {
+    const optionValue = watch(optionKey);
+    
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label} 
+        </label>
+        <div className="flex gap-3">
+          <input
+            {...register(optionKey)}
+            type="text"
+            className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
+            placeholder={t("enter_option_text")}
+          />
+          <Controller
+            name={`${optionKey}File`}
+            control={control}
+            render={({ field }) => (
+              <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
+                <input
+                  type="file"
+                  accept="image/*,audio/*,video/*"
+                  className="hidden"
+                  id={`${optionKey}File`}
+                  onChange={(e) => {
+                    const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+                    field.onChange(file);
+                    handleFileUpload(file, optionKey);
+                  }}
+                />
+                <label htmlFor={`${optionKey}File`} className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
+                  <IoCloudUploadOutline className='text-primaryColor text-base' />
+                  <span>{field.value ? (field.value as File).name : t('upload')}</span>
+                </label>
+              </div>
+            )}
+          />
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -712,172 +761,45 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
               {/* Options (only if question type is Options) */}
               {selectedTypeName === 'Options' && (
                 <>
-                  <div className="mb-4">
-                    <label htmlFor="optionA" className="block text-sm font-medium text-gray-700">{t("optionA")}</label>
-                    <div className="flex gap-3">
-                      <input
-                        {...register('optionA')}
-                        type="text"
-                        id="optionA"
-                        className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
-                      />
-                      <Controller
-                        name="optionAFile"
-                        control={control}
-                        render={({ field }) => (
-                          <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
-                            <input
-                              type="file"
-                              accept="image/*,audio/*,video/*"
-                              className="hidden"
-                              id="optionAFile"
-                              onChange={(e) => {
-                                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-                                field.onChange(file);
-                                handleFileUpload(file, 'OptionA');
-                              }}
-                            />
-                            <label htmlFor="optionAFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
-                              <IoCloudUploadOutline className='text-primaryColor text-base' />
-                              <span>{field.value ? (field.value as File).name : t('upload')}</span>
-                            </label>
-                          </div>
-                        )}
-                      />
-                    </div>
-                  </div>
+                  <OptionInput label={t("optionA")} optionKey="optionA" register={register} control={control} watch={watch} t={t} />
+                  <OptionInput label={t("optionB")} optionKey="optionB" register={register} control={control} watch={watch} t={t} />
+                  <OptionInput label={t("optionC")} optionKey="optionC" register={register} control={control} watch={watch} t={t} />
+                  <OptionInput label={t("optionD")} optionKey="optionD" register={register} control={control} watch={watch} t={t} />
 
-                  <div className="mb-4">
-                    <label htmlFor="optionB" className="block text-sm font-medium text-gray-700">{t("optionB")}</label>
-                    <div className="flex gap-3">
-                      <input
-                        {...register('optionB')}
-                        type="text"
-                        id="optionB"
-                        className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
-                      />
-                      <Controller
-                        name="optionBFile"
-                        control={control}
-                        render={({ field }) => (
-                          <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
-                            <input
-                              type="file"
-                              accept="image/*,audio/*,video/*"
-                              className="hidden"
-                              id="optionBFile"
-                              onChange={(e) => {
-                                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-                                field.onChange(file);
-                                handleFileUpload(file, 'OptionB');
-                              }}
-                            />
-                            <label htmlFor="optionBFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
-                              <IoCloudUploadOutline className='text-primaryColor text-sm' />
-                              <span>{field.value ? (field.value as File).name : t('upload')}</span>
-                            </label>
-                          </div>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label htmlFor="optionC" className="block text-sm font-medium text-gray-700">{t("optionC")}</label>
-                    <div className="flex gap-3">
-                      <input
-                        {...register('optionC')}
-                        type="text"
-                        id="optionC"
-                        className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
-                      />
-                      <Controller
-                        name="optionCFile"
-                        control={control}
-                        render={({ field }) => (
-                          <div className="w-[30%] mt-1 border border-gray-300 overflow-hidden rounded-md h-10 flex items-center p-2">
-                            <input
-                              type="file"
-                              accept="image/*,audio/*,video/*"
-                              className="hidden"
-                              id="optionCFile"
-                              onChange={(e) => {
-                                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-                                field.onChange(file);
-                                handleFileUpload(file, 'OptionC');
-                              }}
-                            />
-                            <label htmlFor="optionCFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
-                              <IoCloudUploadOutline className='text-primaryColor text-sm' />
-                              <span>{field.value ? (field.value as File).name : t('upload')}</span>
-                            </label>
-                          </div>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label htmlFor="optionD" className="block text-sm font-medium text-gray-700">{t("optionD")}</label>
-                    <div className="flex gap-3">
-                      <input
-                        {...register('optionD')}
-                        type="text"
-                        id="optionD"
-                        className="mt-1 p-2 w-[70%] border border-gray-300 rounded-md"
-                      />
-                      <Controller
-                        name="optionDFile"
-                        control={control}
-                        render={({ field }) => (
-                          <div className="w-[30%] mt-1 border border-gray-300  overflow-hidden rounded-md h-10 flex items-center p-2">
-                            <input
-                              type="file"
-                              accept="image/*,audio/*,video/*"
-                              className="hidden"
-                              id="optionDFile"
-                              onChange={(e) => {
-                                const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-                                field.onChange(file);
-                                handleFileUpload(file, 'OptionD');
-                              }}
-                            />
-                            <label htmlFor="optionDFile" className="cursor-pointer text-xs text-gray-600 flex items-center gap-1">
-                              <IoCloudUploadOutline className='text-primaryColor  text-sm' />
-                              <span>{field.value ? (field.value as File).name : t('upload')}</span>
-                            </label>
-                          </div>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Answer for Options */}
+                  {/* Answer for Options - Shows actual option values */}
                   <div className="mb-4">
                     <label htmlFor="answer" className="block text-sm font-medium text-gray-700">{t("answer")}</label>
                     <Controller
                       name="answer"
                       control={control}
                       rules={{ required: selectedTypeName === 'Options' ? t("answer_is_required") : false }}
-                      render={({ field }) => (
-                        <Select
-                          value={field.value}
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            handleAnswerSelect(value);
-                          }}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder={t("select_correct_option")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">{t("a")}</SelectItem>
-                            <SelectItem value="1">{t("b")}</SelectItem>
-                            <SelectItem value="2">{t("c")}</SelectItem>
-                            <SelectItem value="3">{t("d")}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
+                      render={({ field }) => {
+                        const optionA = watch('optionA') || '';
+                        const optionB = watch('optionB') || '';
+                        const optionC = watch('optionC') || '';
+                        const optionD = watch('optionD') || '';
+                        const options = [
+                          { value: '0', label: optionA || t("a"), text: optionA },
+                          { value: '1', label: optionB || t("b"), text: optionB },
+                          { value: '2', label: optionC || t("c"), text: optionC },
+                          { value: '3', label: optionD || t("d"), text: optionD },
+                        ];
+
+                        return (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder={t("select_correct_option")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {options.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        );
+                      }}
                     />
                     {errors.answer && <p className="text-red-500 text-xs mt-1">{errors.answer.message as string}</p>}
                   </div>

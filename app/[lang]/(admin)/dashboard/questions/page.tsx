@@ -47,7 +47,7 @@ function QuestionsPage() {
     if (key === 'language') return 'language';
     return '';
   };
-   const debouncedSearch = useDely(search, 500);
+  const debouncedSearch = useDely(search, 500);
   const apiSortKey = mapSortKey(sortBy);
   const buildQueryParams = (searchValue = '') => {
     const params = new URLSearchParams();
@@ -60,22 +60,22 @@ function QuestionsPage() {
     return params.toString();
   };
 
-const {data , isLoading, isError}=useGetQuestionQuery({params:buildQueryParams(debouncedSearch)})
-const [AddQuestionImport] = useAddQuestionImportMutation()
-const [DeleteQuestion] = useDeleteQuestionMutation()
+  const { data, isLoading, isError } = useGetQuestionQuery({ params: buildQueryParams(debouncedSearch) })
+  const [AddQuestionImport] = useAddQuestionImportMutation()
+  const [DeleteQuestion] = useDeleteQuestionMutation()
   const { t } = useTranslation()
   // Debounced API call function
-  useEffect(()=>{
-    if(data){
+  useEffect(() => {
+    if (data) {
       setQuestionData(data?.data)
       setPaginationData(data?.pagination)
     }
-  },[data])
+  }, [data])
 
   // Get search parameter from URL on component mount
   useEffect(() => {
     const searchParam = searchParams.get('search');
-      const sortParam = searchParams.get('sort');
+    const sortParam = searchParams.get('sort');
     const orderParam = searchParams.get('order') as 'asc' | 'desc' | null;
     if (sortParam) {
       // reverse map for UI
@@ -100,8 +100,19 @@ const [DeleteQuestion] = useDeleteQuestionMutation()
   }, [searchParams]);
 
   // Fetch language data for dropdown
-  const { data: languageData } = useGetLanguagesQuery({params:`limit=1000&page=1`});
+  const { data: languageData } = useGetLanguagesQuery({ params: `limit=1000&page=1` });
 
+  const detectMediaKind = (src: string, file?: File | null): 'image' | 'audio' | 'video' => {
+    if (file && file.type) {
+      if (file.type.startsWith('image')) return 'image';
+      if (file.type.startsWith('audio')) return 'audio';
+      if (file.type.startsWith('video')) return 'video';
+    }
+    const lower = src?.toLowerCase();
+    if (/(mp4|webm|ogg|mov|m4v)$/.test(lower)) return 'video';
+    if (/(mp3|wav|ogg|m4a)$/.test(lower)) return 'audio';
+    return 'image';
+  };
 
   const columns = [
     {
@@ -191,12 +202,108 @@ const [DeleteQuestion] = useDeleteQuestionMutation()
     {
       label: "Media",
       accessor: "question_file_url",
-      width: "100px",
-      formatter: (value: string) => (
-        <div>
-          <Image src={value || "/public/image/profile.jpg"} alt='image' width={80} height={80} />
-        </div>
-      ),
+      width: "120px",
+      formatter: (src: string) => {
+        const kind = detectMediaKind(src, typeof src !== 'string' ? (src as File | null) : null);
+        return (
+          <div>
+            {
+              src == null || src== "" ? <span className="text-sm border rounded-sm bg-grayColor1/60 w-full h-17 flex items-center justify-center text-gray-500">No Image</span> :
+               <div className=" rounded-md ">
+              {kind === 'image' && (
+                <Image src={src} alt="preview" width={100} height={100} className=" h-full w-auto object-contain" />
+              )}
+              {kind === 'audio' && (
+                <div className="relative">
+                  {src.startsWith('blob:') ? (
+                    // Local preview audio (blob URL)
+                    <audio controls src={src} className="w-full" />
+                  ) : (
+                    // Server audio with CORS handling
+                    <div className="relative">
+                      <audio
+                        controls
+                        className="w-full"
+                        preload="none"
+                        crossOrigin="anonymous"
+                        onLoadStart={() => console.log('Audio loading started for:', src)}
+                        onCanPlay={() => console.log('Audio can play:', src)}
+                        onLoadedData={() => console.log('Audio data loaded:', src)}
+                        onError={(e) => {
+                          // Try without CORS
+                          if (e.currentTarget.crossOrigin) {
+                            console.log('Retrying audio without CORS...');
+                            e.currentTarget.crossOrigin = null;
+                            e.currentTarget.load();
+                          }
+                        }}
+                      >
+                        <source src={src} type="audio/mpeg" />
+                        <source src={src} type="audio/wav" />
+                        <source src={src} type="audio/ogg" />
+                        Your browser does not support the audio element.
+                      </audio>
+
+
+                    </div>
+                  )}
+                </div>
+              )}
+              {kind === 'video' && (
+                <div className="relative">
+                  {src.startsWith('blob:') ? (
+                    // Local preview video (blob URL)
+                    <video
+                      controls
+                      src={src}
+                      className="h-17 w-auto object-contain rounded-lg "
+                      width={200}
+                      height={100}
+                      preload="metadata"
+                      playsInline
+                      muted
+                      style={{ maxWidth: '100%', maxHeight: '68px' }}
+                    />
+                  ) : (
+                    // Server video with CORS handling
+                    <div className="relative">
+                      <video
+                        controls
+                        className="h-17 w-auto object-contain rounded-lg  bg-gray-100"
+                        width={200}
+                        height={100}
+                        preload="none"
+                        playsInline
+                        crossOrigin="anonymous"
+                        onLoadStart={() => console.log('Video loading started for:', src)}
+                        onCanPlay={() => console.log('Video can play:', src)}
+                        onLoadedData={() => console.log('Video data loaded:', src)}
+                        onLoadedMetadata={() => console.log('Video metadata loaded:', src)}
+                        onError={(e) => {
+
+                          // Try without CORS
+                          if (e.currentTarget.crossOrigin) {
+                            console.log('Retrying without CORS...');
+                            e.currentTarget.crossOrigin = null;
+                            e.currentTarget.load();
+                          }
+                        }}
+                        style={{ maxWidth: '100%', maxHeight: '68px' }}
+                      >
+                        <source src={src} type="video/mp4" />
+                        <source src={src} type="video/webm" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            }
+           
+          </div>
+        )
+      },
     },
     {
       label: t("options"),
@@ -237,7 +344,7 @@ const [DeleteQuestion] = useDeleteQuestionMutation()
   ];
 
 
- const searchFunction = useCallback((searchValue: string) => {
+  const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
       params.delete('search');
@@ -305,7 +412,7 @@ const [DeleteQuestion] = useDeleteQuestionMutation()
   const handleDelete = async (value: any) => {
     setDeletingId(value.id);
     try {
-      const response = await DeleteQuestion({id:value?.id });
+      const response = await DeleteQuestion({ id: value?.id });
       if (response?.data?.success) {
         toast.success(response?.data?.message);
       }
@@ -375,10 +482,10 @@ const [DeleteQuestion] = useDeleteQuestionMutation()
           const blob = new Blob([text], { type: 'application/json' });
           formData.append('file', blob, file.name || 'questions.json');
 
-          const res = await AddQuestionImport({data:formData });
+          const res = await AddQuestionImport({ data: formData });
           if (res?.data?.success) {
             toast.success(res?.data?.message || 'Questions imported successfully');
-           
+
           } else {
             toast.error(res?.data?.message || 'Failed to import questions');
           }
