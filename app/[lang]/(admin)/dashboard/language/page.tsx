@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
-import { UserService } from '@/service/user/user.service';
 import { Loader2 } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -20,7 +19,6 @@ function page() {
   const [search, setSearch] = useState('');
   const [languageData, setLanguageData] = useState([]);
   const [totalData, setTotalData] = useState({});
-  const [error, setError] = useState(null);
   const searchParams = useSearchParams();
   const router = useRouter()
   const pathname = usePathname()
@@ -28,7 +26,6 @@ function page() {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation()
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const { token } = useToken();
   const buildQueryParams = (searchValue = '') => {
     const params = new URLSearchParams();
     params.append('limit', itemsPerPage.toString());
@@ -38,8 +35,6 @@ function page() {
   } 
  const [deleteLanguages, ] = useDeleteLanguagesMutation()
   const { data: languageDataList, isLoading: languageLoading } = useGetLanguagesQuery({params: buildQueryParams(search || '') as any});
-  console.log("check languageDataList ========",languageDataList);
-
   useEffect(() => {
     if (languageDataList) {
       setLanguageData(languageDataList?.data || []);

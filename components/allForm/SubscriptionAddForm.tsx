@@ -12,12 +12,13 @@ import { useToken } from "@/hooks/useToken";
 import useTranslation from "@/hooks/useTranslation";
 import { SubscriptionType } from "@/types";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 // Form data interface
 interface SubscriptionFormData {
+  subscription_title: string;
   subscriptionType: string;
   language: string;
   numberOfGames: number;
@@ -52,11 +53,15 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
       price: editData?.price ?? undefined,
     }
   });
-  const { token } = useToken()
  const {t}=useTranslation()
  const {data:languageData} = useGetLanguagesQuery({params:`limit=1000&page=1`})
  const [addServiceType]= useAddServiceTypeMutation()
  const [updateServiceType]= useUpdateServiceTypeMutation()
+ const gameMode = [
+    { label: t("Queck Game"), value: "Queck_Game" },
+    { label: t("Grid Style"), value: "Grid_Style" },
+   
+ ]
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
@@ -66,11 +71,13 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
       setValue("numberOfQuestions", editData.questions);
       setValue("numberOfPlayers", editData.players);
       setValue("price", editData.price);
+      setValue("subscription_title", editData.title);
     }
   }, [editData, setValue]);
 
   const onSubmit = async (data: SubscriptionFormData) => {
     const formData = new FormData()
+    formData.append("title", data.subscription_title)
     formData.append("type", data.subscriptionType)
     formData.append("language_id", data.language)
     formData.append("games", data.numberOfGames.toString())
@@ -105,7 +112,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[505px] p-0">
+      <DialogContent className="sm:max-w-[505px] max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b-[1px] border-headerColor/20">
           <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
             {editData ? t("eidt_subscription_type") : t("add_subscription_type")}
@@ -114,20 +121,48 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4 px-6 pb-6">
+            <div>
+                <Label htmlFor="subscription_title" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
+                  {t("subscription_title")}
+                </Label>
+                <Input
+                  id="subscription_title"
+                  placeholder={t("subscription_title_placeholder")}
+                  type="string"
+                  {...register("subscription_title", {
+                    required: t("subscription_of_games_is_required"),
+                   
+                  })}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscription_title ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
+                />
+                {errors.subscription_title && (
+                  <p className="text-sm text-red-500 mt-1">{errors.subscription_title.message}</p>
+                )}
+              </div>
             {/* Subscription Type Input */}
             <div>
               <Label htmlFor="subscriptionType" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
                 {t("subscription_type")}
               </Label>
-              <Input
-                id="subscriptionType"
-                placeholder={t("subscription_type")}
-                {...register("subscriptionType", {
-                  required: t("subscription_type_is_required"),
-                 
-                })}
-                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscriptionType ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
-              />
+              <Controller
+                name="subscriptionType"
+                control={control}
+                rules={{ required: t("subscription_type_is_required") }}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className={`w-full !h-10 md:!h-14 ${errors.subscriptionType ? "border-red-500" : ""}`}>
+                      <SelectValue placeholder={t("subscription_type")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {
+                        gameMode?.map((item: any) => (
+                          <SelectItem key={item?.value} value={item?.value}>{item?.label}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                )}
+             />
               {errors.subscriptionType && (
                 <p className="text-sm text-red-500 mt-1">{errors.subscriptionType.message}</p>
               )}

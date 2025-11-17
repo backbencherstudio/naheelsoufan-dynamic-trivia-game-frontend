@@ -5,6 +5,7 @@ declare global {
   }
 
 export interface SubscriptionType {
+    title: string;
     created_at: string;
     games: number;
     id: string;

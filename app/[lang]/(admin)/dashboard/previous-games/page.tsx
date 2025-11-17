@@ -57,20 +57,21 @@ const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(sear
         return <span className="text-sm font-medium">{serial}</span>;
       },
     },
-    // {
-    //   label: "Category",
-    //   accessor: "category",
-    //   width: "150px",
-    //   formatter: (value: string) => (
-    //     <span className="text-sm font-medium">{value}</span>
-    //   ),
-    // },
+   
     {
       label: t("game_mode"),
       accessor: "mode",
       width: "100px",
       formatter: (value: string) => (
         <span className="text-sm">{value}</span>
+      ),
+    },
+     {
+      label: "game ID",
+      accessor: "id",
+      width: "150px",
+      formatter: (value: string) => (
+        <span className="text-sm font-medium">{value}</span>
       ),
     },
     {
