@@ -67,7 +67,7 @@ const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(sear
       ),
     },
      {
-      label: "game ID",
+      label: "Game ID",
       accessor: "id",
       width: "150px",
       formatter: (value: string) => (

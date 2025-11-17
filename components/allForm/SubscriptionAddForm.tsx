@@ -31,10 +31,10 @@ interface SubscriptionAddFormProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   editData?: SubscriptionType;
- 
+
 }
 
-export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: SubscriptionAddFormProps) {
+export function SubscriptionAddForm({ isOpen, setIsOpen, editData }: SubscriptionAddFormProps) {
   const {
     register,
     handleSubmit,
@@ -47,21 +47,21 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
     defaultValues: {
       subscriptionType: editData?.type || "",
       language: editData?.language?.id || "",
-      numberOfGames: editData?.games ?? undefined,
-      numberOfQuestions: editData?.questions ?? undefined,
-      numberOfPlayers: editData?.players ?? undefined,
-      price: editData?.price ?? undefined,
+      numberOfGames: editData?.games ?? 0,
+      numberOfQuestions: editData?.questions ?? 0,
+      numberOfPlayers: editData?.players ?? 0,
+      price: editData?.price ?? 0,
     }
   });
- const {t}=useTranslation()
- const {data:languageData} = useGetLanguagesQuery({params:`limit=1000&page=1`})
- const [addServiceType]= useAddServiceTypeMutation()
- const [updateServiceType]= useUpdateServiceTypeMutation()
- const gameMode = [
-    { label: t("Queck Game"), value: "Queck_Game" },
-    { label: t("Grid Style"), value: "Grid_Style" },
-   
- ]
+  const { t } = useTranslation()
+  const { data: languageData } = useGetLanguagesQuery({ params: `limit=1000&page=1` })
+  const [addServiceType] = useAddServiceTypeMutation()
+  const [updateServiceType] = useUpdateServiceTypeMutation()
+  const gameMode = [
+    { label: t("Quick Game"), value: "QUICK_GAME" },
+    { label: t("Grid Style"), value: "GRID_STYLE" },
+
+  ]
   // Update form values when editData changes
   useEffect(() => {
     if (editData) {
@@ -76,18 +76,21 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
   }, [editData, setValue]);
 
   const onSubmit = async (data: SubscriptionFormData) => {
-    const formData = new FormData()
-    formData.append("title", data.subscription_title)
-    formData.append("type", data.subscriptionType)
-    formData.append("language_id", data.language)
-    formData.append("games", data.numberOfGames.toString())
-    formData.append("questions", data.numberOfQuestions.toString())
-    formData.append("players", data.numberOfPlayers.toString())
-    formData.append("price", data.price.toString())
+    const formData = {
+      title: data.subscription_title,
+      type: data.subscriptionType,
+      language_id: data.language,
+      games: data.numberOfGames,
+      questions: data.numberOfQuestions,
+      players: data.numberOfPlayers,
+      price: data.price
+    }
+
+
     try {
       if (editData?.id) {
         // Update existing item
-        const response = await updateServiceType({id:editData.id ,data:formData});
+        const response = await updateServiceType({ id: editData.id, data: formData });
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           reset();
@@ -95,7 +98,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
         }
       } else {
         // Add new item
-        const response = await addServiceType({data : formData});
+        const response = await addServiceType({ data: formData });
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           reset();
@@ -122,23 +125,23 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4 px-6 pb-6">
             <div>
-                <Label htmlFor="subscription_title" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                  {t("subscription_title")}
-                </Label>
-                <Input
-                  id="subscription_title"
-                  placeholder={t("subscription_title_placeholder")}
-                  type="string"
-                  {...register("subscription_title", {
-                    required: t("subscription_of_games_is_required"),
-                   
-                  })}
-                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscription_title ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
-                />
-                {errors.subscription_title && (
-                  <p className="text-sm text-red-500 mt-1">{errors.subscription_title.message}</p>
-                )}
-              </div>
+              <Label htmlFor="subscription_title" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
+                {t("subscription_title")}
+              </Label>
+              <Input
+                id="subscription_title"
+                placeholder={t("subscription_title_placeholder")}
+                type="string"
+                {...register("subscription_title", {
+                  required: t("subscription_of_games_is_required"),
+
+                })}
+                className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.subscription_title ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
+              />
+              {errors.subscription_title && (
+                <p className="text-sm text-red-500 mt-1">{errors.subscription_title.message}</p>
+              )}
+            </div>
             {/* Subscription Type Input */}
             <div>
               <Label htmlFor="subscriptionType" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
@@ -162,7 +165,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
                     </SelectContent>
                   </Select>
                 )}
-             />
+              />
               {errors.subscriptionType && (
                 <p className="text-sm text-red-500 mt-1">{errors.subscriptionType.message}</p>
               )}
@@ -209,7 +212,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
                   type="number"
                   {...register("numberOfGames", {
                     required: t("number_of_games_is_required"),
-                   
+
                   })}
                   className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfGames ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
                 />
@@ -228,7 +231,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
                   type="number"
                   {...register("numberOfQuestions", {
                     required: t("number_of_questions_is_required"),
-                   
+
                   })}
                   className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfQuestions ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
                 />
@@ -250,7 +253,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
                   type="number"
                   {...register("numberOfPlayers", {
                     required: t("players_is_required"),
-                    
+
                   })}
                   className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.numberOfPlayers ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
                 />
@@ -270,7 +273,7 @@ export function SubscriptionAddForm({ isOpen, setIsOpen, editData}: Subscription
                   step="0.01"
                   {...register("price", {
                     required: t("price_is_required"),
-                   
+
                   })}
                   className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.price ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor `}
                 />

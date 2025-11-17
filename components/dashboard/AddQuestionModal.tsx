@@ -24,6 +24,7 @@ type FormValues = {
   answer?: string;
   question?: string;
   answerTime: number;
+  repeat_count: number;
   points: number;
   image?: File | null;
   optionAFile?: File | null;
@@ -59,6 +60,7 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
       difficulty: "",
       freeBundle: "false",
       firebaseQuestion: "false",
+      repeat_count: 5,
       image: null,
       optionAFile: null,
       optionBFile: null,
@@ -67,7 +69,6 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
     }
   });
 
-  const { token } = useToken();
   const selectedLanguage = watch('language');
   const { data: languageData } = useGetLanguagesQuery({params:`limit=1000&page=1`});
 
@@ -99,7 +100,7 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
       setValue("answerTime", editData.time);
       setValue("points", editData.points);
       setValue("image", editData.image);
-
+      setValue("repeat_count", editData.repeat_count || 5);
       // Handle answers based on question type
       if (editData.answers && editData.answers.length > 0) {
         const selectedQuestionType =
@@ -318,6 +319,8 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
     formData.append('time', data.answerTime.toString());
     formData.append('points', data.points.toString());
     formData.append('answers', JSON.stringify(answersArray));
+    formData.append('repeat_count', data?.repeat_count);
+    
 
     // Add question file
     if (data.image) {
@@ -374,8 +377,7 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
     watch, 
     t 
   }: any) => {
-    const optionValue = watch(optionKey);
-    
+
     return (
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -577,6 +579,19 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
                 />
               </div>
 
+<div className="mb-6">
+                <label htmlFor="repeat_count" className="block text-sm font-medium text-gray-700">{t("question_repeat_count_for_player")}</label>
+                <input
+                  {...register('repeat_count', { required: t("repeat_count_required"), valueAsNumber: true })}
+                  type="number"
+                  id="repeat_count"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md  dark:bg-black
+                   cursor-not-allowed"
+                  placeholder={t("1")}
+                  min={1}
+                />
+                {errors.repeat_count && <p className="text-red-500 text-xs mt-1">{errors.repeat_count.message as string}</p>}
+              </div>
               {/* Firebase Question (radio input) */}
               {/* <div className="mb-4 ">
                 <label className="block text-sm font-medium text-gray-700">Firebase Question</label>

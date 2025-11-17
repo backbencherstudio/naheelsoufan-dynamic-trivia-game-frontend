@@ -24,8 +24,6 @@ function TopicsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [topicsData, setTopicsData] = useState([]);
   const [paginationData, setPaginationData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -33,7 +31,6 @@ function TopicsPage() {
   const [editData, setEditData] = useState<any | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
-  const { token } = useToken();
   const { t } = useTranslation()
   // API endpoint with language filtering
  const buildQueryParams = (searchValue = '') => {

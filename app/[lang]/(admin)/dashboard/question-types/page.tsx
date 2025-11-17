@@ -2,8 +2,9 @@
 import { QuestionAddForm } from '@/components/allForm/QuestionTypeAddForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useGetLanguagesQuery, useGetQuestionQuery } from '@/feature/api/apiSlice';
 import { useDebounce } from '@/helper/debounce.helper';
-import useDataFetch from '@/hooks/useDataFetch';
+import useDely from '@/hooks/useDely';
 import { useToken } from '@/hooks/useToken';
 import { UserService } from '@/service/user/user.service';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -22,30 +23,28 @@ function QuestionTypesPage() {
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [paginationData, setPaginationData] = useState({});
   // Demo data matching the image
   const [questionData, setQuestionData] = useState<any[]>([])
-  const [totalData, setTotalData] = useState<any>(0)
   const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const { token } = useToken()
  const [editData, setEditData] = useState<{} | null>({});
-  const endpoint = `/admin/question-types?page=${currentPage}&limit=${itemsPerPage}&q=${search}${selectedLanguage ? `&language_id=${selectedLanguage}` : ''}`
-
-  // Debounced API call function
-  const debouncedFetchData = useDebounce(async (url: string) => {
-    try {
-      setLoading(true);
-      const response = await UserService.getData(url, token);
-      setQuestionData(response.data?.data);
-      setTotalData(response.data?.pagination);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+  const debouncedSearch = useDely(search, 500);
+   const buildQueryParams = (searchValue = '') => {
+     const params = new URLSearchParams();
+     params.append('limit', itemsPerPage.toString());
+     params.append('page', currentPage.toString());
+     if (searchValue) params.append('q', searchValue);
+     if (selectedLanguage) params.append('language_id', selectedLanguage);
+     return params.toString();
+   };
+const { data, isLoading, isError } = useGetQuestionQuery({ params: buildQueryParams(debouncedSearch) })
+  useEffect(() => {
+    if (data) {
+      setQuestionData(data?.data)
+      setPaginationData(data?.pagination)
     }
-  }, 500);
-
+  }, [data])
   // Get search parameter from URL on component mount
   useEffect(() => {
     const searchParam = searchParams.get('search');
@@ -57,16 +56,10 @@ function QuestionTypesPage() {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    if (endpoint && token) {
-      debouncedFetchData(endpoint);
 
-    }
-  }, [endpoint, token]);
 
   // Fetch language data for the dropdown
-  const { data: languageData } = useDataFetch(`/admin/languages`);
-
+   const { data: languageData } = useGetLanguagesQuery({ params: `limit=1000&page=1` });
 
 
   const columns = [
@@ -123,7 +116,7 @@ function QuestionTypesPage() {
     },
   ];
 
-  // Search function
+
   const searchFunction = useCallback((searchValue: string) => {
     const params = new URLSearchParams(searchParams);
     if (searchValue === '') {
@@ -134,13 +127,12 @@ function QuestionTypesPage() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [searchParams, router, pathname]);
 
-  // Debounced search function using the reusable hook
-  const debouncedSearch = useDebounce(searchFunction, 500);
+  useEffect(() => {
+    searchFunction(debouncedSearch);
+  }, [debouncedSearch, searchFunction]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    debouncedSearch(value);
+    setSearch(e.target.value);
   };
 
   // Handle language selection
@@ -242,8 +234,8 @@ function QuestionTypesPage() {
           itemsPerPage={itemsPerPage}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={setItemsPerPage}
-          paginationData={totalData}
-          loading={loading}
+          paginationData={paginationData}
+          loading={isLoading}
         />
       </div>
       {isOpen && <QuestionAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} questionData={questionData} setQuestionData={setQuestionData} />}

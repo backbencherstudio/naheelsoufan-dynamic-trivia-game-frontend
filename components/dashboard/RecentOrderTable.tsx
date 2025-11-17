@@ -74,7 +74,15 @@ useEffect(()=>{
       },
     },
     {
-      label: t("type_name"),
+      label: t("Subscription Title"),
+      accessor: "title",
+      width: "150px",
+      formatter: (value: string) => (
+        <span className="text-sm font-medium">{value}</span>
+      ),
+    },
+    {
+      label: t("Subscription type"),
       accessor: "type",
       width: "150px",
       formatter: (value: string) => (

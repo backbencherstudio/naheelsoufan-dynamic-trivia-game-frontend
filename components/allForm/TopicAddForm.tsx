@@ -8,9 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAddTopicsMutation, useGetLanguagesQuery, useUpdateTopicMutation } from "@/feature/api/apiSlice";
-import { useToken } from "@/hooks/useToken";
 import useTranslation from "@/hooks/useTranslation";
-import { UserService } from "@/service/user/user.service";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -21,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 interface TopicFormData {
   name: string;
   language: string;
+  selecteMaxNumber: string;
 }
 
 interface TopicAddFormProps {
@@ -35,7 +34,6 @@ export function TopicAddForm({ isOpen, setIsOpen, editData}: TopicAddFormProps) 
   const [selectedFilePreview, setSelectedFilePreview] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { token } = useToken();
   const {t}=useTranslation()
   // form handle
   const {
@@ -49,11 +47,13 @@ export function TopicAddForm({ isOpen, setIsOpen, editData}: TopicAddFormProps) 
   } = useForm<TopicFormData>({
     defaultValues: {
       name: editData?.name || "",
+
       language: editData?.language?.id
         ? String(editData?.language?.id)
         : editData?.language
         ? String(editData?.language)
         : "",
+      selecteMaxNumber: editData?.same_category_selection
     }
   });
  const {data:languageData} = useGetLanguagesQuery({params:`limit=1000&page=1`})
@@ -122,6 +122,7 @@ export function TopicAddForm({ isOpen, setIsOpen, editData}: TopicAddFormProps) 
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("language_id", data.language);
+    formData.append("same_category_selection", data.selecteMaxNumber);
     if (selectedFile) {
       formData.append("file", selectedFile);
     }
@@ -214,7 +215,26 @@ export function TopicAddForm({ isOpen, setIsOpen, editData}: TopicAddFormProps) 
                 <p className="text-sm text-red-500 mt-1">{errors.language.message}</p>
               )}
             </div>
-            
+            <div>
+              <Label htmlFor="selecteMaxNumber" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
+                {t("same_category_selection")}(only for - QUICK_GAME)
+              </Label>
+             <Input
+                  id="selecteMaxNumber"
+                  placeholder={t("number_of_selection")}
+                  type="number"
+                  {...register("selecteMaxNumber", {
+                    required: t("number_of_selection_is_required"),
+
+                  })}
+                  className={`w-full !h-10 md:!h-14 px-3 border border-gray-300 rounded-md bg-white ${errors.selecteMaxNumber ? "border-red-500" : ""} dark:text-whiteColor dark:bg-blackColor`}
+                />
+                {errors.selecteMaxNumber && (
+                  <p className="text-sm text-red-500 mt-1">{errors.selecteMaxNumber.message}</p>
+                )}
+              
+              
+            </div>
             {/* File Upload Section */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
