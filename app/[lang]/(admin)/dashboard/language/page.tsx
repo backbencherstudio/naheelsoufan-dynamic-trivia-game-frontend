@@ -16,7 +16,7 @@ import { toast } from 'react-toastify';
 import { useDeleteLanguagesMutation, useGetLanguagesQuery } from '@/feature/api/apiSlice';
 function page() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [search, setSearch] = useState('');
   const [languageData, setLanguageData] = useState([]);
   const [totalData, setTotalData] = useState({});

@@ -54,7 +54,7 @@ export default function DynamicTableTwo({
       {/* Table Wrapper with Border & Radius */}
       <div className="overflow-hidden rounded-t-md border border-gray-200 dark:border-gray-700">
         <div className="overflow-x-auto">
-          <table className="min-w-[1000px] w-full text-left">
+          <table className="min-w-[1400px] w-full text-left">
             <thead className="bg-neutral-50">
               <tr>
                 {columns.map((col, index) => (

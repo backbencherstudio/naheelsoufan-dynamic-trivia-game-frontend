@@ -1,6 +1,7 @@
 "use client";
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import AddQuestionModal from '@/components/dashboard/AddQuestionModal';
+import QuestionViewDetails from '@/components/dashboard/QuestionViewDetails';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAddQuestionImportMutation, useDeleteQuestionMutation, useGetLanguagesQuery, useGetQuestionExportQuery, useGetQuestionQuery } from '@/feature/api/apiSlice';
 import useDely from '@/hooks/useDely';
@@ -24,6 +25,7 @@ function QuestionsPage() {
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [isOpen, setIsOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
   const [editData, setEditData] = useState<{
     question: string;
     topic: string;
@@ -36,9 +38,6 @@ function QuestionsPage() {
   const [questionData, setQuestionData] = useState<any[]>([]);
   const [paginationData, setPaginationData] = useState({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { token } = useToken();
 
   // map UI sort keys to API sort keys
   const mapSortKey = (key: string) => {
@@ -170,6 +169,8 @@ function QuestionsPage() {
       width: "120px",
       formatter: (value: any) => {
         const ans = value?.find((item: any) => item.is_correct == true)
+        console.log("check answer",value);
+        
         return (
           <span className="text-sm">{ans?.text}</span>
         )
@@ -211,7 +212,7 @@ function QuestionsPage() {
               src == null || src== "" ? <span className="text-sm border rounded-sm bg-grayColor1/60 w-full h-17 flex items-center justify-center text-gray-500">No Image</span> :
                <div className=" rounded-md ">
               {kind === 'image' && (
-                <Image src={src} alt="preview" width={100} height={100} className=" h-full w-auto object-contain" />
+                <Image src={src} alt="preview" width={100} height={100} className=" h-[60px] w-auto object-contain" />
               )}
               {kind === 'audio' && (
                 <div className="relative">
@@ -315,7 +316,7 @@ function QuestionsPage() {
           <div className="flex gap-2.5">
 
             <button
-              onClick={() => handleEdit(record)}
+              onClick={() => handleView(record)}
               className='text-2xl cursor-pointer text-blueColor hover:text-blue-600'
             >
               <IoEyeSharp />
@@ -406,6 +407,11 @@ function QuestionsPage() {
   const handleEdit = (record: any) => {
     console.log("Editing question:", record);
     setIsOpen(true)
+    setEditData(record)
+  };
+  const handleView = (record: any) => {
+    console.log("Editing question:", record);
+    setIsViewOpen(true)
     setEditData(record)
   };
 
@@ -598,6 +604,7 @@ function QuestionsPage() {
       </div>
 
       {isOpen && <AddQuestionModal isOpen={isOpen} onClose={() => setIsOpen(false)} editData={editData} />}
+        {isViewOpen && <QuestionViewDetails isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} editData={editData} />}
     </div>
   );
 }

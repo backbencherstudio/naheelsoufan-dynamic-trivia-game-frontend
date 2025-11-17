@@ -287,7 +287,7 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
       if (data.optionDFile) {
         answerFiles.push(data.optionDFile.name || 'optionimage4.jpg');
       }
-    } else if (selectedQuestionType?.name === 'True/False' || selectedQuestionType == "Boolean") {
+    } else if (selectedQuestionType?.name === 'Boolean' || selectedQuestionType == "Boolean") {
       answersArray = [
         {
           text: "True",
@@ -342,6 +342,8 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
       if (editData?.id) {
 
         const response = await updateQuestion({id:editData?.id, data:formData});
+        
+        
         if (response?.data?.success) {
           toast.success(response?.data?.message);
          
@@ -351,7 +353,6 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
       } else {
 
         const response = await addQuestion({data:formData});
-
         if (response?.data?.success) {
           toast.success(response?.data?.message);
           reset();
