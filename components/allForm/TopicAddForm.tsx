@@ -217,7 +217,7 @@ export function TopicAddForm({ isOpen, setIsOpen, editData}: TopicAddFormProps) 
             </div>
             <div>
               <Label htmlFor="selecteMaxNumber" className="text-sm font-medium text-gray-700 mb-2 block dark:text-whiteColor">
-                {t("same_category_selection")}(only for - QUICK_GAME)
+                {t("subscription_selection_type_name")}
               </Label>
              <Input
                   id="selecteMaxNumber"

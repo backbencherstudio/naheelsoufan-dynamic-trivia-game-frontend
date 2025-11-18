@@ -4,10 +4,9 @@ import { DifficultyAddForm } from '@/components/allForm/DificultAddForm';
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
 import SearchComponent from '@/components/common/SearchComponent';
 import { useDeleteDificultiesMutation, useGetDificultiesQuery } from '@/feature/api/apiSlice';
-import { useToken } from '@/hooks/useToken';
 import useTranslation from '@/hooks/useTranslation';
 import { Loader2 } from 'lucide-react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import {  useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaPen } from 'react-icons/fa6';
 import { RiDeleteBin6Line } from 'react-icons/ri';
@@ -94,7 +93,7 @@ useEffect(() => {
       },
     },
     {
-      label: t("points"),
+      label: t("point"),
       accessor: "points",
       width: "120px",
       formatter: (value: any) => {

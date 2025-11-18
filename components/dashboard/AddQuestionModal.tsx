@@ -586,7 +586,7 @@ function AddQuestionModal({ isOpen, onClose, editData, }: { isOpen: boolean, onC
                   type="number"
                   id="repeat_count"
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md  dark:bg-black
-                   cursor-not-allowed"
+                   "
                   placeholder={t("1")}
                   min={1}
                 />

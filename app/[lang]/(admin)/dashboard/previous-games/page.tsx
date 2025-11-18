@@ -1,6 +1,7 @@
 
 "use client";
 import DynamicTableTwo from '@/components/common/DynamicTableTwo';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGetPreviousGameQuery } from '@/feature/api/apiSlice';
 import { useDebounce } from '@/helper/debounce.helper';
 import { useToken } from '@/hooks/useToken';
@@ -8,6 +9,7 @@ import useTranslation from '@/hooks/useTranslation';
 import dayjs from 'dayjs';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from "react";
+import { FaArrowDown, FaArrowUp } from 'react-icons/fa6';
 import { HiSearch } from 'react-icons/hi';
 
 function PreviousGamesPage() {
@@ -19,16 +21,20 @@ function PreviousGamesPage() {
   const pathname = usePathname();
   const [gamesHistoryData, setGamesHistoryData] = useState([]);
   const [paginationData, setPaginationData] = useState({});
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const { t } = useTranslation()
+  const [topicFilter, setTopicFilter] = useState('');
+  const buildQueryParams = (searchValue = '') => {
+    const params = new URLSearchParams();
+    params.append('limit', itemsPerPage.toString());
+    params.append('page', currentPage.toString());
+    if (searchValue) params.append('q', searchValue);
+    if (sortOrder) params.append('order', sortOrder);
+    if (topicFilter && topicFilter !== 'all') params.append('mode', topicFilter);
+    return params.toString();
+  };
 
- const buildQueryParams = (searchValue = '') => {
-  const params = new URLSearchParams();
-  params.append('limit', itemsPerPage.toString());
-  params.append('page', currentPage.toString());
-  if (searchValue) params.append('q', searchValue);
-  return params.toString();
-}; 
-const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(search)})
+  const { data, isLoading } = useGetPreviousGameQuery({ params: buildQueryParams(search) })
   useEffect(() => {
     if (data) {
       setGamesHistoryData(data?.data)
@@ -57,7 +63,7 @@ const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(sear
         return <span className="text-sm font-medium">{serial}</span>;
       },
     },
-   
+
     {
       label: t("game_mode"),
       accessor: "mode",
@@ -66,8 +72,8 @@ const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(sear
         <span className="text-sm">{value}</span>
       ),
     },
-     {
-      label: "Game ID",
+    {
+      label: t("game_id"),
       accessor: "id",
       width: "150px",
       formatter: (value: string) => (
@@ -101,13 +107,13 @@ const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(sear
       ),
     },
     {
-          label: t("created_at"),
-          accessor: "created_at",
-          width: "100px",
-          formatter: (value: string) => (
-            <span className="text-sm">{dayjs(value).format("DD MMMM YYYY") }</span>
-          ),
-        },
+      label: t("created_at"),
+      accessor: "created_at",
+      width: "100px",
+      formatter: (value: string) => (
+        <span className="text-sm">{dayjs(value).format("DD MMMM YYYY")}</span>
+      ),
+    },
   ];
   // Search function
   const searchFunction = useCallback((searchValue: string) => {
@@ -128,7 +134,9 @@ const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(sear
     setSearch(value);
     debouncedSearch(value);
   };
-
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  };
   return (
     <div>
       {/* Header Section */}
@@ -143,31 +151,30 @@ const {data, isLoading} = useGetPreviousGameQuery({params: buildQueryParams(sear
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-whiteColor">{t("search_games")}</h2>
             <div className="flex gap-4">
-              {/* <div className="w-48">
+              <div className="md:w-48 w-68 flex items-center gap-2">
                 <Select value={topicFilter} onValueChange={setTopicFilter}>
                   <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                    <SelectValue placeholder={t("topic")} />
+                    <SelectValue placeholder={t("game_mode")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value='all'>{t("all")}</SelectItem>
-                    <SelectItem value='testing'>Testing</SelectItem>
-                   
+                    <SelectItem value='QUICK_GAME'>QUICK GAME</SelectItem>
+                    <SelectItem value='GRID_STYLE'>GRID STYLE</SelectItem>
+
                   </SelectContent>
                 </Select>
+                <button
+                  onClick={toggleSortOrder}
+                  className="p-2 hover:bg-gray-100 rounded-md dark:hover:bg-whiteColor/20"
+                >
+                  {sortOrder === 'asc' ? (
+                    <FaArrowUp className="w-4 h-4 text-gray-600 dark:text-whiteColor" />
+                  ) : (
+                    <FaArrowDown className="w-4 h-4 text-gray-600 dark:text-whiteColor" />
+                  )}
+                </button>
               </div>
-              <div className="w-48">
-                <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                  <SelectTrigger className='w-[180px] !h-12.5 focus-visible:ring-0'>
-                    <SelectValue placeholder={t("difficulty")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='all'>{t("all")}</SelectItem>
-                    <SelectItem value='easy'>{t("easy")}</SelectItem>
-                    <SelectItem value='medium'>{t("medium")}</SelectItem>
-                    <SelectItem value='hard'>{t("hard")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div> */}
+
               <div className="relative flex-1">
                 <input
                   value={search}

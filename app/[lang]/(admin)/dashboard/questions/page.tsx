@@ -201,7 +201,7 @@ function QuestionsPage() {
       ),
     },
     {
-      label: "Media",
+      label: t("media"),
       accessor: "question_file_url",
       width: "120px",
       formatter: (src: string) => {
@@ -405,12 +405,12 @@ function QuestionsPage() {
   };
 
   const handleEdit = (record: any) => {
-    console.log("Editing question:", record);
+    
     setIsOpen(true)
     setEditData(record)
   };
   const handleView = (record: any) => {
-    console.log("Editing question:", record);
+    
     setIsViewOpen(true)
     setEditData(record)
   };
@@ -604,7 +604,7 @@ function QuestionsPage() {
       </div>
 
       {isOpen && <AddQuestionModal isOpen={isOpen} onClose={() => setIsOpen(false)} editData={editData} />}
-        {isViewOpen && <QuestionViewDetails isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} editData={editData} />}
+        {isViewOpen && <QuestionViewDetails isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} data={editData} />}
     </div>
   );
 }
