@@ -40,7 +40,15 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'caroll-perihelial-nonnecessitously.ngrok-free.dev',
+        hostname: 'backend.inzilly.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'inzilly.com',
+      },
+       {
+        protocol: 'https',
+        hostname: 'backend.com',
       },
       {
         protocol: 'http',
