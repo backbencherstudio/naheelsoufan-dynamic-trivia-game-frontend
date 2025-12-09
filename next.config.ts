@@ -8,10 +8,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'ceremony-julian-tampa-ken.trycloudflare.com',
-      },
-      {
-        protocol: 'https',
         hostname: 'nirob.signalsmind.com',
       },
       {
