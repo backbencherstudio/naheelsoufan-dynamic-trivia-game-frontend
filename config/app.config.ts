@@ -1,12 +1,12 @@
 // server base url
 export const URL =
   process.env.NEXT_PUBLIC_API_ENDPOINT ||
-  "https://car-wash-backend.signalsmind.com";
+  "https://backend.inzilly.com";
 
 export const ImageUrl = `${process.env.NEXT_PUBLIC_API_ENDPOINT}/storage/services/`;
 export const blogImgUrl =
   process.env.NEXT_PUBLIC_API_ENDPOINT ||
-  "https://car-wash-backend.signalsmind.com";
+  "https://backend.inzilly.com";
 
 // app config
 export const AppConfig = () => ({
