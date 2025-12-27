@@ -3,8 +3,10 @@ import vectorImg from '@/public/image/vectore.svg'
 import Image from 'next/image'
 import { useState } from 'react'
 import AddQuestionModal from './AddQuestionModal'
+import useTranslation from '@/hooks/useTranslation'
 function DashboardBanner({ userinfo, lang, dict }: { userinfo: string, lang: string, dict: any }) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false) 
+    const { t } = useTranslation();
   return (
     <div className='bg-whiteColor my-10 rounded-2xl '>
       <div className=' rounded-2xl px-10 py-8 bg-primaryColor/10'>
@@ -17,10 +19,10 @@ function DashboardBanner({ userinfo, lang, dict }: { userinfo: string, lang: str
               {userinfo}
             </h4>
             <p className='text-sm text-headerColor mt-3'>
-              {dict?.if_you_are_going_to_use_a_passage_of_lorem_ipsum_you_need_to_be_sure_there_isn_t_anything}
+              {dict?.if_you_are_going_to_use_a_passage_of_lorem_ipsum_you_need_to_be_sure_there_isn_t_anything  ? dict?.if_you_are_going_to_use_a_passage_of_lorem_ipsum_you_need_to_be_sure_there_isn_t_anything : 'If you are going to use a passage of Lorem Ipsum, you need to be sure there isn’t anything embarrassing hidden in the middle of text.'}
             </p>
             <button onClick={() => setIsOpen(true)} className='text-sm cursor-pointer text-white px-3 py-1 rounded-lg bg-primaryColor mt-4'>
-              {dict?.add_questions}
+              {t('add_new_question')}
             </button>
           </div>
           <div className='max-w-[380px]'>
