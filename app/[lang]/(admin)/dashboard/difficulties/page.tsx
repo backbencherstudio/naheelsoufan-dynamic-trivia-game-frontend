@@ -102,6 +102,14 @@ useEffect(() => {
       },
     },
     {
+      label: t("No_of_questions"),
+      accessor: "questions_count",
+      width: "120px",
+      formatter: (value: number) => (
+        <span className="text-sm text-center">{value}</span>
+      ),
+    },
+    {
       label: t("actions"),
       accessor: "actions",
       width: "120px",

@@ -1,26 +1,37 @@
 "use client";
-import { TopicAddForm } from '@/components/allForm/TopicAddForm';
-import DynamicTableTwo from '@/components/common/DynamicTableTwo';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAddTopicsImportMutation, useDeleteTopicsMutation, useGetLanguagesQuery, useGetTopicsExportQuery, useGetTopicsQuery } from '@/feature/api/apiSlice';
-import { useDebounce } from '@/helper/debounce.helper';
-import { useToken } from '@/hooks/useToken';
-import useTranslation from '@/hooks/useTranslation';
-import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { TopicAddForm } from "@/components/allForm/TopicAddForm";
+import DynamicTableTwo from "@/components/common/DynamicTableTwo";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  useAddTopicsImportMutation,
+  useDeleteTopicsMutation,
+  useGetLanguagesQuery,
+  useGetTopicsExportQuery,
+  useGetTopicsQuery,
+} from "@/feature/api/apiSlice";
+import { useDebounce } from "@/helper/debounce.helper";
+import useTranslation from "@/hooks/useTranslation";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { FaPen, FaPlus } from 'react-icons/fa6';
-import { HiSearch } from 'react-icons/hi';
-import { MdCategory } from 'react-icons/md';
-import { RiDeleteBin6Line } from 'react-icons/ri';
-import { toast } from 'react-toastify';
+import { FaPen, FaPlus } from "react-icons/fa6";
+import { HiSearch } from "react-icons/hi";
+import { MdCategory } from "react-icons/md";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { toast } from "react-toastify";
 
 function TopicsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [search, setSearch] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('');
+  const [search, setSearch] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [topicsData, setTopicsData] = useState([]);
   const [paginationData, setPaginationData] = useState({});
@@ -31,46 +42,48 @@ function TopicsPage() {
   const [editData, setEditData] = useState<any | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   // API endpoint with language filtering
- const buildQueryParams = (searchValue = '') => {
-  const params = new URLSearchParams();
-  params.append('limit', itemsPerPage.toString());
-  params.append('page', currentPage.toString());
-  if (searchValue) params.append('q', searchValue);
-  if (selectedLanguage) params.append('language_id', selectedLanguage);
-  return params.toString();
-};
-  
-  const {data, isLoading, isError} = useGetTopicsQuery({params: buildQueryParams(search)})
-  const [deleteTopics] = useDeleteTopicsMutation()
-  const { data: languageData } = useGetLanguagesQuery({params:`limit=1000&page=1`});
-  const [addTopicsImport] = useAddTopicsImportMutation()
+  const buildQueryParams = (searchValue = "") => {
+    const params = new URLSearchParams();
+    params.append("limit", itemsPerPage.toString());
+    params.append("page", currentPage.toString());
+    if (searchValue) params.append("q", searchValue);
+    if (selectedLanguage) params.append("language_id", selectedLanguage);
+    return params.toString();
+  };
+
+  const { data, isLoading, isError } = useGetTopicsQuery({
+    params: buildQueryParams(search),
+  });
+  const [deleteTopics] = useDeleteTopicsMutation();
+  const { data: languageData } = useGetLanguagesQuery({
+    params: `limit=1000&page=1`,
+  });
+  const [addTopicsImport] = useAddTopicsImportMutation();
   const { data: questionExportData } = useGetTopicsExportQuery({});
   // Debounced API call function
- useEffect(()=>{
-       if(data){
-        setTopicsData(data?.data || [])
-        setPaginationData(data?.pagination || {})
-       }
- },[data])
-
+  useEffect(() => {
+    if (data) {
+      setTopicsData(data?.data || []);
+      setPaginationData(data?.pagination || {});
+    }
+  }, [data]);
 
   // Get search parameter from URL on component mount
   useEffect(() => {
-    const searchParam = searchParams.get('search');
+    const searchParam = searchParams.get("search");
     if (searchParam) {
       setSearch(searchParam);
       setCurrentPage(1);
     } else {
-      setSearch(''); // Clear search if no URL parameter
+      setSearch(""); // Clear search if no URL parameter
     }
-     const languageParam = searchParams.get('language_id');
-    setSelectedLanguage(languageParam || '');
+    const languageParam = searchParams.get("language_id");
+    setSelectedLanguage(languageParam || "");
   }, [searchParams]);
 
   // Fetch language data for the dropdown
-
 
   const handleEdit = (record: any) => {
     setEditData(record);
@@ -80,7 +93,7 @@ function TopicsPage() {
   const handleDelete = async (id: any) => {
     setDeletingId(id);
     try {
-      const response = await deleteTopics({id});
+      const response = await deleteTopics({ id });
 
       if (response?.data?.success) {
         toast.success(response?.data?.message);
@@ -124,6 +137,22 @@ function TopicsPage() {
       ),
     },
     {
+      label: t("games_played"),
+      accessor: "selection_count",
+      width: "120px",
+      formatter: (value: number) => (
+        <span className="text-sm text-center">{value}</span>
+      ),
+    },
+    {
+      label: t("No_of_questions"),
+      accessor: "questions_count",
+      width: "120px",
+      formatter: (value: number) => (
+        <span className="text-sm text-center">{value}</span>
+      ),
+    },
+    {
       label: t("icon"),
       accessor: "image",
       width: "100px",
@@ -138,13 +167,12 @@ function TopicsPage() {
         }
 
         // Check if the image_url is a valid URL or relative path
-        const isValidUrl = (
-          record.image_url.startsWith('http://') ||
-          record.image_url.startsWith('https://') ||
-          record.image_url.startsWith('/') ||
-          record.image_url.startsWith('./') ||
-          record.image_url.startsWith('../')
-        );
+        const isValidUrl =
+          record.image_url.startsWith("http://") ||
+          record.image_url.startsWith("https://") ||
+          record.image_url.startsWith("/") ||
+          record.image_url.startsWith("./") ||
+          record.image_url.startsWith("../");
 
         // If it's not a valid URL, show "Local file"
         if (!isValidUrl) {
@@ -158,7 +186,7 @@ function TopicsPage() {
         // Show the actual image
         return (
           <div className="flex items-center justify-center w-[60px]">
-            <div className='w-[60px] h-[60px]'>
+            <div className="w-[60px] h-[60px]">
               <Image
                 src={record.image_url}
                 alt="icon"
@@ -181,16 +209,20 @@ function TopicsPage() {
           <div className="flex gap-2.5">
             <button
               onClick={() => handleEdit(record)}
-              className='text-xl cursor-pointer text-grayColor1 hover:text-blue-600'
+              className="text-xl cursor-pointer text-grayColor1 hover:text-blue-600"
             >
               <FaPen />
             </button>
             <button
               onClick={() => handleDelete(record.id)}
               disabled={isDeleting}
-              className='text-xl cursor-pointer text-red-600 hover:text-red-800 disabled:opacity-50'
+              className="text-xl cursor-pointer text-red-600 hover:text-red-800 disabled:opacity-50"
             >
-              {isDeleting ? <Loader2 className='animate-spin' /> : <RiDeleteBin6Line />}
+              {isDeleting ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <RiDeleteBin6Line />
+              )}
             </button>
           </div>
         );
@@ -199,15 +231,18 @@ function TopicsPage() {
   ];
 
   // Search function
-  const searchFunction = useCallback((searchValue: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (searchValue === '') {
-      params.delete('search');
-    } else {
-      params.set('search', searchValue);
-    }
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [searchParams, router, pathname]);
+  const searchFunction = useCallback(
+    (searchValue: string) => {
+      const params = new URLSearchParams(searchParams);
+      if (searchValue === "") {
+        params.delete("search");
+      } else {
+        params.set("search", searchValue);
+      }
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, router, pathname]
+  );
 
   // Debounced search function using the reusable hook
   const debouncedSearch = useDebounce(searchFunction, 500);
@@ -220,17 +255,15 @@ function TopicsPage() {
 
   // Handle language selection
   const handleLanguageChange = (value: string) => {
-    setSelectedLanguage(value === 'all' ? '' : value);
+    setSelectedLanguage(value === "all" ? "" : value);
     const params = new URLSearchParams(searchParams);
-    if (value === 'all') {
-      params.delete('language_id');
+    if (value === "all") {
+      params.delete("language_id");
     } else {
-      params.set('language_id', value);
+      params.set("language_id", value);
     }
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
-
-
 
   const handleExportQuestions = async () => {
     setIsExporting(true);
@@ -239,8 +272,8 @@ function TopicsPage() {
       const rawArray = Array.isArray(questionExportData?.data)
         ? questionExportData.data
         : Array.isArray(questionExportData)
-          ? questionExportData
-          : null;
+        ? questionExportData
+        : null;
 
       const payload = rawArray ?? topicsData ?? [];
 
@@ -248,27 +281,31 @@ function TopicsPage() {
       const fileContents = rawArray
         ? payload
         : payload.map((q: any) => ({
-          text: q.name,
-          category_id: q.category?.id ?? q.category,
-          language_id: q.language?.id ?? q.language,
-          points: q.points,
-          answers: q.answers,
-        }));
+            text: q.name,
+            category_id: q.category?.id ?? q.category,
+            language_id: q.language?.id ?? q.language,
+            points: q.points,
+            answers: q.answers,
+          }));
 
       const jsonString = JSON.stringify(fileContents, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
+      const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = `topic_export_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `topic_export_${
+        new Date().toISOString().split("T")[0]
+      }.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      toast.success(t("topics_exported_successfully") || "Topics exported successfully");
+      toast.success(
+        t("topics_exported_successfully") || "Topics exported successfully"
+      );
     } catch (error) {
-      console.error('Error exporting questions:', error);
+      console.error("Error exporting questions:", error);
       toast.error(t("failed_to_export_topics") || "Failed to export topics");
     } finally {
       setIsExporting(false);
@@ -277,9 +314,9 @@ function TopicsPage() {
 
   const handleImportQuestions = () => {
     try {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'application/json';
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json";
       input.onchange = async (e: any) => {
         const file: File | undefined = e?.target?.files?.[0];
         if (!file) return;
@@ -289,23 +326,28 @@ function TopicsPage() {
           // Read file to validate JSON quickly (optional)
           const text = await file.text();
           let parsed: any;
-          try { parsed = JSON.parse(text); } catch { parsed = null; }
+          try {
+            parsed = JSON.parse(text);
+          } catch {
+            parsed = null;
+          }
 
           // Send as FormData (backend can accept the uploaded JSON file)
           const formData = new FormData();
-          const blob = new Blob([text], { type: 'application/json' });
-          formData.append('file', blob, file.name || 'topics.json');
+          const blob = new Blob([text], { type: "application/json" });
+          formData.append("file", blob, file.name || "topics.json");
 
-          const res = await addTopicsImport({data:formData});
+          const res = await addTopicsImport({ data: formData });
           if (res?.data?.success) {
-            toast.success(res?.data?.message || t("topics_imported_successfully"));
+            toast.success(
+              res?.data?.message || t("topics_imported_successfully")
+            );
             // Refresh list
-           
           } else {
             toast.error(res?.data?.message || t("failed_to_import_topics"));
           }
         } catch (err: any) {
-          console.error('Import error:', err);
+          console.error("Import error:", err);
           toast.error(err?.message || t("import_failed"));
         } finally {
           setIsImporting(false);
@@ -313,32 +355,36 @@ function TopicsPage() {
       };
       input.click();
     } catch (error) {
-      console.error('Error opening file dialog:', error);
+      console.error("Error opening file dialog:", error);
     }
   };
-
 
   return (
     <div>
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">{t("topic")}</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-whiteColor">
+            {t("topic")}
+          </h1>
         </div>
       </div>
       {/* Table Section */}
       <div className="border p-2 md:p-0 md:pb-6 rounded-lg pb-6">
         <div className="md:p-5 ">
           <div className="flex gap-2 flex-wrap justify-between items-center mb-6">
-            <div className='flex items-center gap-2.5'>
-              <MdCategory className='text-primaryColor' size={24} />
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">{t("topic")}</h2>
+            <div className="flex items-center gap-2.5">
+              <MdCategory className="text-primaryColor" size={24} />
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-whiteColor">
+                {t("topic")}
+              </h2>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleExportQuestions}
                 disabled={isExporting}
-                className="bg-blue-600 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                className="bg-blue-600 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
                 {isExporting ? (
                   <>
                     <Loader2 className="animate-spin w-4 h-4" />
@@ -351,7 +397,8 @@ function TopicsPage() {
               <button
                 onClick={handleImportQuestions}
                 disabled={isImporting}
-                className="bg-blue-800 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                className="bg-blue-800 text-white font-medium text-sm md:text-base rounded-md px-2 py-1 md:px-4 md:py-2 cursor-pointer hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
                 {isImporting ? (
                   <>
                     <Loader2 className="animate-spin w-4 h-4" />
@@ -361,7 +408,10 @@ function TopicsPage() {
                   t("import_topic")
                 )}
               </button>
-              <button onClick={handleAddNew} className="flex cursor-pointer items-center gap-2 px-3 py-2 md:px-4 md:py-2 bg-blue-600 text-white text-sm md:text-base rounded-lg hover:bg-blue-700 transition-colors">
+              <button
+                onClick={handleAddNew}
+                className="flex cursor-pointer items-center gap-2 px-3 py-2 md:px-4 md:py-2 bg-blue-600 text-white text-sm md:text-base rounded-lg hover:bg-blue-700 transition-colors"
+              >
                 <FaPlus />
                 {t("add_topic")}
               </button>
@@ -371,17 +421,20 @@ function TopicsPage() {
           {/* Filter and Search Section */}
           <div className="flex flex-col md:flex-row gap-4 mb-6 md:mb-3">
             <div className="md:!w-48 !w-full">
-              <Select value={selectedLanguage || 'all'} onValueChange={handleLanguageChange}>
-                <SelectTrigger className='md:!w-[180px] !w-full !h-12.5 focus-visible:ring-0'>
+              <Select
+                value={selectedLanguage || "all"}
+                onValueChange={handleLanguageChange}
+              >
+                <SelectTrigger className="md:!w-[180px] !w-full !h-12.5 focus-visible:ring-0">
                   <SelectValue placeholder={t("language")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>{t("language")}</SelectItem>
-                  {
-                    languageData?.data?.map((item: any) => (
-                      <SelectItem key={item?.id} value={item?.id}>{item?.name}</SelectItem>
-                    ))
-                  }
+                  <SelectItem value="all">{t("language")}</SelectItem>
+                  {languageData?.data?.map((item: any) => (
+                    <SelectItem key={item?.id} value={item?.id}>
+                      {item?.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -409,7 +462,13 @@ function TopicsPage() {
           loading={isLoading}
         />
       </div>
-      {isOpen && <TopicAddForm isOpen={isOpen} setIsOpen={setIsOpen} editData={editData} />}
+      {isOpen && (
+        <TopicAddForm
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          editData={editData}
+        />
+      )}
     </div>
   );
 }
